@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>ae78b8e8-a733-44a2-be63-d264c82118b7</ProjectGuid>
+    <AssemblyTitle>RandomizerCore</AssemblyTitle>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <TargetFramework>net472</TargetFramework>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Randomizers\mrugz4fw.m3v~" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\RandomizerCore&quot;" />
+  </Target>
+ </Project>
