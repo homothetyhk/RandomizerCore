@@ -27,7 +27,7 @@ namespace RandomizerCore
                 {
                     index = rng.Next(40);
                 }
-                while (costs[i] >= 6);
+                while (costs[index] >= 6);
 
                 costs[index]++;
             }

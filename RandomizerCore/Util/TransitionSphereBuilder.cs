@@ -27,10 +27,7 @@ namespace RandomizerCore
         /// </summary>
         public DirectionCounts directionCounts;
 
-        /// <summary>
-        /// Selected progression values (e.g. geo, grubs, essence) tracked at each level. Keyed by lm index.
-        /// </summary>
-        public Dictionary<int, int> tracker = new();
+        public ProgressionSnapshot snapshot;
 
         public string PrintOpenSphere()
         {
@@ -48,7 +45,7 @@ namespace RandomizerCore
             StringBuilder sb = new();
             sb.AppendLine($"CLOSED SPHERE {index}");
             sb.AppendLine($"PLACED: {string.Join(", ", placedTransitions.Select(t => t.Name))}");
-            sb.AppendLine("TRACKER: " + string.Join(", ", tracker.Select(kvp => $"{kvp.Key}: {kvp.Value}")));
+            sb.AppendLine("TRACKER:\n" + snapshot.ToString());
             sb.AppendLine("======================");
 
             return sb.ToString();
@@ -116,7 +113,7 @@ namespace RandomizerCore
         {
             TransitionSphere last = spheres[^1];
             last.placedTransitions = placed;
-            foreach (int i in trackedTerms) last.tracker[i] = pm.Get(i);
+            last.snapshot = pm.GetSnapshot();
             foreach (var t in placed) if (t.placed != State.Permanent) throw new ArgumentException($"Placed was not set on transition {t.Name}");
 
             TransitionSphere next = new();
@@ -134,7 +131,7 @@ namespace RandomizerCore
         {
             TransitionSphere sphere = spheres[^1];
             sphere.placedTransitions = placed;
-            foreach (int i in trackedTerms) sphere.tracker[i] = pm.Get(i);
+            sphere.snapshot = pm.GetSnapshot();
 
             LogDebug(sphere.PrintCloseSphere());
         }

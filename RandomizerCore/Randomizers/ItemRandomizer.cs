@@ -14,7 +14,7 @@ namespace RandomizerCore.Randomizers
 {
     public class ItemRandomizer
     {
-        readonly Random rng;
+        public readonly Random rng;
         readonly LogicManager lm;
         readonly IItemRandomizerSettings rs;
         readonly RandoContext ctx;
@@ -100,7 +100,7 @@ namespace RandomizerCore.Randomizers
             rs.PostPermuteItems(rng, items);
             rs.PostPermuteLocations(rng, locations);
 
-            items.StableSort((i, j) => i.priority - j.priority);
+            items.StableSort((i, j) => j.priority - i.priority); // items are sorted in reverse since they are immediately loaded into a stack
             locations.StableSort((i, j) => i.priority - j.priority);
         }
 

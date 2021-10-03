@@ -124,5 +124,19 @@ namespace RandomizerCore.Extensions
             return rng.Next(2) == 0;
         }
 
+        public static double PowerLaw(this Random rng, double pow, double min, double max)
+        {
+            double scaledMin = Math.Pow(min, 1 / pow);
+            double scaledMax = Math.Pow(max, 1 / pow);
+            double t = scaledMin + (scaledMax - scaledMin) * rng.NextDouble();
+            return Math.Pow(t, pow);
+        }
+
+        public static int ClampToMultipleOf(this double d, int divisor)
+        {
+            int value = (int)d;
+            value -= value % divisor;
+            return value;
+        }
     }
 }

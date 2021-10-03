@@ -67,6 +67,11 @@ namespace RandomizerCore.Logic
             obtained[index] = value;
         }
 
+        public void Set(string term, int value)
+        {
+            obtained[lm.GetTermIndex(term)] = value;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Incr(int index, int value)
         {
@@ -180,6 +185,11 @@ namespace RandomizerCore.Logic
             if (!Temp) throw new InvalidOperationException("SaveTempItems called outside of Temp!");
             Temp = false;
             AfterEndTemp?.Invoke(true);
+        }
+
+        public ProgressionSnapshot GetSnapshot()
+        {
+            return new(lm, obtained);
         }
 
         public override string ToString()

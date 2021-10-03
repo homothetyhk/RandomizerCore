@@ -24,7 +24,7 @@ namespace RandomizerCore
         /// <summary>
         /// Selected progression values (e.g. geo, grubs, essence) tracked at each level. Keyed by lm index.
         /// </summary>
-        public Dictionary<int, int> tracker = new Dictionary<int, int>();
+        public ProgressionSnapshot snapshot;
 
         public string PrintSphereOpen()
         {
@@ -77,7 +77,7 @@ namespace RandomizerCore
         {
             ItemSphere sphere = spheres[^1];
             sphere.items = items;
-            foreach (int i in trackedTerms) sphere.tracker[i] = pm.Get(i);
+            sphere.snapshot = pm.GetSnapshot();
             LogDebug(sphere.PrintSphereClose());
         }
 

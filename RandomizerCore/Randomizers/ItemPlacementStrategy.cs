@@ -24,7 +24,7 @@ namespace RandomizerCore.Randomizers
         /// <summary>
         /// If not null, invoked with the current depth and new placements.
         /// </summary>
-        public Action<int, List<ItemPlacement>> placementRecorder = null;
+        public Action<ItemSphere, List<ItemPlacement>> placementRecorder = null;
 
         public override List<ItemPlacement> Export(IList<ItemSphere> spheres)
         {
@@ -54,7 +54,7 @@ namespace RandomizerCore.Randomizers
                 }
 
                 placementRecorder?.Invoke(
-                    i,
+                    sphere,
                     placements.GetRange(placements.Count - sphere.items.Count, sphere.items.Count));
             }
 

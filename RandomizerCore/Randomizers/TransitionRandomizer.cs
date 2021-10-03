@@ -15,7 +15,7 @@ namespace RandomizerCore.Randomizers
 {
     public class TransitionRandomizer
     {
-        readonly Random rng;
+        public readonly Random rng;
         readonly LogicManager lm;
         readonly ITransitionRandomizerSettings rs;
         readonly RandoContext ctx;
@@ -118,9 +118,9 @@ namespace RandomizerCore.Randomizers
             // initialize ti first so transitions have accurate directions
             rs.PostPermuteTransitions(rng, transitions);
 
-            items.StableSort((i, j) => i.priority - j.priority);
+            items.StableSort((i, j) => j.priority - i.priority); // items are sorted in reverse since they are immediately loaded into a stack
             locations.StableSort((i, j) => i.priority - j.priority);
-            transitions.StableSort((i, j) => i.priority - j.priority);
+            transitions.StableSort((i, j) => j.priority - i.priority); // transitions are sorted in reverse since they are immediately loaded into a stack
         }
 
         private void ItemPassOne()

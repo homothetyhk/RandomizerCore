@@ -21,7 +21,7 @@ namespace RandomizerCore.Randomizers
         /// <summary>
         /// If not null, invoked with the current depth and new placements.
         /// </summary>
-        public Action<int, List<TransitionPlacement>> placementRecorder = null;
+        public Action<TransitionSphere, List<TransitionPlacement>> placementRecorder = null;
 
         public override List<TransitionPlacement> Export(TransitionInitializer ti, IList<TransitionSphere> spheres)
         {
@@ -58,7 +58,7 @@ namespace RandomizerCore.Randomizers
                     }
                 }
 
-                placementRecorder?.Invoke(i, current);
+                placementRecorder?.Invoke(sphere, current);
                 placements.AddRange(current);
                 current.Clear();
             }
@@ -81,7 +81,15 @@ namespace RandomizerCore.Randomizers
 
             if (placementRecorder != null)
             {
-                placementRecorder.Invoke(spheres.Count, current);
+                TransitionSphere fakeSphere = new()
+                {
+                    index = spheres.Count,
+                    directionCounts = spheres[^1].directionCounts,
+                    placedTransitions = new(),
+                    reachableTransitions = new(),
+                    snapshot = spheres[^1].snapshot,
+                };
+                placementRecorder.Invoke(fakeSphere, current);
             }
 
             placements.AddRange(current);
