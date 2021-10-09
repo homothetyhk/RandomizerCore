@@ -6,14 +6,9 @@ using System.Xml;
 
 namespace RandomizerCore.Logic
 {
-    public interface ILogicProcessor
-    {
-        IList<string> Shunt(string infix);
-    }
-
     public class LogicProcessor : ILogicProcessor
     {
-        readonly Dictionary<string, string[]> macros = new Dictionary<string, string[]>();
+        readonly Dictionary<string, string[]> macros = new();
 
         public LogicProcessor(Dictionary<string, string> macros)
         {
@@ -105,19 +100,19 @@ namespace RandomizerCore.Logic
             return infix.Substring(start, i - start).Trim();
         }
 
-        public static char[] SpecialCharacters = new char[]
+        public static readonly char[] SpecialCharacters = new char[]
         {
             '(', ')', '+', '|', '>', '<', '='
         };
 
         // combinators that take terms to a term
-        public static string[] LeftOpStrings = new string[]
+        public static readonly string[] LeftOpStrings = new string[]
         {
             ">", "<", "="
         };
 
         // +, | are binary infix, bool -> bool -> bool
-        public static Dictionary<string, int> Precedence = new Dictionary<string, int>
+        public static readonly Dictionary<string, int> Precedence = new()
         {
             { "|", 0 },
             { "+", 1 },

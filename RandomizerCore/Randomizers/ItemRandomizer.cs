@@ -87,7 +87,7 @@ namespace RandomizerCore.Randomizers
         {
             updater.Hook(pm);
             itemSelector = new ItemSelector(items);
-            isb = new ItemSphereBuilder(lm);
+            isb = new ItemSphereBuilder();
             isb.BuildSpheres(pm, itemSelector, rl);
             itemPlacements = ips.Export(isb.SphereList);
         }

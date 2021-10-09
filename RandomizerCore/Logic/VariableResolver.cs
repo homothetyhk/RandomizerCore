@@ -23,7 +23,6 @@ namespace RandomizerCore.Logic
             match = Regex.Match(term, @"^\$NotchCost\[(.+)\]$");
             if (match.Success)
             {
-                Log($"Matched term {term} as NotchCostInt.");
                 variable = new NotchCostInt(match.Groups[1].Value.Split(',').Select(s => int.Parse(s)).ToArray());
                 return true;
             }

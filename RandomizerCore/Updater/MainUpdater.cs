@@ -15,11 +15,9 @@ namespace RandomizerCore.Logic
         ProgressionManager pm;
         readonly HashSet<int> addEntryHelper;
         readonly HashQueue<int> updates;
-        readonly LogicManager lm;
 
         public MainUpdater(LogicManager lm)
         {
-            this.lm = lm;
             entriesByTerm = new List<UpdateEntry>[lm.TermCount];
             for (int i = 0; i < entriesByTerm.Length; i++) entriesByTerm[i] = new List<UpdateEntry>();
             individualEntries = new List<UpdateEntry>(2000);
@@ -48,11 +46,11 @@ namespace RandomizerCore.Logic
 
         public void AddEntry(UpdateEntry entry)
         {
-            foreach (int term in entry.GetTerms())
+            foreach (Term term in entry.GetTerms())
             {
-                if (addEntryHelper.Add(term))
+                if (addEntryHelper.Add(term.Id))
                 {
-                    entriesByTerm[term].Add(entry);
+                    entriesByTerm[term.Id].Add(entry);
                 }
             }
             individualEntries.Add(entry);
@@ -84,13 +82,13 @@ namespace RandomizerCore.Logic
 
         public void EnqueueUpdates(ILogicItem item)
         {
-            updates.Enqueue(item.GetAffectedTerms());
+            updates.Enqueue(item.GetAffectedTerms().Select(term => term.Id));
             DoUpdates();
         }
 
         public void EnqueueUpdates(IEnumerable<ILogicItem> items)
         {
-            updates.Enqueue(items.SelectMany(item => item.GetAffectedTerms()));
+            updates.Enqueue(items.SelectMany(item => item.GetAffectedTerms()).Select(t => t.Id));
             DoUpdates();
         }
 
@@ -222,7 +220,7 @@ namespace RandomizerCore.Logic
         public bool obtained = false;
         public virtual bool alwaysUpdate => false;
         public abstract bool CanGet(ProgressionManager pm);
-        public abstract IEnumerable<int> GetTerms();
+        public abstract IEnumerable<Term> GetTerms();
         public abstract void OnAdd(ProgressionManager pm);
         public abstract void OnRemove(ProgressionManager pm);
 

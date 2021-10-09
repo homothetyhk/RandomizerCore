@@ -140,7 +140,7 @@ namespace RandomizerCore.Randomizers
 
             firstUpdater.Hook(pm);
             itemSelector = new ItemSelector(items);
-            isb = new ItemSphereBuilder(lm);
+            isb = new ItemSphereBuilder();
             isb.BuildSpheres(pm, itemSelector, rl);
             isb.ValidateSphereCounts();
 
@@ -162,7 +162,7 @@ namespace RandomizerCore.Randomizers
 
             secondUpdater.Hook(pm);
             transitionSelector = new TransitionSelector(transitions);
-            tsb = new TransitionSphereBuilder(lm, ti);
+            tsb = new TransitionSphereBuilder(ti);
 
             tsb.BuildSpheres(pm, transitionSelector, rt);
             tsb.ValidateSphereCount();
@@ -186,7 +186,7 @@ namespace RandomizerCore.Randomizers
             updater.Hook(pm);
 
             itemSelector = new(items);
-            isb = new(lm);
+            isb = new();
             isb.BuildSpheres(pm, itemSelector, rl);
             isb.ValidateSphereCounts();
 
@@ -245,7 +245,7 @@ namespace RandomizerCore.Randomizers
 
             foreach (RandoTransition t in transitions)
             {
-                if (!pm.Has(t.lt.termIndex))
+                if (!pm.Has(t.lt.term.Id))
                 {
                     string t1 = transitionPlacements.FirstOrDefault(p => p.target == t).source?.Name;
                     throw new ValidationException($"Transition {t.Name} (source: {t1}) was not reachable.");

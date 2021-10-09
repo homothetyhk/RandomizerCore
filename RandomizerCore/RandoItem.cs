@@ -19,7 +19,7 @@ namespace RandomizerCore
             item.AddTo(pm);
         }
 
-        public IEnumerable<int> GetAffectedTerms()
+        public IEnumerable<Term> GetAffectedTerms()
         {
             return item.GetAffectedTerms();
         }

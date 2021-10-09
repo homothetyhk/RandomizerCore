@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
 using RandomizerCore.Logic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using static RandomizerCore.LogHelper;
+using RandomizerCore.Json;
+using Newtonsoft.Json.Linq;
 
 namespace RandomizerCore
 {
@@ -20,7 +19,7 @@ namespace RandomizerCore
             {
                 macros = JsonUtil.DeserializeFrom<Dictionary<string, string>>(Path.Combine(path, "macros.json")) ?? new();
                 terms = JsonUtil.DeserializeFrom<string[]>(Path.Combine(path, "terms.json")) ?? Array.Empty<string>();
-                itemTemplates = JsonUtil.DeserializeFrom<LogicItemTemplate[]>(Path.Combine(path, "items.json")) ?? Array.Empty<LogicItemTemplate>();
+                unprocessedItems = JsonUtil.DeserializeArray(Path.Combine(path, "items.json"));
                 locations = JsonUtil.DeserializeFrom<RawLogicDef[]>(Path.Combine(path, "locations.json")) ?? Array.Empty<RawLogicDef>();
                 transitions = JsonUtil.DeserializeFrom<RawLogicTransition[]>(Path.Combine(path, "transitions.json")) ?? Array.Empty<RawLogicTransition>();
                 waypoints = JsonUtil.DeserializeFrom<RawLogicDef[]>(Path.Combine(path, "waypoints.json")) ?? Array.Empty<RawLogicDef>();
@@ -37,7 +36,7 @@ namespace RandomizerCore
 
                 macros = JsonUtil.DeserializeFrom<Dictionary<string, string>>(a, set, path + "macros.json") ?? new();
                 terms = JsonUtil.DeserializeFrom<string[]>(a, set, path + "terms.json") ?? Array.Empty<string>();
-                itemTemplates = JsonUtil.DeserializeFrom<LogicItemTemplate[]>(a, set, path + "items.json") ?? Array.Empty<LogicItemTemplate>();
+                unprocessedItems = JsonUtil.DeserializeArray(a, set, path + "items.json");
                 locations = JsonUtil.DeserializeFrom<RawLogicDef[]>(a, set, path + "locations.json") ?? Array.Empty<RawLogicDef>();
                 waypoints = JsonUtil.DeserializeFrom<RawLogicDef[]>(a, set, path + "waypoints.json") ?? Array.Empty<RawLogicDef>();
                 transitions = JsonUtil.DeserializeFrom<RawLogicTransition[]>(a, set, path + "transitions.json") ?? Array.Empty<RawLogicTransition>();
@@ -45,7 +44,7 @@ namespace RandomizerCore
 
             public Dictionary<string, string> macros;
             public string[] terms;
-            public LogicItemTemplate[] itemTemplates;
+            public JArray unprocessedItems;
             public RawLogicDef[] locations;
             public RawLogicDef[] waypoints;
             public RawLogicTransition[] transitions;
@@ -75,89 +74,16 @@ namespace RandomizerCore
 
         public static LogicManager Load(LoadData ld)
         {
-            LogicProcessor lp = new LogicProcessor(ld.macros);
+            LogicProcessor lp = new(ld.macros);
 
             return new LogicManager(
                 lp,
                 ld.terms,
                 ld.locations,
-                ld.itemTemplates,
+                ld.unprocessedItems,
                 ld.waypoints,
                 ld.transitions,
                 ld.vr);
-        }
-    }
-
-    public static class JsonUtil
-    {
-        public static T Deserialize<T>(JsonTextReader jtr) where T : class
-        {
-            try
-            {
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                return null;
-            }
-        }
-
-        public static T DeserializeFrom<T>(string path) where T : class
-        {
-            try
-            {
-                if (!File.Exists(path))
-                {
-                    Log("File not found: " + path);
-                    return null;
-                }
-                using StreamReader sr = File.OpenText(path);
-                using JsonTextReader jtr = new(sr);
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                return null;
-            }
-        }
-
-        public static T DeserializeFrom<T>(Assembly a, HashSet<string> resourcePaths, string resourcePath) where T : class
-        {
-            try
-            {
-                if (!resourcePaths.Contains(resourcePath))
-                {
-                    Log("Resource not found: " + resourcePath);
-                    return null;
-                }
-                using Stream s = a.GetManifestResourceStream(resourcePath);
-                using StreamReader sr = new StreamReader(s);
-                using JsonTextReader jtr = new JsonTextReader(sr);
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                return null;
-            }
-        }
-
-
-
-        private static readonly JsonSerializer _js;
-
-        static JsonUtil()
-        {
-            _js = new JsonSerializer
-            {
-                DefaultValueHandling = DefaultValueHandling.Include,
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Auto,
-            };
-
-            _js.Converters.Add(new StringEnumConverter());
         }
     }
 

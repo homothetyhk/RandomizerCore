@@ -27,8 +27,6 @@ namespace RandomizerCore
         /// </summary>
         public DirectionCounts directionCounts;
 
-        public ProgressionSnapshot snapshot;
-
         public string PrintOpenSphere()
         {
             StringBuilder sb = new();
@@ -45,7 +43,6 @@ namespace RandomizerCore
             StringBuilder sb = new();
             sb.AppendLine($"CLOSED SPHERE {index}");
             sb.AppendLine($"PLACED: {string.Join(", ", placedTransitions.Select(t => t.Name))}");
-            sb.AppendLine("TRACKER:\n" + snapshot.ToString());
             sb.AppendLine("======================");
 
             return sb.ToString();
@@ -56,17 +53,10 @@ namespace RandomizerCore
     {
         readonly List<TransitionSphere> spheres = new List<TransitionSphere>();
         readonly TransitionInitializer ti;
-        readonly int[] trackedTerms;
-        readonly static string[] defaultTerms = new string[]
-        {
-            "GEO", "ESSENCE", "GRUBS"
-        };
 
-        public TransitionSphereBuilder(LogicManager lm, TransitionInitializer ti, string[] terms = null)
+        public TransitionSphereBuilder(TransitionInitializer ti)
         {
             this.ti = ti;
-            if (terms != null) trackedTerms = terms.Select(t => lm.GetTermIndex(t)).ToArray();
-            else trackedTerms = defaultTerms.Select(t => lm.GetTermIndex(t)).ToArray();
         }
 
         public int SphereCount => spheres.Count;
@@ -113,7 +103,6 @@ namespace RandomizerCore
         {
             TransitionSphere last = spheres[^1];
             last.placedTransitions = placed;
-            last.snapshot = pm.GetSnapshot();
             foreach (var t in placed) if (t.placed != State.Permanent) throw new ArgumentException($"Placed was not set on transition {t.Name}");
 
             TransitionSphere next = new();
@@ -131,7 +120,6 @@ namespace RandomizerCore
         {
             TransitionSphere sphere = spheres[^1];
             sphere.placedTransitions = placed;
-            sphere.snapshot = pm.GetSnapshot();
 
             LogDebug(sphere.PrintCloseSphere());
         }
@@ -140,7 +128,7 @@ namespace RandomizerCore
         {
             DirectionCounts counts = new DirectionCounts(ti);
             counts.AddRange(spheres.SelectMany(s => s.placedTransitions.Concat(s.reachableTransitions)));
-            Log(counts);
+            //Log(counts);
         }
 
         public void BuildSpheres(ProgressionManager pm, TransitionSelector selector, ReachableTransitions rt)

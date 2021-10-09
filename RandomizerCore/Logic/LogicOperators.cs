@@ -19,7 +19,7 @@ namespace RandomizerCore.Logic
 
     public static class LogicOperatorRef
     {
-        private static Dictionary<string, int> operators = new Dictionary<string, int>
+        private static readonly Dictionary<string, int> operators = new()
         {
             { "NONE", (int)LogicOperators.NONE },
             { "FALSE", (int)LogicOperators.NONE },

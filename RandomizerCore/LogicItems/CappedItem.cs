@@ -7,38 +7,22 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record CappedItem(string Name, LogicItemEffect[] Effects, LogicItemEffect Cap) : LogicItem(Name)
+    public sealed record CappedItem(string Name, TermValue[] Effects, TermValue Cap) : LogicItem(Name)
     {
         public override void AddTo(ProgressionManager pm)
         {
-            if (!pm.Has(Cap.id, Cap.incr))
+            if (!pm.Has(Cap.Term.Id, Cap.Value))
             {
                 for (int i = 0; i < Effects.Length; i++)
                 {
-                    pm.Incr(Effects[i].id, Effects[i].incr);
+                    pm.Incr(Effects[i].Term.Id, Effects[i].Value);
                 }
             }
         }
 
-        public override IEnumerable<int> GetAffectedTerms()
+        public override IEnumerable<Term> GetAffectedTerms()
         {
-            return Effects.Select(e => e.id);
-        }
-    }
-
-    public sealed class CappedItemTemplate : LogicItemTemplate
-    {
-        public ItemEffect[] effects;
-        public ItemEffect cap;
-
-        public override LogicItem ToLogicItem(ILogicManager lm)
-        {
-            return new CappedItem(name, effects.Select(e => new LogicItemEffect(e, lm)).ToArray(), new LogicItemEffect(cap, lm));
-        }
-
-        public override IEnumerable<string> GetItemFlags()
-        {
-            return effects.Select(e => e.id);
+            return Effects.Select(e => e.Term);
         }
     }
 }

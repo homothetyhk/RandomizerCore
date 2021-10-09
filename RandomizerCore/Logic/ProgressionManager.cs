@@ -69,7 +69,7 @@ namespace RandomizerCore.Logic
 
         public void Set(string term, int value)
         {
-            obtained[lm.GetTermIndex(term)] = value;
+            obtained[lm.GetTerm(term).Id] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,12 +81,12 @@ namespace RandomizerCore.Logic
 
         public int Get(string id)
         {
-            return obtained[lm.GetTermIndex(id)];
+            return obtained[lm.GetTerm(id).Id];
         }
 
         public void Incr(string id, int incr)
         {
-            obtained[lm.GetTermIndex(id)] += incr;
+            obtained[lm.GetTerm(id).Id] += incr;
         }
 
         /// <summary>

@@ -7,28 +7,20 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore.Logic
 {
-    public interface ILogicDef
-    {
-        string Name { get; }
-        bool CanGet(ProgressionManager pm);
-        IEnumerable<int> GetTerms();
-    }
-
     public class LogicDef : ILogicDef
     {
-        public LogicDef(string Name, int[] logic, LogicManager lm)
+        public LogicDef(string Name, string RawLogic, int[] logic, LogicManager lm)
         {
             this.Name = Name;
-            this.logic = logic;
+            this.RawLogic = RawLogic;
             this.lm = lm;
+            this.logic = logic;
         }
 
         public string Name { get; }
+        public string RawLogic { get; }
         private readonly int[] logic;
         private readonly LogicManager lm;
-
-        public static int logicEvaluations = 0;
-        public static Stopwatch stopwatch = new();
 
         // recycling the stack saves approx 0.03s in 129000 calls of CanGet (i.e. standard preset)
         // we don't ever clear the stack -- this causes no issues if all logic has correct syntax.
@@ -36,9 +28,7 @@ namespace RandomizerCore.Logic
 
         public bool CanGet(ProgressionManager pm)
         {
-            logicEvaluations++;
             if (logic == null || logic.Length == 0) return true;
-            stopwatch.Start();
 
             for (int i = 0; i < logic.Length; i++)
             {
@@ -88,7 +78,6 @@ namespace RandomizerCore.Logic
                         break;
                 }
             }
-            stopwatch.Stop();
 
             return stack.Pop();
         }
@@ -96,7 +85,7 @@ namespace RandomizerCore.Logic
         /// <summary>
         /// Enumerates the terms of the LogicDef, excluding operators and combinators. May contain duplicates.
         /// </summary>
-        public IEnumerable<int> GetTerms()
+        public IEnumerable<Term> GetTerms()
         {
             for (int i = 0; i < logic.Length; i++)
             {
@@ -112,17 +101,17 @@ namespace RandomizerCore.Logic
                     case (int)LogicOperators.EQ:
                         {
                             int left = logic[++i];
-                            if (left >= 0) yield return left;
-                            else foreach (int j in lm.GetVariable(left).GetTerms()) yield return j;
+                            if (left >= 0) yield return lm.GetTerm(left);
+                            else foreach (Term t in lm.GetVariable(left).GetTerms()) yield return t;
                             int right = logic[++i];
-                            if (right >= 0) yield return right;
-                            else foreach (int j in lm.GetVariable(right).GetTerms()) yield return j;
+                            if (right >= 0) yield return lm.GetTerm(right);
+                            else foreach (Term t in lm.GetVariable(right).GetTerms()) yield return t;
                         }
                         break;
                     default:
                         {
-                            if (logic[i] >= 0) yield return logic[i];
-                            else foreach (int j in lm.GetVariable(logic[i]).GetTerms()) yield return j;
+                            if (logic[i] >= 0) yield return lm.GetTerm(logic[i]);
+                            else foreach (Term t in lm.GetVariable(logic[i]).GetTerms()) yield return t;
                         }
                         break;
                 }

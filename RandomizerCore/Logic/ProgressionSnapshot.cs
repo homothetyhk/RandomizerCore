@@ -30,7 +30,7 @@ namespace RandomizerCore.Logic
 
         public int Get(string id)
         {
-            return obtained[lm.GetTermIndex(id)];
+            return obtained[lm.GetTerm(id).Id];
         }
 
         /// <summary>

@@ -6,23 +6,6 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
-    public readonly struct LogicItemEffect
-    {
-        public LogicItemEffect(ItemEffect effect, ILogicManager lm)
-        {
-            this.id = lm.GetTermIndex(effect.id);
-            this.incr = effect.incr;
-        }
-
-        public LogicItemEffect(int id, int incr)
-        {
-            this.id = id;
-            this.incr = incr;
-        }
-
-        public readonly int id;
-        public readonly int incr;
-    }
 
     /// <summary>
     /// Interface used by items and itemlikes (transitions, waypoints).
@@ -39,7 +22,7 @@ namespace RandomizerCore
         /// <summary>
         /// Returns the pm indices potentially modified by the item.
         /// </summary>
-        IEnumerable<int> GetAffectedTerms();
+        IEnumerable<Term> GetAffectedTerms();
     }
 
     public interface IRemovableItem
@@ -54,6 +37,6 @@ namespace RandomizerCore
         /// <summary>
         /// Returns the pm indices potentially modified by the item.
         /// </summary>
-        public abstract IEnumerable<int> GetAffectedTerms();
+        public abstract IEnumerable<Term> GetAffectedTerms();
     }    
 }

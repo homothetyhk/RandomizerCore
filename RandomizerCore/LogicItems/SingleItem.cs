@@ -7,36 +7,21 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record SingleItem(string Name, LogicItemEffect Effect) : LogicItem(Name), IRemovableItem
+    public sealed record SingleItem(string Name, TermValue Effect) : LogicItem(Name), IRemovableItem
     {
         public override void AddTo(ProgressionManager pm)
         {
-            pm.Incr(Effect.id, Effect.incr);
+            pm.Incr(Effect.Term.Id, Effect.Value);
         }
 
         public void RemoveFrom(ProgressionManager pm)
         {
-            pm.Incr(Effect.id, -Effect.incr);
+            pm.Incr(Effect.Term.Id, Effect.Value);
         }
 
-        public override IEnumerable<int> GetAffectedTerms()
+        public override IEnumerable<Term> GetAffectedTerms()
         {
-            yield return Effect.id;
-        }
-    }
-
-    public sealed class SingleItemTemplate : LogicItemTemplate
-    {
-        public ItemEffect effect;
-
-        public override LogicItem ToLogicItem(ILogicManager lm)
-        {
-            return new SingleItem(name, new LogicItemEffect(effect, lm));
-        }
-
-        public override IEnumerable<string> GetItemFlags()
-        {
-            yield return effect.id;
+            yield return Effect.Term;
         }
     }
 }

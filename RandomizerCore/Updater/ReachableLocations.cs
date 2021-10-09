@@ -56,7 +56,7 @@ namespace RandomizerCore.Logic
                 return location.CanGet(pm);
             }
 
-            public override IEnumerable<int> GetTerms()
+            public override IEnumerable<Term> GetTerms()
             {
                 return location.GetTerms();
             }

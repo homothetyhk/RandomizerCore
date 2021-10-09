@@ -35,7 +35,7 @@ namespace RandomizerCore
             return ((ILogicDef)lt).CanGet(pm);
         }
 
-        public IEnumerable<int> GetTerms()
+        public IEnumerable<Term> GetTerms()
         {
             return ((ILogicDef)lt).GetTerms();
         }
@@ -45,7 +45,7 @@ namespace RandomizerCore
             ((ILogicItem)lt).AddTo(pm);
         }
 
-        IEnumerable<int> ILogicItem.GetAffectedTerms()
+        IEnumerable<Term> ILogicItem.GetAffectedTerms()
         {
             return lt.GetAffectedTerms();
         }

@@ -64,7 +64,7 @@ namespace RandomizerCore
 
             public override bool CanGet(ProgressionManager pm) => transition.CanGet(pm);
 
-            public override IEnumerable<int> GetTerms() => ((ILogicDef)transition).GetTerms();
+            public override IEnumerable<Term> GetTerms() => ((ILogicDef)transition).GetTerms();
 
             public override void OnAdd(ProgressionManager pm)
             {

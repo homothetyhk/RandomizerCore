@@ -43,7 +43,7 @@ namespace RandomizerCore
             return logic.CanGet(pm);
         }
 
-        public IEnumerable<int> GetTerms()
+        public IEnumerable<Term> GetTerms()
         {
             var query = logic.GetTerms();
             if (costs != null)
@@ -57,7 +57,6 @@ namespace RandomizerCore
         {
             if (costs == null) costs = new List<LogicCost>();
             costs.Add(cost);
-            Log($"Added cost {cost} to location {Name}");
         }
 
         public RandoLocation Clone()

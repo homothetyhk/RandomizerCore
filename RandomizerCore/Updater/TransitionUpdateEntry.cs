@@ -26,7 +26,7 @@ namespace RandomizerCore
             return source.CanGet(pm);
         }
 
-        public override IEnumerable<int> GetTerms()
+        public override IEnumerable<Term> GetTerms()
         {
             return ((ILogicDef)source).GetTerms().Concat(((ILogicDef)target).GetTerms());
         }

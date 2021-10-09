@@ -87,7 +87,6 @@ namespace RandomizerCore.Randomizers
                     directionCounts = spheres[^1].directionCounts,
                     placedTransitions = new(),
                     reachableTransitions = new(),
-                    snapshot = spheres[^1].snapshot,
                 };
                 placementRecorder.Invoke(fakeSphere, current);
             }

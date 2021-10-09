@@ -6,51 +6,43 @@ using System.Threading.Tasks;
 
 namespace RandomizerCore.Logic
 {
-    public readonly struct RawLogicTransition
-    {
-        [Newtonsoft.Json.JsonConstructor]
-        public RawLogicTransition(string sceneName, string gateName, string logic, OneWayType oneWayType)
-        {
-            this.sceneName = sceneName;
-            this.gateName = gateName;
-            this.logic = logic;
-            this.oneWayType = oneWayType;
-        }
-
-        public string Name => $"{sceneName}[{gateName}]";
-        public readonly string sceneName;
-        public readonly string gateName;
-        public readonly string logic;
-        public readonly OneWayType oneWayType;
-    }
-
     public class LogicTransition : ILogicItem, ILogicDef
     {
-        public LogicTransition(RawLogicTransition raw, int termIndex, LogicDef logic)
+        public LogicTransition(RawLogicTransition raw, Term term, LogicDef logic)
         {
             this.logic = logic;
             this.sceneName = raw.sceneName;
             this.gateName = raw.gateName;
             this.oneWayType = raw.oneWayType;
-            this.termIndex = termIndex;
+            this.term = term;
         }
 
+        [Newtonsoft.Json.JsonConstructor]
+        public LogicTransition(LogicDef logic, string sceneName, string gateName, OneWayType oneWayType, Term term)
+        {
+            this.logic = logic;
+            this.sceneName = sceneName;
+            this.gateName = gateName;
+            this.oneWayType = oneWayType;
+            this.term = term;
+        }
 
+        [Newtonsoft.Json.JsonIgnore]
         public string Name => logic.Name;
 
         public readonly LogicDef logic;
         public readonly string sceneName;
         public readonly string gateName;
         public readonly OneWayType oneWayType;
-        public readonly int termIndex;
+        public readonly Term term;
 
 
         public bool CanGet(ProgressionManager pm) => logic.CanGet(pm);
-        public IEnumerable<int> GetTerms() => logic.GetTerms();
-        void ILogicItem.AddTo(ProgressionManager pm) => pm.Set(termIndex, 1);
-        public IEnumerable<int> GetAffectedTerms()
+        public IEnumerable<Term> GetTerms() => logic.GetTerms();
+        void ILogicItem.AddTo(ProgressionManager pm) => pm.Set(term.Id, 1);
+        public IEnumerable<Term> GetAffectedTerms()
         {
-            yield return termIndex;
+            yield return term;
         }
     }
 }

@@ -21,28 +21,10 @@ namespace RandomizerCore.LogicItems
             }
         }
 
-        public override IEnumerable<int> GetAffectedTerms()
+        public override IEnumerable<Term> GetAffectedTerms()
         {
-            return (TrueItem?.GetAffectedTerms() ?? Enumerable.Empty<int>())
-                .Concat(FalseItem?.GetAffectedTerms() ?? Enumerable.Empty<int>());
-        }
-    }
-
-
-    public sealed class BranchedItemTemplate : LogicItemTemplate
-    {
-        public string logic;
-        public LogicItemTemplate trueItem;
-        public LogicItemTemplate falseItem;
-
-        public override LogicItem ToLogicItem(ILogicManager lm)
-        {
-            return new BranchedItem(name, lm.FromString(new RawLogicDef(name, logic)), trueItem.ToLogicItem(lm), falseItem.ToLogicItem(lm));
-        }
-
-        public override IEnumerable<string> GetItemFlags()
-        {
-            return (trueItem?.GetItemFlags() ?? Enumerable.Empty<string>()).Concat(falseItem?.GetItemFlags() ?? Enumerable.Empty<string>());
+            return (TrueItem?.GetAffectedTerms() ?? Enumerable.Empty<Term>())
+                .Concat(FalseItem?.GetAffectedTerms() ?? Enumerable.Empty<Term>());
         }
     }
 }

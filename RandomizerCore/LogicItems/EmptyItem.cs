@@ -16,22 +16,9 @@ namespace RandomizerCore.LogicItems
             return;
         }
 
-        public override IEnumerable<int> GetAffectedTerms()
+        public override IEnumerable<Term> GetAffectedTerms()
         {
-            return Enumerable.Empty<int>();
-        }
-    }
-
-    public class EmptyItemTemplate : LogicItemTemplate
-    {
-        public override IEnumerable<string> GetItemFlags()
-        {
-            return Enumerable.Empty<string>();
-        }
-
-        public override LogicItem ToLogicItem(ILogicManager lm)
-        {
-            return new EmptyItem(name);
+            return Enumerable.Empty<Term>();
         }
     }
 }

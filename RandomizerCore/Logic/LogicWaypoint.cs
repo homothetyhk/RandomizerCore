@@ -7,23 +7,23 @@ namespace RandomizerCore.Logic
 {
     public class LogicWaypoint : ILogicDef, ILogicItem
     {
-        public LogicWaypoint(int id, LogicDef logic)
+        public LogicWaypoint(Term term, LogicDef logic)
         {
             this.logic = logic;
-            this.id = id;
+            this.term = term;
         }
 
         public readonly LogicDef logic;
-        public readonly int id;
+        public readonly Term term;
 
         public void AddTo(ProgressionManager pm)
         {
-            pm.Set(id, 1);
+            pm.Set(term.Id, 1);
         }
 
-        public IEnumerable<int> GetAffectedTerms()
+        public IEnumerable<Term> GetAffectedTerms()
         {
-            yield return id;
+            yield return term;
         }
 
         public string Name => logic.Name;
@@ -33,7 +33,7 @@ namespace RandomizerCore.Logic
             return logic.CanGet(pm);
         }
 
-        public IEnumerable<int> GetTerms()
+        public IEnumerable<Term> GetTerms()
         {
             return logic.GetTerms();
         }

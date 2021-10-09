@@ -21,10 +21,6 @@ namespace RandomizerCore
         /// The locations newly unlocked at this sphere by the items of all previous spheres.
         /// </summary>
         public List<RandoLocation> locations;
-        /// <summary>
-        /// Selected progression values (e.g. geo, grubs, essence) tracked at each level. Keyed by lm index.
-        /// </summary>
-        public ProgressionSnapshot snapshot;
 
         public string PrintSphereOpen()
         {
@@ -47,21 +43,14 @@ namespace RandomizerCore
     public class ItemSphereBuilder
     {
         readonly List<ItemSphere> spheres = new();
-        readonly int[] trackedTerms;
-        readonly static string[] defaultTerms = new string[]
-        {
-            "GEO", "ESSENCE", "GRUBS"
-        };
 
         public List<ItemSphere> SphereList => spheres;
 
         public int SphereCount => spheres.Count;
         public ItemSphere LastSphere => spheres[^1];
 
-        public ItemSphereBuilder(LogicManager lm, string[] terms = null)
+        public ItemSphereBuilder()
         {
-            if (terms != null) trackedTerms = terms.Select(t => lm.GetTermIndex(t)).ToArray();
-            else trackedTerms = defaultTerms.Select(t => lm.GetTermIndex(t)).ToArray();
         }
 
         public void OpenSphere(List<RandoLocation> locations)
@@ -77,7 +66,6 @@ namespace RandomizerCore
         {
             ItemSphere sphere = spheres[^1];
             sphere.items = items;
-            sphere.snapshot = pm.GetSnapshot();
             LogDebug(sphere.PrintSphereClose());
         }
 
