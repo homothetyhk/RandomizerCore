@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace RandomizerCore.Logic
 {
     public class LogicWaypoint : ILogicDef, ILogicItem
     {
-        public LogicWaypoint(Term term, LogicDef logic)
+        public LogicWaypoint(Term term, OptimizedLogicDef logic)
         {
             this.logic = logic;
             this.term = term;
         }
 
-        public readonly LogicDef logic;
+        public readonly OptimizedLogicDef logic;
         public readonly Term term;
 
         public void AddTo(ProgressionManager pm)

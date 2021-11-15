@@ -39,7 +39,7 @@ namespace RandomizerCore.Randomizers
             this.rs = rs;
             this.ctx = ctx;
             this.rm = rm ??= new();
-            this.lm = rs.LM;
+            this.lm = ctx.LM;
             rng = new Random(rs.Seed);
 
             rm.SendEvent(RandoEventType.Initializing);

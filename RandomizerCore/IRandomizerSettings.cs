@@ -13,7 +13,7 @@ namespace RandomizerCore
     /// </summary>
     public interface IRandomizerSettings
     {
-        LogicManager LM { get; }
+        //LogicManager LM { get; }
 
         void Initialize(Random rng);
 

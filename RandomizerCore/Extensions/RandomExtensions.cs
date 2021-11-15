@@ -7,6 +7,13 @@ namespace RandomizerCore.Extensions
 {
     public static class RandomExtensions
     {
+        public static T Pop<T>(this List<T> list)
+        {
+            T val = list[^1];
+            list.RemoveAt(list.Count - 1);
+            return val;
+        }
+
         public static T Pop<T>(this IList<T> list, int index = 0)
         {
             T val = list[index];

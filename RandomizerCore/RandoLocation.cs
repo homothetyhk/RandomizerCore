@@ -4,34 +4,17 @@ using System.Linq;
 using System.Text;
 using static RandomizerCore.LogHelper;
 using RandomizerCore.Logic;
+using Newtonsoft.Json;
 
 namespace RandomizerCore
 {
-    public readonly struct ItemPlacement
-    {
-        public readonly RandoItem item;
-        public readonly RandoLocation location;
-        
-
-        public ItemPlacement(RandoItem item, RandoLocation location)
-        {
-            this.item = item;
-            this.location = location;
-        }
-
-        public void Deconstruct(out RandoItem item, out RandoLocation location)
-        {
-            item = this.item;
-            location = this.location;
-        }
-    }
-
     public class RandoLocation : ILogicDef
     {
-        public LogicDef logic;
+        public OptimizedLogicDef logic;
         public List<LogicCost> costs;
         public int priority;
 
+        [JsonIgnore]
         public string Name => logic.Name;
 
         public bool CanGet(ProgressionManager pm)

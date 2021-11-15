@@ -47,7 +47,7 @@ namespace RandomizerCore.Randomizers
         public TransitionRandomizer(ITransitionRandomizerSettings rs, RandoContext ctx, RandoMonitor rm = null)
         {
             this.rs = rs;
-            this.lm = rs.LM;
+            this.lm = ctx.LM;
             this.ctx = ctx;
             this.rm = rm ??= new();
             rng = new Random(rs.Seed);

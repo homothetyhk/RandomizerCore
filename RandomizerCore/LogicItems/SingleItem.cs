@@ -16,7 +16,7 @@ namespace RandomizerCore.LogicItems
 
         public void RemoveFrom(ProgressionManager pm)
         {
-            pm.Incr(Effect.Term.Id, Effect.Value);
+            pm.Incr(Effect.Term.Id, -Effect.Value);
         }
 
         public override IEnumerable<Term> GetAffectedTerms()

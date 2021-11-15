@@ -8,18 +8,18 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore.Json
 {
-    public class LogicDefConverter : JsonConverter<LogicDef>
+    public class LogicDefConverter : JsonConverter<OptimizedLogicDef>
     {
         public ILogicManager LM;
 
-        public override LogicDef ReadJson(JsonReader reader, Type objectType, LogicDef existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override OptimizedLogicDef ReadJson(JsonReader reader, Type objectType, OptimizedLogicDef existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             return LM.FromString(serializer.Deserialize<RawLogicDef>(reader));
         }
 
-        public override void WriteJson(JsonWriter writer, LogicDef value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, OptimizedLogicDef value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, new RawLogicDef(value.Name, value.RawLogic));
+            serializer.Serialize(writer, new RawLogicDef(value.Name, value.ToInfix()));
         }
     }
 }

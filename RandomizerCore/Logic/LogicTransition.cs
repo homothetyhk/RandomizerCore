@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RandomizerCore.Logic
 {
     public class LogicTransition : ILogicItem, ILogicDef
     {
-        public LogicTransition(RawLogicTransition raw, Term term, LogicDef logic)
+        public LogicTransition(RawLogicTransition raw, Term term, OptimizedLogicDef logic)
         {
             this.logic = logic;
             this.sceneName = raw.sceneName;
@@ -17,8 +14,8 @@ namespace RandomizerCore.Logic
             this.term = term;
         }
 
-        [Newtonsoft.Json.JsonConstructor]
-        public LogicTransition(LogicDef logic, string sceneName, string gateName, OneWayType oneWayType, Term term)
+        [JsonConstructor]
+        public LogicTransition(OptimizedLogicDef logic, string sceneName, string gateName, OneWayType oneWayType, Term term)
         {
             this.logic = logic;
             this.sceneName = sceneName;
@@ -27,10 +24,10 @@ namespace RandomizerCore.Logic
             this.term = term;
         }
 
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public string Name => logic.Name;
 
-        public readonly LogicDef logic;
+        public readonly OptimizedLogicDef logic;
         public readonly string sceneName;
         public readonly string gateName;
         public readonly OneWayType oneWayType;

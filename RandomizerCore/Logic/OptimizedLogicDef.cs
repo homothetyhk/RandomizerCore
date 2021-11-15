@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using static RandomizerCore.LogHelper;
+using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
 {
-    public class LogicDef : ILogicDef
+    public class OptimizedLogicDef : ILogicDef
     {
-        public LogicDef(string Name, string RawLogic, int[] logic, LogicManager lm)
+        public OptimizedLogicDef(string Name, int[] logic, LogicManager lm)
         {
+            if (logic == null || logic.Length == 0) throw new ArgumentException($"Invalid logic array passed to OptimizedLogicDef for {Name}");
+
             this.Name = Name;
-            this.RawLogic = RawLogic;
             this.lm = lm;
             this.logic = logic;
         }
 
         public string Name { get; }
-        public string RawLogic { get; }
         private readonly int[] logic;
         private readonly LogicManager lm;
 
@@ -28,7 +25,7 @@ namespace RandomizerCore.Logic
 
         public bool CanGet(ProgressionManager pm)
         {
-            if (logic == null || logic.Length == 0) return true;
+            if (logic == null || logic.Length == 0) throw new InvalidOperationException($"Invalid logic array found in OptimizedLogicDef for {Name}");
 
             for (int i = 0; i < logic.Length; i++)
             {
@@ -117,5 +114,69 @@ namespace RandomizerCore.Logic
                 }
             }
         }
+
+        public LogicClauseBuilder ToLogicClauseBuilder()
+        {
+            LogicClauseBuilder lcb = new();
+            for (int i = 0; i < logic.Length; i++)
+            {
+                switch (logic[i])
+                {
+                    case (int)LogicOperators.NONE:
+                        lcb.Append(ConstToken.False);
+                        break;
+                    case (int)LogicOperators.ANY:
+                        lcb.Append(ConstToken.True);
+                        break;
+                    case (int)LogicOperators.OR:
+                        lcb.Append(OperatorToken.OR);
+                        break;
+                    case (int)LogicOperators.AND:
+                        lcb.Append(OperatorToken.AND);
+                        break;
+                    case (int)LogicOperators.EQ:
+                        {
+                            GetComparisonStrings(ref i, out string left, out string right);
+                            lcb.Append(lm.LP.GetComparisonToken(ComparisonType.EQ, left, right)); // TODO: use token pool
+                        }
+                        break;
+                    case (int)LogicOperators.LT:
+                        {
+                            GetComparisonStrings(ref i, out string left, out string right);
+                            lcb.Append(lm.LP.GetComparisonToken(ComparisonType.LT, left, right));
+                        }
+                        break;
+                    case (int)LogicOperators.GT:
+                        {
+                            GetComparisonStrings(ref i, out string left, out string right);
+                            lcb.Append(lm.LP.GetComparisonToken(ComparisonType.GT, left, right));
+                        }
+                        break;
+                    default:
+                        lcb.Append(lm.LP.GetTermToken(logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name)); // TODO: use token pool
+                        break;
+                }
+            }
+            return lcb;
+        }
+
+        public LogicClause ToLogicClause()
+        {
+            return new(ToLogicClauseBuilder());
+        }
+
+        public string ToInfix()
+        {
+            return ToLogicClauseBuilder().ToInfix();
+        }
+
+        private void GetComparisonStrings(ref int i, out string left, out string right)
+        {
+            i++;
+            left = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
+            i++;
+            right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
+        }
+
     }
 }

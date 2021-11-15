@@ -90,7 +90,7 @@ namespace RandomizerCore.Logic
         }
 
         /// <summary>
-        /// /// Returns true if the value at the index is greater than or equal to 0.
+        /// Returns true if the value at the index is positive.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Has(int index)
