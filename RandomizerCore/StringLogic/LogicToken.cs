@@ -52,7 +52,7 @@ namespace RandomizerCore.StringLogic
         }
     }
 
-    public record MacroToken(string Name, LogicClause Value) : TermToken
+    public record MacroToken(string Name, IMacroSource Source) : TermToken
     {
         public override string Write() => Name;
     }

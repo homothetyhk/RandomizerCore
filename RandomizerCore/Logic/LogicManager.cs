@@ -51,7 +51,7 @@ namespace RandomizerCore.Logic
             serializer.Serialize(writer, value.ItemLookup.Values);
 
             writer.WritePropertyName("Transitions");
-            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => new RawLogicTransition(t.sceneName, t.gateName, t.logic.ToInfix(), t.oneWayType)));
+            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => t.ToRaw()));
 
             writer.WritePropertyName("Waypoints");
             serializer.Serialize(writer, value.Waypoints.Select(w => new RawLogicDef(w.Name, w.logic.ToInfix())));
@@ -116,20 +116,20 @@ namespace RandomizerCore.Logic
 
             // Logic
             _logicDefs = new(source.LogicLookup.Count);
-            foreach (var kvp in source.LogicLookup)
+            foreach (KeyValuePair<string, LogicClause> kvp in source.LogicLookup)
             {
                 _logicDefs.Add(kvp.Key, FromTokens(kvp.Key, kvp.Value));
             }
             LogicLookup = new(_logicDefs);
 
             // Waypoints
-            Waypoints = new(source.Waypoints.Select(kvp => new LogicWaypoint(_termLookup[kvp.Key], _logicDefs[kvp.Key])).ToArray());
+            Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(_termLookup[name], _logicDefs[name])).ToArray());
 
             // Transitions
             _transitions = new(source.Transitions.Count);
-            foreach (var kvp in source.Transitions)
+            foreach (LogicTransitionData data in source.Transitions)
             {
-                _transitions.Add(kvp.Key, new LogicTransition(kvp.Value, _termLookup[kvp.Key], _logicDefs[kvp.Key]));
+                _transitions.Add(data.Name, new LogicTransition(_logicDefs[data.Name], data, _termLookup[data.Name]));
             }
             TransitionLookup = new(_transitions);
 
@@ -288,7 +288,7 @@ namespace RandomizerCore.Logic
             }
             else if (lt is MacroToken mt)
             {
-                foreach (var tt in mt.Value) ApplyToken(logic, tt);
+                foreach (var tt in mt.Source.GetMacro(mt.Name)) ApplyToken(logic, tt);
             }
             else if (lt is SimpleToken st)
             {

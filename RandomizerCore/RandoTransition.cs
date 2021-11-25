@@ -57,8 +57,8 @@ namespace RandomizerCore
         public State reachable;
         public State placed;
 
-        public bool IsSourceTransition => lt.oneWayType != OneWayType.OneWayOut;
-        public bool IsTargetTransition => lt.oneWayType != OneWayType.OneWayIn;
+        public bool IsSourceTransition => lt.data.OneWayType != OneWayType.OneWayOut;
+        public bool IsTargetTransition => lt.data.OneWayType != OneWayType.OneWayIn;
 
         public int dir;
         public int targetDir;

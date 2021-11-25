@@ -14,7 +14,7 @@ namespace RandomizerCore.StringLogic
             return Tokenize(infix, null);
         }
 
-        public static List<LogicToken> Tokenize(string infix, Dictionary<string, LogicToken> tokenPool)
+        public static List<LogicToken> Tokenize(string infix, ITokenSource tokenSource)
         {
             int i = 0;
             Stack<string> operatorStack = new();
@@ -86,28 +86,12 @@ namespace RandomizerCore.StringLogic
                             string op = postfix[j];
                             string left = postfix[++j];
                             string right = postfix[++j];
-                            if (tokenPool != null && tokenPool.TryGetValue($"{left}{op}{right}", out LogicToken t))
-                            {
-                                output.Add(t);
-                            }
-                            else
-                            {
-                                output.Add(new ComparisonToken(ComparerEnum[op], left, right));
-                                if (tokenPool != null) tokenPool[$"{left}{op}{right}"] = output[^1];
-                            }
+                            output.Add(tokenSource.GetComparisonToken(ComparerEnum[op], left, right));
                         }
                         break;
                     default:
                         {
-                            if (tokenPool != null && tokenPool.TryGetValue(postfix[j], out LogicToken t))
-                            {
-                                output.Add(t);
-                            }
-                            else
-                            {
-                                output.Add(new SimpleToken(postfix[j]));
-                                if (tokenPool != null) tokenPool[postfix[j]] = output[^1];
-                            }
+                            output.Add(tokenSource.GetTermToken(postfix[j]));
                         }
                         break;
                 }

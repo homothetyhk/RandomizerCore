@@ -75,7 +75,7 @@ namespace RandomizerCore
 
             if (matched)
             {
-                foreach (var t in ts.Where(t => t.lt.gateName[0] == 'd'))
+                foreach (var t in ts.Where(t => t.lt.data.GateName[0] == 'd'))
                 {
                     SetDoorDirection(t);
                 }
@@ -107,13 +107,13 @@ namespace RandomizerCore
 
         private void SetTransitionDirection(RandoTransition t)
         {
-            if (t.lt.oneWayType == OneWayType.OneWayIn)
+            if (t.lt.data.OneWayType == OneWayType.OneWayIn)
             {
                 t.dir = oneWayIn;
                 t.targetDir = oneWayOut;
                 totalCounts[oneWayIn]++;
             }
-            else if (t.lt.oneWayType == OneWayType.OneWayOut)
+            else if (t.lt.data.OneWayType == OneWayType.OneWayOut)
             {
                 t.dir = oneWayOut;
                 t.targetDir = oneWayIn;
@@ -126,7 +126,7 @@ namespace RandomizerCore
             }
             else
             {
-                switch (t.lt.gateName[0])
+                switch (t.lt.data.GateName[0])
                 {
                     case 't':
                         t.dir = top;

@@ -6,21 +6,25 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore.StringLogic
 {
-    public class LogicProcessor
+    public class LogicProcessor : ITokenSource, IMacroSource
     {
+        private static readonly Dictionary<string, LogicToken> globalTokens = new()
+        {
+            { "TRUE", ConstToken.True },
+            { "ANY", ConstToken.True },
+            { "FALSE", ConstToken.False },
+            { "NONE", ConstToken.False },
+            { OperatorToken.AND.Symbol, OperatorToken.AND },
+            { OperatorToken.OR.Symbol, OperatorToken.OR },
+            { "ORIG", new SimpleToken("ORIG") },
+        };
         private readonly Dictionary<string, LogicToken> tokenPool;
+        private readonly Dictionary<string, LogicClause> macros;
 
         public LogicProcessor() 
         {
-            tokenPool = new()
-            {
-                { "TRUE", ConstToken.True },
-                {  "ANY", ConstToken.True },
-                { "FALSE", ConstToken.False },
-                { "NONE", ConstToken.False },
-                { OperatorToken.AND.Symbol, OperatorToken.AND },
-                { OperatorToken.OR.Symbol, OperatorToken.OR },
-            };
+            tokenPool = new();
+            macros = new();
         }
 
         public void LogSelf()
@@ -31,25 +35,28 @@ namespace RandomizerCore.StringLogic
             Log("End of token pool contents.");
         }
 
-        public void SetMacro(Dictionary<string, string> macros)
+        public void SetMacro(Dictionary<string, string> newMacros)
         {
-            if (macros == null) return;
-            foreach (var kvp in macros) tokenPool[kvp.Key] = new MacroToken(kvp.Key, new(kvp.Value, tokenPool));
+            if (newMacros == null) return;
+            foreach (var kvp in newMacros)
+            {
+                SetMacro(kvp);
+            }
         }
-
-        public void SetMacro(string key, string infix)
-        {
-            tokenPool[key] = new MacroToken(key, new(infix, tokenPool));
-        }
-
+        public void SetMacro(string key, string infix) => SetMacro(key, ParseInfixToClause(infix));
+        public void SetMacro(KeyValuePair<string, string> kvp) => SetMacro(kvp.Key, ParseInfixToClause(kvp.Value));
         public void SetMacro(string key, LogicClause c)
         {
-            tokenPool[key] = new MacroToken(key, c);
+            macros[key] = c;
+            if (!tokenPool.TryGetValue(key, out LogicToken lt) || lt is not MacroToken)
+            {
+                tokenPool[key] = new MacroToken(key, this);
+            }
         }
 
-        public void SetMacro(KeyValuePair<string, string> kvp)
+        public LogicClause GetMacro(string name)
         {
-            tokenPool[kvp.Key] = new MacroToken(kvp.Key, new(kvp.Value, tokenPool));
+            return macros[name];
         }
 
         public ComparisonToken GetComparisonToken(ComparisonType comparisonType, string left, string right)
@@ -73,7 +80,7 @@ namespace RandomizerCore.StringLogic
 
         public TermToken GetTermToken(string name)
         {
-            if (tokenPool.TryGetValue(name, out LogicToken lt)) return (TermToken)lt;
+            if (globalTokens.TryGetValue(name, out LogicToken lt) || tokenPool.TryGetValue(name, out lt)) return (TermToken)lt;
             else
             {
                 TermToken tt = new SimpleToken(name);
@@ -82,8 +89,8 @@ namespace RandomizerCore.StringLogic
             }
         }
 
-
-        public LogicClause ParseInfixToClause(string infix) => new(infix, tokenPool);
-        public List<LogicToken> ParseInfixToList(string infix) => Infix.Tokenize(infix, tokenPool);
+        public LogicClause ParseInfixToClause(string infix) => new(infix, this);
+        public LogicClauseBuilder ParseInfixToBuilder(string infix) => new(Infix.Tokenize(infix, this));
+        public List<LogicToken> ParseInfixToList(string infix) => Infix.Tokenize(infix, this);
     }
 }

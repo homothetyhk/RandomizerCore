@@ -5,22 +5,11 @@ namespace RandomizerCore.Logic
 {
     public class LogicTransition : ILogicItem, ILogicDef
     {
-        public LogicTransition(RawLogicTransition raw, Term term, OptimizedLogicDef logic)
-        {
-            this.logic = logic;
-            this.sceneName = raw.sceneName;
-            this.gateName = raw.gateName;
-            this.oneWayType = raw.oneWayType;
-            this.term = term;
-        }
-
         [JsonConstructor]
-        public LogicTransition(OptimizedLogicDef logic, string sceneName, string gateName, OneWayType oneWayType, Term term)
+        public LogicTransition(OptimizedLogicDef logic, LogicTransitionData data, Term term)
         {
             this.logic = logic;
-            this.sceneName = sceneName;
-            this.gateName = gateName;
-            this.oneWayType = oneWayType;
+            this.data = data;
             this.term = term;
         }
 
@@ -28,9 +17,7 @@ namespace RandomizerCore.Logic
         public string Name => logic.Name;
 
         public readonly OptimizedLogicDef logic;
-        public readonly string sceneName;
-        public readonly string gateName;
-        public readonly OneWayType oneWayType;
+        public readonly LogicTransitionData data;
         public readonly Term term;
 
 
@@ -40,6 +27,11 @@ namespace RandomizerCore.Logic
         public IEnumerable<Term> GetAffectedTerms()
         {
             yield return term;
+        }
+
+        public RawLogicTransition ToRaw()
+        {
+            return new RawLogicTransition(data.SceneName, data.GateName, logic.ToInfix(), data.OneWayType);
         }
     }
 }

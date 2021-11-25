@@ -50,9 +50,9 @@ namespace RandomizerCore.StringLogic
             Tokens = Infix.Tokenize(infix).AsReadOnly();
         }
 
-        public LogicClause(string infix, Dictionary<string, LogicToken> tokenPool)
+        public LogicClause(string infix, ITokenSource tokenSource)
         {
-            Tokens = Infix.Tokenize(infix, tokenPool).AsReadOnly();
+            Tokens = Infix.Tokenize(infix, tokenSource).AsReadOnly();
         }
 
         public LogicClause(TermToken left, TermToken right, OperatorToken op)

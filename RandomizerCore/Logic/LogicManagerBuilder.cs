@@ -47,8 +47,8 @@ namespace RandomizerCore.Logic
             PrefabItems = new(source.ItemLookup);
             UnparsedItems = new();
             LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());
-            Waypoints = source.Waypoints.ToDictionary(w => w.Name, w => new RawLogicDef(w.Name, w.logic.ToInfix()));
-            Transitions = source.TransitionLookup.ToDictionary(kvp => kvp.Key, kvp => new RawLogicTransition(kvp.Value.sceneName, kvp.Value.gateName, kvp.Value.logic.ToInfix(), kvp.Value.oneWayType));
+            Waypoints = source.Waypoints.Select(w => w.Name).ToList();
+            Transitions = source.TransitionLookup.Values.Select(lt => lt.data).ToList();
         }
 
 
@@ -63,8 +63,8 @@ namespace RandomizerCore.Logic
         public readonly Dictionary<string, LogicItem> PrefabItems;
         public readonly Dictionary<string, JObject> UnparsedItems;
         public readonly Dictionary<string, LogicClause> LogicLookup;
-        public readonly Dictionary<string, RawLogicDef> Waypoints;
-        public readonly Dictionary<string, RawLogicTransition> Transitions;
+        public readonly List<string> Waypoints;
+        public readonly List<LogicTransitionData> Transitions;
 
         public Term GetOrAddTerm(string value)
         {
@@ -89,7 +89,8 @@ namespace RandomizerCore.Logic
             Macros,
             Items,
             Locations,
-            Logic = Locations,
+            LogicEdit,
+            MacroEdit,
         }
 
         public void DeserializeJson(JsonType type, string s)
@@ -122,7 +123,7 @@ namespace RandomizerCore.Logic
                     {
                         GetOrAddTerm(def.name);
                         LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
-                        Waypoints.Add(def.name, def);
+                        Waypoints.Add(def.name);
                     }
                     break;
 
@@ -131,7 +132,7 @@ namespace RandomizerCore.Logic
                     {
                         GetOrAddTerm(def.Name);
                         LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
-                        Transitions.Add(def.Name, def);
+                        Transitions.Add(def.GetTransitionData());
                     }
                     break;
 
@@ -155,6 +156,28 @@ namespace RandomizerCore.Logic
                     }
                     break;
 
+                case JsonType.LogicEdit:
+                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
+                    {
+                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
+                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+                        {
+                            lcb.Subst(LP.GetTermToken("ORIG"), LogicLookup[def.name]);
+                        }
+                        LogicLookup[def.name] = new(lcb);
+                    }
+                    break;
+                case JsonType.MacroEdit:
+                    foreach (KeyValuePair<string, string> kvp in JsonUtil.Deserialize<Dictionary<string, string>>(jtr) ?? Enumerable.Empty<KeyValuePair<string, string>>())
+                    {
+                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
+                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+                        {
+                            lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
+                        }
+                        LP.SetMacro(kvp.Key, new LogicClause(lcb));
+                    }
+                    break;
             }
         }
 
@@ -174,7 +197,7 @@ namespace RandomizerCore.Logic
                     {
                         GetOrAddTerm(def.name);
                         LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
-                        Waypoints.Add(def.name, def);
+                        Waypoints.Add(def.name);
                     }
                     break;
 
@@ -183,7 +206,7 @@ namespace RandomizerCore.Logic
                     {
                         GetOrAddTerm(def.Name);
                         LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
-                        Transitions.Add(def.Name, def);
+                        Transitions.Add(def.GetTransitionData());
                     }
                     break;
 
@@ -204,6 +227,29 @@ namespace RandomizerCore.Logic
                     foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
                         LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                    }
+                    break;
+
+                case JsonType.LogicEdit:
+                    foreach (RawLogicDef def in t.ToObject<RawLogicDef[]>() ?? Enumerable.Empty<RawLogicDef>())
+                    {
+                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
+                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+                        {
+                            lcb.Subst(LP.GetTermToken("ORIG"), LogicLookup[def.name]);
+                        }
+                        LogicLookup[def.name] = new(lcb);
+                    }
+                    break;
+                case JsonType.MacroEdit:
+                    foreach (KeyValuePair<string, string> kvp in t.ToObject<Dictionary<string, string>>() ?? Enumerable.Empty<KeyValuePair<string, string>>())
+                    {
+                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
+                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+                        {
+                            lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
+                        }
+                        LP.SetMacro(kvp.Key, new LogicClause(lcb));
                     }
                     break;
             }

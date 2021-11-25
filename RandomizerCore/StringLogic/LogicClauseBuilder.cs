@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace RandomizerCore.StringLogic
 {
-    public class LogicClauseBuilder // TODO: Simpl, Subst, DNF
+    public class LogicClauseBuilder
     {
         private readonly List<LogicToken> _tokens;
         public readonly ReadOnlyCollection<LogicToken> Tokens;
@@ -16,6 +16,20 @@ namespace RandomizerCore.StringLogic
         {
             _tokens = new();
             Tokens = new(_tokens);
+        }
+
+        public LogicClauseBuilder(IEnumerable<LogicToken> lts)
+        {
+            if (lts is ICollection<LogicToken> ic)
+            {
+                _tokens = new(ic.Count);
+            }
+            else
+            {
+                _tokens = new();
+            }
+            Tokens = new(_tokens);
+            Append(lts);
         }
 
         public LogicClauseBuilder(TermToken t)
@@ -37,20 +51,6 @@ namespace RandomizerCore.StringLogic
             _tokens = new(lcb._tokens);
             Tokens = new(_tokens);
             Arguments = lcb.Arguments;
-        }
-
-        public LogicClauseBuilder(IEnumerable<LogicToken> lts)
-        {
-            if (lts is ICollection<LogicToken> ic)
-            {
-                _tokens = new(ic.Count);
-            }
-            else
-            {
-                _tokens = new();
-            }
-            Tokens = new(_tokens);
-            Append(lts);
         }
 
         public bool Complete => Arguments == 1;
@@ -155,6 +155,96 @@ namespace RandomizerCore.StringLogic
         {
             _tokens.AddRange(lcb._tokens);
             Arguments += lcb.Arguments;
+        }
+
+        /// <summary>
+        /// Reduces ConstTokens from the expression.
+        /// </summary>
+        public void Simpl()
+        {
+            for (int i = 0; i < _tokens.Count - 1; i++)
+            {
+                if (_tokens[i] is ConstToken ct)
+                {
+                    RPN.GetOperationBoundToTerm(_tokens, i, out Range operandRange, out int opIndex);
+                    OperatorToken op = (OperatorToken)_tokens[opIndex];
+                    if (op.OperatorType == OperatorType.AND)
+                    {
+                        if (ct.Value)
+                        {
+                            _tokens.RemoveAt(opIndex);
+                            _tokens.RemoveAt(i);
+                            i--;
+                        }
+                        else
+                        {
+                            _tokens.RemoveAt(opIndex);
+                            (int offset, int count) = operandRange.GetOffsetAndLength(_tokens.Count);
+                            _tokens.RemoveRange(offset, count);
+                            if (opIndex == i + 1) i -= count;
+                            i--;
+                        }
+                    }
+                    else
+                    {
+                        if (ct.Value)
+                        {
+                            _tokens.RemoveAt(opIndex);
+                            (int offset, int count) = operandRange.GetOffsetAndLength(_tokens.Count);
+                            _tokens.RemoveRange(offset, count);
+                            if (opIndex == i + 1) i -= count;
+                            i--;
+                        }
+                        else
+                        {
+                            _tokens.RemoveAt(opIndex);
+                            _tokens.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces MacroTokens with the clauses they represent. Acts recursively on the inserted clauses.
+        /// </summary>
+        public void Unfold()
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is MacroToken mt)
+                {
+                    _tokens.RemoveAt(i);
+                    _tokens.InsertRange(i, mt.Source.GetMacro(mt.Name).Tokens);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces all occurences that match the old token with the new token.
+        /// </summary>
+        public void Subst(TermToken oldToken, TermToken newToken)
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] == oldToken) _tokens[i] = newToken;
+            }
+        }
+
+        /// <summary>
+        /// Replaces all occurences that match the old token with the new clause. Acts recursively.
+        /// </summary>
+        public void Subst(TermToken oldToken, LogicClause newClause)
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] == oldToken)
+                {
+                    _tokens.RemoveAt(i);
+                    _tokens.InsertRange(i, newClause.Tokens);
+                }
+            }
         }
 
         public string ToInfix()
