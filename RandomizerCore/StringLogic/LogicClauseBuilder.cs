@@ -216,7 +216,7 @@ namespace RandomizerCore.StringLogic
                 if (_tokens[i] is MacroToken mt)
                 {
                     _tokens.RemoveAt(i);
-                    _tokens.InsertRange(i, mt.Source.GetMacro(mt.Name).Tokens);
+                    _tokens.InsertRange(i, mt.Value.Tokens);
                 }
             }
         }

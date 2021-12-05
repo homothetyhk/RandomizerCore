@@ -98,8 +98,6 @@ namespace RandomizerCore.Logic
             LP = source.LP;
             VariableResolver = source.VariableResolver;
 
-            LP.LogSelf();
-
             // Terms
             _terms = source.Terms.ToArray();
             TermCount = _terms.Length;
@@ -288,7 +286,7 @@ namespace RandomizerCore.Logic
             }
             else if (lt is MacroToken mt)
             {
-                foreach (var tt in mt.Source.GetMacro(mt.Name)) ApplyToken(logic, tt);
+                foreach (var tt in mt.Value) ApplyToken(logic, tt);
             }
             else if (lt is SimpleToken st)
             {

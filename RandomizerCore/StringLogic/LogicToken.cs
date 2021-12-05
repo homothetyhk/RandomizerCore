@@ -55,6 +55,7 @@ namespace RandomizerCore.StringLogic
     public record MacroToken(string Name, IMacroSource Source) : TermToken
     {
         public override string Write() => Name;
+        public LogicClause Value => Source.GetMacro(Name);
     }
     public record ConstToken(bool Value) : TermToken
     {

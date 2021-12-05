@@ -7,7 +7,7 @@ namespace RandomizerCore.Extensions
 {
     public static class RandomExtensions
     {
-        public static T Pop<T>(this List<T> list)
+        public static T Pop<T>(this IList<T> list)
         {
             T val = list[^1];
             list.RemoveAt(list.Count - 1);
@@ -21,13 +21,12 @@ namespace RandomizerCore.Extensions
             return val;
         }
 
-        public static T Pop<T>(this List<T> list, Predicate<T> TSelector)
+        public static T Pop<T>(this IList<T> list, Predicate<T> TSelector)
         {
-            int i = list.FindIndex(TSelector);
-            return list.Pop(i);
+            return list.Pop(Enumerable.Range(0, list.Count).First(j => TSelector(list[j])));
         }
 
-        public static IEnumerable<T> Slice<T>(this List<T> list, int start, int count)
+        public static IEnumerable<T> Slice<T>(this IReadOnlyList<T> list, int start, int count)
         {
             for (int i = start; i < start + count; i++) yield return list[i];
         }
@@ -37,9 +36,9 @@ namespace RandomizerCore.Extensions
             for (int i = start; i < start + count; i++) yield return list[i];
         }
 
-        public static bool TryPop<T>(this List<T> list, Predicate<T> TSelector, out T val)
+        public static bool TryPop<T>(this IList<T> list, Predicate<T> TSelector, out T val)
         {
-            int i = list.FindIndex(TSelector);
+            int i = Enumerable.Range(0, list.Count).Where(j => TSelector(list[j])).DefaultIfEmpty(-1).First();
             if (i < 0)
             {
                 val = default;
@@ -52,7 +51,7 @@ namespace RandomizerCore.Extensions
             }
         }
 
-        public static T Next<T>(this Random rand, IList<T> ts)
+        public static T Next<T>(this Random rand, IReadOnlyList<T> ts)
         {
             return ts[rand.Next(ts.Count())];
         }
@@ -90,12 +89,12 @@ namespace RandomizerCore.Extensions
 
         public static List<T> Permute<T>(this Random rand, IEnumerable<T> input)
         {
-            List<T> output = new List<T>(input);
+            List<T> output = new(input);
             rand.PermuteInPlace(output);
             return output;
         }
 
-        public static void PermuteInPlace<T>(this Random rand, List<T> input)
+        public static void PermuteInPlace<T>(this Random rand, IList<T> input)
         {
             for (int i = input.Count - 1; i > 0; i--)
             {
@@ -144,6 +143,16 @@ namespace RandomizerCore.Extensions
             int value = (int)d;
             value -= value % divisor;
             return value;
+        }
+
+        public static T NextWhere<T>(this Random rng, IReadOnlyList<T> ts, Predicate<T> test)
+        {
+            List<int> matches = new();
+            for (int i = 0; i < ts.Count; i++)
+            {
+                if (test(ts[i])) matches.Add(i);
+            }
+            return ts[rng.Next(matches)];
         }
     }
 }

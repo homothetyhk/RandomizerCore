@@ -27,14 +27,6 @@ namespace RandomizerCore.StringLogic
             macros = new();
         }
 
-        public void LogSelf()
-        {
-            return;
-            Log("Logging token pool contents...");
-            foreach (var kvp in tokenPool) Log($"{kvp.Key}: {kvp.Value}");
-            Log("End of token pool contents.");
-        }
-
         public void SetMacro(Dictionary<string, string> newMacros)
         {
             if (newMacros == null) return;
