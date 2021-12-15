@@ -10,10 +10,11 @@ namespace RandomizerCore
     /// <summary>
     /// The update entry for a directed transition.
     /// </summary>
+    [Obsolete]
     public class TransitionUpdateEntry : UpdateEntry
     {
-        readonly RandoTransition source;
-        readonly RandoTransition target;
+        readonly OldRandoTransition source;
+        readonly OldRandoTransition target;
 
         public TransitionUpdateEntry(TransitionPlacement p)
         {

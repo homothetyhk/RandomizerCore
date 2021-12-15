@@ -8,6 +8,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class TransitionInitializer
     {
         public readonly bool matched;
@@ -62,7 +63,7 @@ namespace RandomizerCore
             }
         }
 
-        public void Initialize(IEnumerable<RandoTransition> ts)
+        public void Initialize(IEnumerable<OldRandoTransition> ts)
         {
             LogDebug("Initializing transitions...");
             foreach (var t in ts)
@@ -96,7 +97,7 @@ namespace RandomizerCore
             return logHelper.First(p => p.Item2 == i).Item1;
         }
 
-        public void Reset(IEnumerable<RandoTransition> ts)
+        public void Reset(IEnumerable<OldRandoTransition> ts)
         {
             foreach (var t in ts)
             {
@@ -105,7 +106,7 @@ namespace RandomizerCore
             }
         }
 
-        private void SetTransitionDirection(RandoTransition t)
+        private void SetTransitionDirection(OldRandoTransition t)
         {
             if (t.lt.data.OneWayType == OneWayType.OneWayIn)
             {
@@ -154,7 +155,7 @@ namespace RandomizerCore
             }
         }
 
-        public void SetDoorDirection(RandoTransition t)
+        public void SetDoorDirection(OldRandoTransition t)
         {
             if (totalCounts[left] < totalCounts[right])
             {

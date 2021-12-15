@@ -7,6 +7,7 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class PriorityModifierArgs<T>
     {
         public T item;
@@ -17,7 +18,7 @@ namespace RandomizerCore
 
     }
 
-
+    [Obsolete]
     public interface IPriorityModifier<T>
     {
         void Modify(T item, int index, int total, Random rng, ref int priority);

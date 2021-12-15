@@ -8,14 +8,16 @@ using Newtonsoft.Json;
 
 namespace RandomizerCore
 {
-    public class RandoLocation : ILogicDef
+    public class RandoLocation : IRandoLocation
     {
         public OptimizedLogicDef logic;
         public List<LogicCost> costs;
-        public int priority;
 
         [JsonIgnore]
         public string Name => logic.Name;
+
+        public int Priority { get ; set; }
+        public State Reachable { get; set; }
 
         public bool CanGet(ProgressionManager pm)
         {

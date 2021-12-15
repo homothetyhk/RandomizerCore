@@ -9,42 +9,43 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class TransitionSelector
     {
         public bool Finished { get; private set; } = false;
 
-        readonly Stack<RandoTransition> unusedItems;
-        readonly Stack<RandoTransition> proposedItems;
-        readonly Stack<RandoTransition> rejectedItems;
-        List<RandoTransition> acceptedItems;
-        List<RandoTransition> discardedTransitions;
+        readonly Stack<OldRandoTransition> unusedItems;
+        readonly Stack<OldRandoTransition> proposedItems;
+        readonly Stack<OldRandoTransition> rejectedItems;
+        List<OldRandoTransition> acceptedItems;
+        List<OldRandoTransition> discardedTransitions;
 
         DirectionCounts dc;
 
-        public TransitionSelector(IEnumerable<RandoTransition> ts)
+        public TransitionSelector(IEnumerable<OldRandoTransition> ts)
         {
-            unusedItems = new Stack<RandoTransition>(ts.Where(t => t.IsTargetTransition));
-            proposedItems = new Stack<RandoTransition>(unusedItems.Count);
-            rejectedItems = new Stack<RandoTransition>(unusedItems.Count);
-            acceptedItems = new List<RandoTransition>();
+            unusedItems = new Stack<OldRandoTransition>(ts.Where(t => t.IsTargetTransition));
+            proposedItems = new Stack<OldRandoTransition>(unusedItems.Count);
+            rejectedItems = new Stack<OldRandoTransition>(unusedItems.Count);
+            acceptedItems = new List<OldRandoTransition>();
             discardedTransitions = new();
         }
 
 
-        public bool ShouldDiscard(RandoTransition t) => t.reachable == State.Permanent;
-        public bool ShouldSkip(RandoTransition t) => !dc.HasMatch(t);
+        public bool ShouldDiscard(OldRandoTransition t) => t.reachable == State.Permanent;
+        public bool ShouldSkip(OldRandoTransition t) => !dc.HasMatch(t);
         public void SetDirectionCounts(DirectionCounts dc) => this.dc = dc;
 
-        public IEnumerable<RandoTransition> GetAcceptedItems() => acceptedItems;
-        public IEnumerable<RandoTransition> GetProposedItems() => proposedItems.Where(t => !ShouldSkip(t));
-        public IEnumerable<RandoTransition> GetProposedTransitions() => proposedItems.Where(t => !ShouldSkip(t));
+        public IEnumerable<OldRandoTransition> GetAcceptedItems() => acceptedItems;
+        public IEnumerable<OldRandoTransition> GetProposedItems() => proposedItems.Where(t => !ShouldSkip(t));
+        public IEnumerable<OldRandoTransition> GetProposedTransitions() => proposedItems.Where(t => !ShouldSkip(t));
 
-        private void Discard(RandoTransition t)
+        private void Discard(OldRandoTransition t)
         {
             if (!t.coupled) discardedTransitions.Add(t);
         }
 
-        public bool TryProposeNext(out RandoTransition t)
+        public bool TryProposeNext(out OldRandoTransition t)
         {
             while (unusedItems.TryPop(out t))
             {
@@ -69,7 +70,7 @@ namespace RandomizerCore
             return false;
         }
 
-        public bool TryRecallLast(out RandoTransition t)
+        public bool TryRecallLast(out OldRandoTransition t)
         {
             while (proposedItems.TryPeek(out t))
             {
@@ -88,7 +89,7 @@ namespace RandomizerCore
 
         public void AcceptLast()
         {
-            while (proposedItems.TryPop(out RandoTransition t))
+            while (proposedItems.TryPop(out OldRandoTransition t))
             {
                 if (ShouldSkip(t)) rejectedItems.Push(t);
                 else
@@ -106,7 +107,7 @@ namespace RandomizerCore
         {
             while (acceptedItems.Count > 0)
             {
-                RandoTransition t = acceptedItems.Pop();
+                OldRandoTransition t = acceptedItems.Pop();
                 t.placed = State.Temporary;
                 proposedItems.Push(t);
             }
@@ -114,7 +115,7 @@ namespace RandomizerCore
 
         public void RejectLast()
         {
-            while (proposedItems.TryPop(out RandoTransition t))
+            while (proposedItems.TryPop(out OldRandoTransition t))
             {
                 if (ShouldSkip(t)) rejectedItems.Push(t);
                 else
@@ -131,12 +132,12 @@ namespace RandomizerCore
         /// <summary>
         /// Outputs list of accepted items. Moves all rejected items to proposed items and starts new acccepted item list.
         /// </summary>
-        public void FinishAccepting(out List<RandoTransition> newItems)
+        public void FinishAccepting(out List<OldRandoTransition> newItems)
         {
             newItems = acceptedItems;
-            acceptedItems = new List<RandoTransition>();
-            while (rejectedItems.TryPop(out RandoTransition item)) proposedItems.Push(item);
-            while (proposedItems.TryPop(out RandoTransition item))
+            acceptedItems = new List<OldRandoTransition>();
+            while (rejectedItems.TryPop(out OldRandoTransition item)) proposedItems.Push(item);
+            while (proposedItems.TryPop(out OldRandoTransition item))
             {
                 item.placed = State.None;
                 unusedItems.Push(item);
@@ -144,13 +145,13 @@ namespace RandomizerCore
             if (unusedItems.Count == 0) Finished = true;
         }
 
-        public void Finish(out List<RandoTransition> remainingItems)
+        public void Finish(out List<OldRandoTransition> remainingItems)
         {
             if (acceptedItems.Count != 0) throw new InvalidOperationException("ItemSelector.Finish called with uncollected accepted items!");
-            while (rejectedItems.TryPop(out RandoTransition r)) proposedItems.Push(r);
-            while (proposedItems.TryPop(out RandoTransition p)) unusedItems.Push(p);
+            while (rejectedItems.TryPop(out OldRandoTransition r)) proposedItems.Push(r);
+            while (proposedItems.TryPop(out OldRandoTransition p)) unusedItems.Push(p);
             remainingItems = new();
-            while (unusedItems.TryPop(out RandoTransition t))
+            while (unusedItems.TryPop(out OldRandoTransition t))
             {
                 if (ShouldDiscard(t)) Discard(t);
                 else remainingItems.Add(t);
@@ -163,7 +164,7 @@ namespace RandomizerCore
         /// <summary>
         /// Returns decoupled targets which are reachable but not placed.
         /// </summary>
-        public void CollectDiscardedTransitions(out List<RandoTransition> discard)
+        public void CollectDiscardedTransitions(out List<OldRandoTransition> discard)
         {
             discard = discardedTransitions;
             discardedTransitions = new();

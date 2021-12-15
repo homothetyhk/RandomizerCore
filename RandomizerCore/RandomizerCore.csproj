@@ -7,8 +7,15 @@
     <Deterministic>true</Deterministic>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <ItemGroup>
+    <Using Remove="System.Net.Http" />
+    <Using Remove="System.Threading" />
+    <Using Remove="System.Threading.Tasks" />
+    <Using Include="RandomizerCore.LogHelper" Static="true" />
+  </ItemGroup>
+  <PropertyGroup>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
     <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>

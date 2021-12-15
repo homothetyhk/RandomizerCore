@@ -8,6 +8,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class TransitionSphere
     {
         public int index;
@@ -15,12 +16,12 @@ namespace RandomizerCore
         /// <summary>
         /// Transitions to be placed in the current sphere or earlier.
         /// </summary>
-        public List<RandoTransition> placedTransitions;
+        public List<OldRandoTransition> placedTransitions;
 
         /// <summary>
         /// Transitions newly unlocked by the transitions placed in all earlier spheres.
         /// </summary>
-        public List<RandoTransition> reachableTransitions;
+        public List<OldRandoTransition> reachableTransitions;
 
         /// <summary>
         /// The count of reachable transitions, by direction, aggregated over current and earlier spheres, minus the corresponding counts of placed transitions.
@@ -49,6 +50,7 @@ namespace RandomizerCore
         }
     }
 
+    [Obsolete]
     public class TransitionSphereBuilder
     {
         readonly List<TransitionSphere> spheres = new List<TransitionSphere>();
@@ -76,12 +78,12 @@ namespace RandomizerCore
             }
 
             sb.AppendLine("Final balance:");
-            sb.AppendLine(LastSphere.directionCounts.Step(Enumerable.Empty<RandoTransition>(), LastSphere.placedTransitions).ToString());
+            sb.AppendLine(LastSphere.directionCounts.Step(Enumerable.Empty<OldRandoTransition>(), LastSphere.placedTransitions).ToString());
 
             return sb.ToString();
         }
 
-        public void OpenSphere(List<RandoTransition> reachable)
+        public void OpenSphere(List<OldRandoTransition> reachable)
         {
             TransitionSphere sphere = new TransitionSphere();
             sphere.index = spheres.Count;
@@ -99,7 +101,7 @@ namespace RandomizerCore
             LogDebug(sphere.PrintOpenSphere());
         }
 
-        public void CloseAndOpen(List<RandoTransition> placed, List<RandoTransition> reachable, ProgressionManager pm)
+        public void CloseAndOpen(List<OldRandoTransition> placed, List<OldRandoTransition> reachable, ProgressionManager pm)
         {
             TransitionSphere last = spheres[^1];
             last.placedTransitions = placed;
@@ -116,7 +118,7 @@ namespace RandomizerCore
             LogDebug(next.PrintOpenSphere());
         }
 
-        public void CloseSphere(List<RandoTransition> placed, ProgressionManager pm)
+        public void CloseSphere(List<OldRandoTransition> placed, ProgressionManager pm)
         {
             TransitionSphere sphere = spheres[^1];
             sphere.placedTransitions = placed;
@@ -133,17 +135,17 @@ namespace RandomizerCore
 
         public void BuildSpheres(ProgressionManager pm, TransitionSelector selector, ReachableTransitions rt)
         {
-            rt.Collect(out List<RandoTransition> newReachable);
+            rt.Collect(out List<OldRandoTransition> newReachable);
             OpenSphere(newReachable);
             while (!selector.Finished)
             {
-                Step(pm, selector, rt, LastSphere.directionCounts, out List<RandoTransition> placed);
+                Step(pm, selector, rt, LastSphere.directionCounts, out List<OldRandoTransition> placed);
                 rt.Collect(out newReachable);
                 if (!selector.Finished) CloseAndOpen(placed, newReachable, pm);
                 else CloseSphere(placed, pm);
             }
 
-            selector.CollectDiscardedTransitions(out List<RandoTransition> discarded);
+            selector.CollectDiscardedTransitions(out List<OldRandoTransition> discarded);
             if (discarded.Count > 0 || rt.GetUnreachableSourceTransitions().Any())
             {
                 // map unreachable transitions to useless transitions
@@ -277,14 +279,14 @@ namespace RandomizerCore
         */
 
 
-        private static void Step(ProgressionManager pm, TransitionSelector selector, ReachableTransitions rt, DirectionCounts dc, out List<RandoTransition> placed)
+        private static void Step(ProgressionManager pm, TransitionSelector selector, ReachableTransitions rt, DirectionCounts dc, out List<OldRandoTransition> placed)
         {
             selector.SetDirectionCounts(dc);
 
             if (pm.Temp) throw new InvalidOperationException("Previous temp was not disposed!");
             pm.StartTemp();
 
-            while (selector.TryProposeNext(out RandoTransition t))
+            while (selector.TryProposeNext(out OldRandoTransition t))
             {
                 t.Place(pm);
                 if (rt.FoundNewTransitions) break;
@@ -293,7 +295,7 @@ namespace RandomizerCore
             if (!rt.FoundNewTransitions)
             {
                 LogDebug("Auditing unsuccessful Step.");
-                while (selector.TryRecallLast(out RandoTransition t))
+                while (selector.TryRecallLast(out OldRandoTransition t))
                 {
                     if (Audit(t))
                     {
@@ -315,7 +317,7 @@ namespace RandomizerCore
                 LogDebug(rt.PrintCurrent());
             }
 
-            while (selector.TryRecallLast(out RandoTransition t))
+            while (selector.TryRecallLast(out OldRandoTransition t))
             {
                 if (Decide(t) && IsFinalItem())
                 {
@@ -329,7 +331,7 @@ namespace RandomizerCore
             return;
 
 
-            bool Decide(RandoTransition t)
+            bool Decide(OldRandoTransition t)
             {
                 t.placed = State.None;
                 //Log("Running Decide with transitions: " + string.Join(", ", selector.GetProposedItems().Skip(1).Concat(selector.GetAcceptedItems()).Select(t => t.Name)));
@@ -350,7 +352,7 @@ namespace RandomizerCore
                 }
             }
 
-            bool AuditDecide(RandoTransition t, RandoTransition skip)
+            bool AuditDecide(OldRandoTransition t, OldRandoTransition skip)
             {
                 t.placed = State.None;
                 LogDebug("Running AuditDecide with transitions: " + string.Join(", ", selector.GetProposedItems().Skip(1).Where(u => u != skip).Concat(selector.GetAcceptedItems()).Select(t => t.Name)));
@@ -371,7 +373,7 @@ namespace RandomizerCore
                 }
             }
 
-            bool Audit(RandoTransition t)
+            bool Audit(OldRandoTransition t)
             {
                 if (!t.coupled)
                 {
@@ -391,13 +393,13 @@ namespace RandomizerCore
 
 
                     selector.UnacceptAll();
-                    while (selector.TryRecallLast(out RandoTransition u) && u != t)
+                    while (selector.TryRecallLast(out OldRandoTransition u) && u != t)
                     {
                         if (AuditDecide(u, t) && AuditIsFinalItem(t)) return true;
                     }
 
                     selector.RejectLast();
-                    while (selector.TryRecallLast(out RandoTransition u) && u != t)
+                    while (selector.TryRecallLast(out OldRandoTransition u) && u != t)
                     {
                         if (AuditDecide(u, t) && AuditIsFinalItem(t)) return true;
                     }
@@ -435,7 +437,7 @@ namespace RandomizerCore
                 }
             }
 
-            bool AuditIsFinalItem(RandoTransition skip)
+            bool AuditIsFinalItem(OldRandoTransition skip)
             {
                 //Log("Running IsFinalItem with transitions: " + string.Join(", ", selector.GetAcceptedItems().Select(t => t.Name)));
                 pm.RestrictTempTo(selector.GetAcceptedItems());

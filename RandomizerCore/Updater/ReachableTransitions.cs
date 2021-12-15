@@ -8,12 +8,13 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class ReachableTransitions
     {
-        List<RandoTransition> reachable = new();
+        List<OldRandoTransition> reachable = new();
         List<ReachableTransitionUpdateEntry> entries = new();
 
-        public ReachableTransitions(MainUpdater updater, IEnumerable<RandoTransition> openTransitions)
+        public ReachableTransitions(MainUpdater updater, IEnumerable<OldRandoTransition> openTransitions)
         {
             updater.OnBeginRecalculate += OnRecalculate;
             foreach (var t in openTransitions.Where(t => t.IsSourceTransition))
@@ -31,10 +32,10 @@ namespace RandomizerCore
             reachable.Clear();
         }
 
-        public IEnumerable<RandoTransition> GetUnreachableSourceTransitions() => entries.Select(e => e.transition)
+        public IEnumerable<OldRandoTransition> GetUnreachableSourceTransitions() => entries.Select(e => e.transition)
             .Where(t => (t.reachable == State.None) && (!t.coupled || t.placed == State.None));
 
-        public void Collect(out List<RandoTransition> newReachable)
+        public void Collect(out List<OldRandoTransition> newReachable)
         {
             newReachable = reachable;
             foreach (var t in newReachable)
@@ -44,17 +45,17 @@ namespace RandomizerCore
                 if (t.coupled && t.placed != State.None) throw new Exception("Placed transition found in reachable!");
             }
 
-            reachable = new List<RandoTransition>();
+            reachable = new List<OldRandoTransition>();
         }
 
         public string PrintCurrent() => $"Current reachable state: {reachable.Count} with {string.Join(", ", reachable.Select(t => t.Name))}";
 
         class ReachableTransitionUpdateEntry : UpdateEntry
         {
-            public readonly RandoTransition transition;
+            public readonly OldRandoTransition transition;
             public readonly ReachableTransitions parent;
 
-            public ReachableTransitionUpdateEntry(ReachableTransitions parent, RandoTransition transition)
+            public ReachableTransitionUpdateEntry(ReachableTransitions parent, OldRandoTransition transition)
             {
                 this.parent = parent;
                 this.transition = transition;

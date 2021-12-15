@@ -13,6 +13,7 @@ using RandomizerCore.Exceptions;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public class TransitionRandomizer
     {
         public readonly Random rng;
@@ -23,7 +24,7 @@ namespace RandomizerCore.Randomizers
 
         readonly List<RandoItem> items;
         List<RandoLocation> locations;
-        readonly List<RandoTransition> transitions;
+        readonly List<OldRandoTransition> transitions;
 
         ProgressionManager pm;
 
@@ -105,8 +106,8 @@ namespace RandomizerCore.Randomizers
 
         private void Permute()
         {
-            rng.PermuteInPlace(items, (i, p) => i.priority = p);
-            rng.PermuteInPlace(locations, (l, p) => l.priority = p);
+            rng.PermuteInPlace(items, (i, p) => i.Priority = p);
+            rng.PermuteInPlace(locations, (l, p) => l.Priority = p);
             rng.PermuteInPlace(transitions, (t, p) => t.priority = p);
 
             rs.PostPermuteItems(rng, items);
@@ -118,8 +119,8 @@ namespace RandomizerCore.Randomizers
             // initialize ti first so transitions have accurate directions
             rs.PostPermuteTransitions(rng, transitions);
 
-            items.StableSort((i, j) => j.priority - i.priority); // items are sorted in reverse since they are immediately loaded into a stack
-            locations.StableSort((i, j) => i.priority - j.priority);
+            items.StableSort((i, j) => j.Priority - i.Priority); // items are sorted in reverse since they are immediately loaded into a stack
+            locations.StableSort((i, j) => i.Priority - j.Priority);
             transitions.StableSort((i, j) => j.priority - i.priority); // transitions are sorted in reverse since they are immediately loaded into a stack
         }
 
@@ -167,8 +168,8 @@ namespace RandomizerCore.Randomizers
             tsb.BuildSpheres(pm, transitionSelector, rt);
             tsb.ValidateSphereCount();
 
-            PriorityQueue<RandoTransition>[] directedReachable = new PriorityQueue<RandoTransition>[ti.Length];
-            for (int i = 0; i < ti.Length; i++) directedReachable[i] = new PriorityQueue<RandoTransition>();
+            PriorityQueue<OldRandoTransition>[] directedReachable = new PriorityQueue<OldRandoTransition>[ti.Length];
+            for (int i = 0; i < ti.Length; i++) directedReachable[i] = new PriorityQueue<OldRandoTransition>();
 
             transitionPlacements = tps.Export(ti, tsb.SphereList);
         }
@@ -243,7 +244,7 @@ namespace RandomizerCore.Randomizers
             LogDebug("Progression after validation update:");
             LogDebug(pm.ToString());
 
-            foreach (RandoTransition t in transitions)
+            foreach (OldRandoTransition t in transitions)
             {
                 if (!pm.Has(t.lt.term.Id))
                 {

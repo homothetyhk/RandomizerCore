@@ -44,6 +44,14 @@ namespace RandomizerCore.Collections
             _capacity = capacity;
         }
 
+        public PriorityQueue(IEnumerable<T> ts, Func<T, int> prioritySelector)
+        {
+            if (ts is ICollection<T> c) list = new PriorityEntry[c.Count];
+            else list = new PriorityEntry[4];
+
+            foreach (T t in ts) Enqueue(prioritySelector(t), t);
+        }
+
         public void Clear()
         {
             Array.Clear(list, 0, Count);
@@ -68,10 +76,71 @@ namespace RandomizerCore.Collections
 
         public bool TryPeek(out int priority, out T t)
         {
-            priority = list[0].priority;
-            t = list[0].t;
+            if (count > 0)
+            {
+                priority = list[0].priority;
+                t = list[0].t;
+                return true;
+            }
+            else
+            {
+                priority = default;
+                t = default;
+                return false;
+            }
+        }
 
-            return count > 0;
+        public void UpdateHead(int newPriority)
+        {
+            if (Count == 0) throw new InvalidOperationException("Priority queue empty");
+
+            list[0] = new(newPriority, list[0].version, list[0].t);
+
+            int p = 0;
+            int l; int r;
+            while (true)
+            {
+                l = GetLeftChild(p);
+                r = GetRightChild(p);
+
+                if (l >= count) break;
+                else if (r >= count)
+                {
+                    if (IsLessThan(l, p))
+                    {
+                        Swap(l, p);
+                    }
+                    break;
+                }
+                else if (IsLessThan(l, r))
+                {
+                    if (IsLessThan(l, p))
+                    {
+                        Swap(l, p);
+                        p = l;
+                    }
+                    else break;
+                }
+                else
+                {
+                    if (IsLessThan(r, p))
+                    {
+                        Swap(r, p);
+                        p = r;
+                    }
+                    else break;
+                }
+            }
+        }
+
+        public void ExtractMin()
+        {
+            ExtractMin(out _, out _);
+        }
+
+        public void ExtractMin(out T t)
+        {
+            ExtractMin(out _, out t);
         }
 
         public void ExtractMin(out int priority, out T t)
@@ -81,11 +150,11 @@ namespace RandomizerCore.Collections
 
         public bool TryExtractMin(out int priority, out T t)
         {
-            priority = list[0].priority;
-            t = list[0].t;
-
             if (count > 0)
             {
+                priority = list[0].priority;
+                t = list[0].t;
+
                 list[0] = list[--count];
                 list[count] = default;
                 int p = 0;
@@ -128,6 +197,8 @@ namespace RandomizerCore.Collections
             }
             else
             {
+                priority = default;
+                t = default;
                 return false;
             }
         }

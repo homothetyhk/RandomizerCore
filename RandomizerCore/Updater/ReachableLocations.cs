@@ -3,6 +3,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore.Logic
 {
+    [Obsolete]
     public class ReachableLocations
     {
         List<RandoLocation> reachable = new();

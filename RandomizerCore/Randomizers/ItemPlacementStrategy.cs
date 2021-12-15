@@ -9,11 +9,13 @@ using RandomizerCore.Exceptions;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public abstract class ItemPlacementStrategy
     {
         public abstract List<ItemPlacement> Export(IList<ItemSphere> spheres);
     }
 
+    [Obsolete]
     public class DefaultItemPlacementStrategy : ItemPlacementStrategy
     {
         /// <summary>
@@ -37,10 +39,10 @@ namespace RandomizerCore.Randomizers
                 {
                     if (depthPriorityTransform != null)
                     {
-                        location.priority = depthPriorityTransform(i, location);
+                        location.Priority = depthPriorityTransform(i, location);
                     }
 
-                    queue.Enqueue(location.priority, location);
+                    queue.Enqueue(location.Priority, location);
                 }
 
                 foreach (RandoItem item in sphere.items)

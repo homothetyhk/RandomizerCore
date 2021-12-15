@@ -8,16 +8,16 @@ namespace RandomizerCore
 {
     public readonly struct TransitionPlacement
     {
-        public readonly RandoTransition source;
-        public readonly RandoTransition target;
+        public readonly OldRandoTransition source;
+        public readonly OldRandoTransition target;
 
-        public TransitionPlacement(RandoTransition source, RandoTransition target)
+        public TransitionPlacement(OldRandoTransition source, OldRandoTransition target)
         {
             this.source = source;
             this.target = target;
         }
 
-        public void Deconstruct(out RandoTransition source, out RandoTransition target)
+        public void Deconstruct(out OldRandoTransition source, out OldRandoTransition target)
         {
             source = this.source;
             target = this.target;

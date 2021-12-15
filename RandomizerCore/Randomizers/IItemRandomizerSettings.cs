@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public interface IItemRandomizerSettings : IRandomizerSettings
     {
         List<RandoItem> GetRandomizedItems();

@@ -25,8 +25,8 @@ namespace RandomizerCore
 
         public bool IsItemPlacement() => Item is RandoItem && Location is RandoLocation;
         public ItemPlacement AsItemPlacement() => new((RandoItem)Item, (RandoLocation)Location);
-        public bool IsTransitionPlacement() => Item is RandoTransition && Location is RandoTransition;
-        public TransitionPlacement AsTransitionPlacement() => new((RandoTransition)Location, (RandoTransition)Item);
+        public bool IsTransitionPlacement() => Item is OldRandoTransition && Location is OldRandoTransition;
+        public TransitionPlacement AsTransitionPlacement() => new((OldRandoTransition)Location, (OldRandoTransition)Item);
 
         public static implicit operator GeneralizedPlacement(ItemPlacement ip) => new(ip.item, ip.location);
         public static implicit operator GeneralizedPlacement(TransitionPlacement tp) => new(tp.target, tp.source);

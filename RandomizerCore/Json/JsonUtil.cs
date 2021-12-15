@@ -38,7 +38,7 @@ namespace RandomizerCore.Json
             catch (Exception e)
             {
                 Log(e);
-                return null;
+                throw;
             }
         }
 
@@ -58,7 +58,7 @@ namespace RandomizerCore.Json
             catch (Exception e)
             {
                 Log(e);
-                return null;
+                throw;
             }
         }
 
@@ -79,7 +79,7 @@ namespace RandomizerCore.Json
             catch (Exception e)
             {
                 Log(e);
-                return null;
+                throw;
             }
         }
 
@@ -100,7 +100,7 @@ namespace RandomizerCore.Json
             catch (Exception e)
             {
                 Log(e);
-                return null;
+                throw;
             }
         }
 
@@ -120,7 +120,7 @@ namespace RandomizerCore.Json
             catch (Exception e)
             {
                 Log(e);
-                return null;
+                throw;
             }
         }
 

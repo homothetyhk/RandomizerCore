@@ -8,6 +8,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class DirectionCounts
     {
         public int[] counts;
@@ -24,17 +25,17 @@ namespace RandomizerCore
             this.counts = orig.counts.ToArray();
         }
 
-        public bool HasMatch(RandoTransition t)
+        public bool HasMatch(OldRandoTransition t)
         {
             return counts[t.targetDir] > 0;
         }
 
-        public void AddRange(IEnumerable<RandoTransition> added)
+        public void AddRange(IEnumerable<OldRandoTransition> added)
         {
             foreach (var t in added) counts[t.dir]++;
         }
 
-        public DirectionCounts Step(IEnumerable<RandoTransition> foundTransitions, IEnumerable<RandoTransition> placedTransitions)
+        public DirectionCounts Step(IEnumerable<OldRandoTransition> foundTransitions, IEnumerable<OldRandoTransition> placedTransitions)
         {
             DirectionCounts dc = new DirectionCounts(this);
             foreach (var t in foundTransitions) dc.counts[t.dir]++;

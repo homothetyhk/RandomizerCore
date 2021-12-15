@@ -7,17 +7,19 @@ using RandomizerCore.Exceptions;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public abstract class TransitionPlacementStrategy
     {
         public abstract List<TransitionPlacement> Export(TransitionInitializer ti, IList<TransitionSphere> spheres);
     }
 
+    [Obsolete]
     public class DefaultTransitionPlacementStrategy : TransitionPlacementStrategy
     {
         /// <summary>
         ///Inputs: Current randomized priority and transition. Output: new transition priority. Ignored if null.
         /// </summary>
-        public Func<int, RandoTransition, int> depthPriorityTransform = null;
+        public Func<int, OldRandoTransition, int> depthPriorityTransform = null;
         /// <summary>
         /// If not null, invoked with the current depth and new placements.
         /// </summary>
@@ -26,14 +28,14 @@ namespace RandomizerCore.Randomizers
         public override List<TransitionPlacement> Export(TransitionInitializer ti, IList<TransitionSphere> spheres)
         {
             List<TransitionPlacement> placements = new();
-            PriorityQueue<RandoTransition>[] queues = new PriorityQueue<RandoTransition>[ti.Length];
+            PriorityQueue<OldRandoTransition>[] queues = new PriorityQueue<OldRandoTransition>[ti.Length];
             for (int i = 0; i < queues.Length; i++) queues[i] = new();
             List<TransitionPlacement> current = new();
 
             for (int i = 0; i < spheres.Count; i++)
             {
                 TransitionSphere sphere = spheres[i];
-                foreach (RandoTransition transition in sphere.reachableTransitions)
+                foreach (OldRandoTransition transition in sphere.reachableTransitions)
                 {
                     if (depthPriorityTransform != null)
                     {
@@ -43,9 +45,9 @@ namespace RandomizerCore.Randomizers
                     queues[transition.dir].Enqueue(transition.priority, transition);
                 }
 
-                foreach (RandoTransition t2 in sphere.placedTransitions)
+                foreach (OldRandoTransition t2 in sphere.placedTransitions)
                 {
-                    if (!queues[t2.targetDir].TryExtractMin(out _, out RandoTransition t1))
+                    if (!queues[t2.targetDir].TryExtractMin(out _, out OldRandoTransition t1))
                     {
                         throw new OutOfLocationsException("Ran out of transitions during Export (progression spheres).");
                     }
@@ -67,9 +69,9 @@ namespace RandomizerCore.Randomizers
             // There shouldn't be any decoupled transitions left over at this point
             for (int i = 0; i < queues.Length; i++)
             {
-                while (queues[i].TryExtractMin(out _, out RandoTransition t1))
+                while (queues[i].TryExtractMin(out _, out OldRandoTransition t1))
                 {
-                    if (!queues[t1.targetDir].TryExtractMin(out _, out RandoTransition t2))
+                    if (!queues[t1.targetDir].TryExtractMin(out _, out OldRandoTransition t2))
                     {
                         throw new OutOfLocationsException("Ran out of transitions during Export (post-spheres).");
                     }

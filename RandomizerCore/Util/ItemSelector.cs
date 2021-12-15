@@ -8,6 +8,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore.Logic
 {
+    [Obsolete]
     public class ItemSelector
     {
         readonly Stack<RandoItem> unusedItems;

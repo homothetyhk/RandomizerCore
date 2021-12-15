@@ -29,12 +29,15 @@ namespace RandomizerCore.Logic
 
         public void Hook(ProgressionManager pm)
         {
-            this.pm = pm;
-            pm.AfterAddItem += EnqueueUpdates;
-            pm.AfterAddRange += EnqueueUpdates;
-            pm.AfterEndTemp += OnEndTemp;
-            pm.OnRemove += OnRemove;
-            pm.AfterRemove += DoRecalculate;
+            if (this.pm != pm)
+            {
+                this.pm = pm;
+                pm.AfterAddItem += EnqueueUpdates;
+                pm.AfterAddRange += EnqueueUpdates;
+                pm.AfterEndTemp += OnEndTemp;
+                pm.OnRemove += OnRemove;
+                pm.AfterRemove += DoRecalculate;
+            }
 
             DoUpdateAll();
         }

@@ -1,86 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using RandomizerCore.Logic;
-using static RandomizerCore.LogHelper;
+﻿using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
-    public enum OneWayType
+    public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple
     {
-        TwoWay,
-        OneWayIn,
-        OneWayOut
-    }
+        public readonly LogicTransition lt;
 
-    public class RandoTransition : ILogicDef, ILogicItem
-    {
         public RandoTransition(LogicTransition lt)
         {
             this.lt = lt;
         }
 
-        
+        public int sourcePriority;
+        public int targetPriority;
 
+        int IRandoItem.Priority { get => targetPriority; set => targetPriority = value; }
+        int IRandoLocation.Priority { get => sourcePriority; set => sourcePriority = value; }
 
-        public void Place(ProgressionManager pm)
-        {
-            placed = State.Temporary;
-            pm.Add(this);
-        }
+        public State Placed { get; set; }
+
+        public string Name => lt.Name;
+
+        public State Reachable { get; set; }
 
         public bool CanGet(ProgressionManager pm)
         {
-            return ((ILogicDef)lt).CanGet(pm);
+            return lt.CanGet(pm);
         }
 
         public IEnumerable<Term> GetTerms()
         {
-            return ((ILogicDef)lt).GetTerms();
+            return lt.GetTerms();
         }
 
-        void ILogicItem.AddTo(ProgressionManager pm)
+        public void AddTo(ProgressionManager pm)
         {
-            ((ILogicItem)lt).AddTo(pm);
+            pm.Set(lt.term.Id, 1);
         }
 
-        IEnumerable<Term> ILogicItem.GetAffectedTerms()
+        public IEnumerable<Term> GetAffectedTerms()
         {
             return lt.GetAffectedTerms();
         }
-
-        public readonly LogicTransition lt;
-
-        public int priority;
-
-        public State reachable;
-        public State placed;
-
-        public bool IsSourceTransition => lt.data.OneWayType != OneWayType.OneWayOut;
-        public bool IsTargetTransition => lt.data.OneWayType != OneWayType.OneWayIn;
-
-        public int dir;
-        public int targetDir;
-        public bool coupled;
-
-        public string Name => lt.Name;
-    }
-
-    public enum State
-    {
-        None,
-        Temporary,
-        Permanent
-    }
-
-    public enum TransitionState
-    {
-        None,
-        TempGiven,
-        TempFound,
-        Given,
-        Found,
     }
 
 }

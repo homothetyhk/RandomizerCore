@@ -9,6 +9,7 @@ using static RandomizerCore.LogHelper;
 
 namespace RandomizerCore
 {
+    [Obsolete]
     public class ItemSphere
     {
         public int index;
@@ -40,6 +41,7 @@ namespace RandomizerCore
 
     }
 
+    [Obsolete]
     public class ItemSphereBuilder
     {
         readonly List<ItemSphere> spheres = new();

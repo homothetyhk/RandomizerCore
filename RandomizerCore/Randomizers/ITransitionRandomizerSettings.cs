@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public interface ITransitionRandomizerSettings : IRandomizerSettings, IItemRandomizerSettings
     {
         /// <summary>
@@ -17,9 +18,9 @@ namespace RandomizerCore.Randomizers
         /// </summary>
         bool Coupled { get; }
 
-        List<RandoTransition> GetRandomizedTransitions();
+        List<OldRandoTransition> GetRandomizedTransitions();
         TransitionPlacementStrategy GetTransitionPlacementStrategy();
 
-        void PostPermuteTransitions(Random rng, IReadOnlyList<RandoTransition> transition);
+        void PostPermuteTransitions(Random rng, IReadOnlyList<OldRandoTransition> transition);
     }
 }

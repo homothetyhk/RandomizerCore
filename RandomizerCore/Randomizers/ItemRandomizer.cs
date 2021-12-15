@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 namespace RandomizerCore.Randomizers
 {
+    [Obsolete]
     public class ItemRandomizer
     {
         public readonly Random rng;
@@ -94,14 +95,14 @@ namespace RandomizerCore.Randomizers
 
         private void Permute()
         {
-            rng.PermuteInPlace(items, (i, p) => i.priority = p);
-            rng.PermuteInPlace(locations, (l, p) => l.priority = p);
+            rng.PermuteInPlace(items, (i, p) => i.Priority = p);
+            rng.PermuteInPlace(locations, (l, p) => l.Priority = p);
 
             rs.PostPermuteItems(rng, items);
             rs.PostPermuteLocations(rng, locations);
 
-            items.StableSort((i, j) => j.priority - i.priority); // items are sorted in reverse since they are immediately loaded into a stack
-            locations.StableSort((i, j) => i.priority - j.priority);
+            items.StableSort((i, j) => j.Priority - i.Priority); // items are sorted in reverse since they are immediately loaded into a stack
+            locations.StableSort((i, j) => i.Priority - j.Priority);
         }
 
         public void Reset()

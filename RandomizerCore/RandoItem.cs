@@ -7,12 +7,14 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
-    public class RandoItem : ILogicItem
+    public class RandoItem : IRandoItem
     {
         public LogicItem item;
-        public int priority;
+        public int Priority { get; set; }
 
         public string Name => item.Name;
+
+        public State Placed { get ; set ; }
 
         public void AddTo(ProgressionManager pm)
         {
