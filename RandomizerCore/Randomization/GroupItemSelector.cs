@@ -14,10 +14,11 @@ namespace RandomizerCore.Randomization
         readonly Stack<IRandoItem> proposedItems;
         readonly Stack<IRandoItem> rejectedItems;
         public readonly bool coupled;
+        public readonly string label;
         List<IRandoItem> acceptedItems;
         List<IRandoItem> discardedItems;
 
-        public bool TryGetNextProposalPriority(out int priority)
+        public bool TryGetNextProposalPriority(out float priority)
         {
             if (_cap > 0)
             {
@@ -36,6 +37,7 @@ namespace RandomizerCore.Randomization
         public GroupItemSelector(RandomizationGroup group)
         {
             coupled = group is CoupledRandomizationGroup;
+            label = group.Label;
             unusedItems = new Stack<IRandoItem>(group.Items);
             proposedItems = new Stack<IRandoItem>(unusedItems.Count);
             rejectedItems = new Stack<IRandoItem>(unusedItems.Count);
@@ -48,7 +50,8 @@ namespace RandomizerCore.Randomization
         private int _cap = 0;
         public void IncrementCap(int amount)
         {
-            if (_cap + amount < 0) throw new OutOfLocationsException();
+            if (_cap + amount < 0) throw new OutOfLocationsException($"Tried to set cap for items of group {label} to negative value:\n" +
+                $"Cap {_cap} was incremented by {amount}.");
             _cap += amount;
         }
 

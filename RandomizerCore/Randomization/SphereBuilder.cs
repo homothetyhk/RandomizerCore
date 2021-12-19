@@ -38,6 +38,7 @@ namespace RandomizerCore.Randomization
             {
                 AddNextSphere();
             }
+            //LogSpheres();
         }
 
         /// <summary>
@@ -69,6 +70,15 @@ namespace RandomizerCore.Randomization
                     Locations = newLocations[i],
                 };
             }
+
+            foreach (Sphere s in next)
+            {
+                foreach (IRandoLocation rl in s.Locations)
+                {
+                    rl.Sphere = 0;
+                }
+            }
+
             Spheres.Add(next);
             selector.UpdateCaps(next);
         }
@@ -92,6 +102,22 @@ namespace RandomizerCore.Randomization
                     Locations = newLocations[i],
                 };
             }
+
+            int sphere = groups.Length;
+            bool finished = selector.Finished;
+            foreach (Sphere s in next)
+            {
+                foreach (IRandoItem ri in s.Items)
+                {
+                    ri.Sphere = sphere;
+                    ri.Required = !finished;
+                }
+                foreach (IRandoLocation rl in s.Locations)
+                {
+                    rl.Sphere = sphere;
+                }
+            }
+
             Spheres.Add(next);
             selector.UpdateCaps(next);
         }

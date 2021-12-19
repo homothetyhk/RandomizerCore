@@ -80,5 +80,12 @@ namespace RandomizerCore
         public List<ItemPlacement> itemPlacements;
         public List<TransitionPlacement> transitionPlacements;
         public List<int> notchCosts;
+
+        public IEnumerable<GeneralizedPlacement> EnumerateExistingPlacements()
+        {
+            if (Vanilla != null) foreach (GeneralizedPlacement p in Vanilla) yield return p;
+            if (itemPlacements != null) foreach (GeneralizedPlacement p in itemPlacements) yield return p;
+            if (transitionPlacements != null) foreach (TransitionPlacement p in transitionPlacements) yield return p;
+        }
     }
 }

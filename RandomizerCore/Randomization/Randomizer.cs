@@ -8,25 +8,29 @@ namespace RandomizerCore.Randomization
     {
         readonly LogicManager lm;
         readonly RandomizationStage[] stages;
-        readonly IRandomizerSettings rs;
         readonly RandoContext ctx;
         readonly ProgressionManager pm;
         readonly Random rng;
         readonly RandoMonitor rm;
         readonly List<List<RandoPlacement>[]> stagedPlacements;
 
-        public Randomizer(IRandomizerSettings rs, RandoContext ctx, RandomizationStage[] stages, RandoMonitor rm = null)
+        public Randomizer(Random rng, RandoContext ctx, RandomizationStage[] stages, RandoMonitor rm = null)
         {
-            this.rs = rs;
             this.ctx = ctx;
             this.lm = ctx.LM;
             this.rm = rm;
             this.stages = stages;
-            rng = new(rs.Seed);
+            this.rng = rng;
             stagedPlacements = new();
+            pm = new(lm, ctx);
+            foreach (RandomizationStage stage in stages)
+            {
+                foreach (RandomizationGroup group in stage.groups)
+                {
+                    if (group.Items.Length != group.Locations.Length) throw new ArgumentException($"Group {group.Label} in stage {stage.label} has nonmatching arrays!");
+                }
+            }
 
-            rs.Initialize(rng);
-            pm = new(lm, rs, ctx);
         }
 
         public List<List<RandoPlacement>[]> Run()
@@ -35,6 +39,7 @@ namespace RandomizerCore.Randomization
             {
                 try
                 {
+                    rm.SendEvent(RandoEventType.NewAttempt);
                     PermuteAll();
                     for (int i = 0; i < stages.Length - 1; i++) RandomizeForward(i, State.Temporary);
                     Randomize(stages.Length - 1, State.Permanent);
@@ -65,24 +70,26 @@ namespace RandomizerCore.Randomization
         private void Permute(RandomizationStage stage)
         {
             RandomizationGroup[] groups = stage.groups;
+            float maxLength = groups.Max(g => g.Items.Length);
+
             for (int i = 0; i < groups.Length; i++)
             {
-                rng.PermuteInPlace(groups[i].Items, (i, p) => i.Priority = p);
-                rng.PermuteInPlace(groups[i].Locations, (i, p) => i.Priority = p);
+                float scale = maxLength / groups[i].Items.Length;
+                rng.PermuteInPlace(groups[i].Items, (i, p) => i.Priority = p * scale);
+                rng.PermuteInPlace(groups[i].Locations, (i, p) => i.Priority = p * scale);
                 groups[i].InvokeOnPermute(rng);
 
-                groups[i].Items.StableSort((r, s) => s.Priority - r.Priority); // items are sorted in reverse since they will be loaded into a stack
-                groups[i].Locations.StableSort((r, s) => r.Priority - s.Priority);
+                groups[i].Items.StableSort();
+                Array.Reverse(groups[i].Items); // items are sorted in reverse since they will be loaded into a stack
+                groups[i].Locations.StableSort();
             }
         }
 
         private MainUpdater InitializeUpdater()
         {
             MainUpdater mu = new(lm);
-            mu.AddPlacements(rs.GetVanillaPlacements());
             mu.AddPlacements(lm.Waypoints);
-            if (ctx.transitionPlacements != null) mu.AddPlacements(ctx.transitionPlacements);
-            if (ctx.itemPlacements != null) mu.AddPlacements(ctx.itemPlacements);
+            mu.AddPlacements(ctx.EnumerateExistingPlacements());
             return mu;
         }
 
@@ -93,8 +100,18 @@ namespace RandomizerCore.Randomization
 
         private void ResetGroup(RandomizationGroup group)
         {
-            foreach (IRandoItem item in group.Items) item.Placed = State.None;
-            foreach (IRandoLocation location in group.Locations) location.Reachable = State.None;
+            foreach (IRandoItem item in group.Items)
+            {
+                item.Placed = State.None;
+                item.Sphere = -1;
+                item.Required = false;
+            }
+
+            foreach (IRandoLocation location in group.Locations)
+            {
+                location.Reachable = State.None;
+                location.Sphere = -1;
+            }
         }
 
         // Randomizes the groups in the stage with the given index.
@@ -164,7 +181,7 @@ namespace RandomizerCore.Randomization
             pm.Reset();
         }
 
-        private void Reset()
+        public void Reset()
         {
             pm.Reset();
             stagedPlacements.Clear();

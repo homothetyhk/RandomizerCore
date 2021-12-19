@@ -2,6 +2,13 @@
 
 namespace RandomizerCore
 {
+    public enum OneWayType
+    {
+        TwoWay,
+        OneWayIn,
+        OneWayOut
+    }
+
     public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple
     {
         public readonly LogicTransition lt;
@@ -11,11 +18,20 @@ namespace RandomizerCore
             this.lt = lt;
         }
 
-        public int sourcePriority;
-        public int targetPriority;
+        public float sourcePriority;
+        public float targetPriority;
 
-        int IRandoItem.Priority { get => targetPriority; set => targetPriority = value; }
-        int IRandoLocation.Priority { get => sourcePriority; set => sourcePriority = value; }
+        float IRandoItem.Priority { get => targetPriority; set => targetPriority = value; }
+        float IRandoLocation.Priority { get => sourcePriority; set => sourcePriority = value; }
+
+        public int sourceSphere;
+        public int targetSphere;
+        public bool targetRequired;
+
+        int IRandoItem.Sphere { get => targetSphere; set => targetSphere = value; }
+        bool IRandoItem.Required { get => targetRequired; set => targetRequired = value; }
+        int IRandoLocation.Sphere { get => sourceSphere; set => sourceSphere = value; }
+        
 
         public State Placed { get; set; }
 
@@ -41,6 +57,16 @@ namespace RandomizerCore
         public IEnumerable<Term> GetAffectedTerms()
         {
             return lt.GetAffectedTerms();
+        }
+
+        int IComparable<IRandoLocation>.CompareTo(IRandoLocation other)
+        {
+            return sourcePriority.CompareTo(other.Priority);
+        }
+
+        int IComparable<IRandoItem>.CompareTo(IRandoItem other)
+        {
+            return targetPriority.CompareTo(other.Priority);
         }
     }
 

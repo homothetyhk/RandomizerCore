@@ -67,6 +67,11 @@ namespace RandomizerCore.Logic
             foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p, p));
         }
 
+        public void AddPlacements(IEnumerable<GeneralizedPlacement> ps)
+        {
+            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.Item, p.Location));
+        }
+
         public void AddEntries(IEnumerable<UpdateEntry> entries)
         {
             foreach (var entry in entries) AddEntry(entry);
@@ -79,7 +84,7 @@ namespace RandomizerCore.Logic
 
         public void AddPlacements(IEnumerable<TransitionPlacement> ps)
         {
-            foreach (var p in ps) AddEntry(new TransitionUpdateEntry(p));
+            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.target, p.source));
         }
 
 

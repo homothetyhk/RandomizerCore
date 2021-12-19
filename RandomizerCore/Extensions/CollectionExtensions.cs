@@ -124,6 +124,11 @@ namespace RandomizerCore.Extensions
             return flag;
         }
 
+        public static void StableSort<T>(this IList<T> ts) where T : IComparable<T>
+        {
+            StableSort(ts, (t, u) => t.CompareTo(u));
+        }
+
         public static void StableSort<T>(this IList<T> ts, Comparison<T> comparison)
         {
             KeyValuePair<int, T>[] keys = new KeyValuePair<int, T>[ts.Count];

@@ -11,14 +11,12 @@ namespace RandomizerCore.Logic
 
         public PrePlacedItemUpdateEntry(ILogicItem item, ILogicDef location)
         {
-            //Log("Created ppi entry for " + item.name);
             this.item = item;
             this.location = location;
         }
 
         public override bool CanGet(ProgressionManager pm)
         {
-            //Log($"Testing logic for location {location.name}... result: {location.CanGet(pm)}");
             return location.CanGet(pm);
         }
 
@@ -29,8 +27,8 @@ namespace RandomizerCore.Logic
 
         public override void OnAdd(ProgressionManager pm)
         {
-            //Log("Adding unlocked vanilla item " + item.name);
             pm.Add(item);
+            if (location is ILogicItem li) pm.Add(li);
         }
 
         public override void OnRemove(ProgressionManager pm)

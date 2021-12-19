@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RandomizerCore.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace RandomizerCore.Collections
         public SortedArrayList(IEnumerable<T> input)
         {
             ts = input.ToList();
-            ts.Sort();
+            ts.StableSort();
         }
 
         /// <summary>
@@ -147,6 +148,33 @@ namespace RandomizerCore.Collections
             }
 
             return false;
+        }
+
+        public void RemoveAt(int index)
+        {
+            ts.RemoveAt(index);
+        }
+
+        public T ExtractMax()
+        {
+            T t = ts[^1];
+            ts.RemoveAt(ts.Count - 1);
+            return t;
+        }
+
+        public bool TryExtractMax(out T t)
+        {
+            if (ts.Count == 0)
+            {
+                t = default;
+                return false;
+            }
+            else
+            {
+                t = ts[^1];
+                ts.RemoveAt(ts.Count - 1);
+                return true;
+            }
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()

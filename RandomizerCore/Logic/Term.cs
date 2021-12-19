@@ -17,5 +17,10 @@ namespace RandomizerCore.Logic
         public readonly int Id = int.MinValue;
         public readonly string Name;
         public override string ToString() => Name;
+
+        public static implicit operator int(Term term)
+        {
+            return term.Id;
+        }
     }
 }

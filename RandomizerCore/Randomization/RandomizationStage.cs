@@ -6,7 +6,7 @@
     public class RandomizationStage
     {
         public RandomizationGroup[] groups;
-        public PlacementStrategy strategy;
+        public StagePlacementStrategy strategy;
         public string label;
 
         public override string ToString()

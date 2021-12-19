@@ -13,7 +13,6 @@ namespace RandomizerCore.Logic
         private readonly int[] backup;
 
         public LogicManager lm { get; protected set; }
-        private readonly IRandomizerSettings rs;
         public RandoContext ctx { get; protected set; }
 
         public bool Temp { get; private set; }
@@ -26,10 +25,9 @@ namespace RandomizerCore.Logic
         public event Action<bool> AfterEndTemp;
 
 
-        public ProgressionManager(LogicManager lm, IRandomizerSettings gs, RandoContext ctx)
+        public ProgressionManager(LogicManager lm, RandoContext ctx)
         {
             this.lm = lm;
-            this.rs = gs;
             this.ctx = ctx;
 
             obtained = new int[lm.TermCount];
@@ -51,7 +49,7 @@ namespace RandomizerCore.Logic
             Array.Clear(obtained, 0, obtained.Length);
             Array.Clear(backup, 0, backup.Length);
 
-            rs.ApplySettings(this);
+            ctx.InitialProgression?.AddTo(this);
         }
 
 
@@ -67,6 +65,12 @@ namespace RandomizerCore.Logic
             obtained[index] = value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Set(TermValue tv)
+        {
+            obtained[tv.Term] = tv.Value;
+        }
+
         public void Set(string term, int value)
         {
             obtained[lm.GetTerm(term).Id] = value;
@@ -78,6 +82,11 @@ namespace RandomizerCore.Logic
             obtained[index] += value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Incr(TermValue tv)
+        {
+            obtained[tv.Term] += tv.Value;
+        }
 
         public int Get(string id)
         {

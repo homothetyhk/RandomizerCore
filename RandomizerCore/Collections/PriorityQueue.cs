@@ -10,7 +10,7 @@ namespace RandomizerCore.Collections
     /// <summary>
     /// Stable binary min-heap (equal priorities -> first-in first-out)
     /// </summary>
-    public class PriorityQueue<T>
+    public class PriorityQueue<TKey, TValue> where TKey : IComparable<TKey>
     {
         private PriorityEntry[] list;
         int count;
@@ -44,12 +44,12 @@ namespace RandomizerCore.Collections
             _capacity = capacity;
         }
 
-        public PriorityQueue(IEnumerable<T> ts, Func<T, int> prioritySelector)
+        public PriorityQueue(IEnumerable<TValue> ts, Func<TValue, TKey> prioritySelector)
         {
-            if (ts is ICollection<T> c) list = new PriorityEntry[c.Count];
+            if (ts is ICollection<TValue> c) list = new PriorityEntry[c.Count];
             else list = new PriorityEntry[4];
 
-            foreach (T t in ts) Enqueue(prioritySelector(t), t);
+            foreach (TValue t in ts) Enqueue(prioritySelector(t), t);
         }
 
         public void Clear()
@@ -59,7 +59,7 @@ namespace RandomizerCore.Collections
             version = 0;
         }
 
-        public void Enqueue(int priority, T t)
+        public void Enqueue(TKey priority, TValue t)
         {
             int i = count;
             EnsureCapacity(++count);
@@ -74,7 +74,7 @@ namespace RandomizerCore.Collections
             }
         }
 
-        public bool TryPeek(out int priority, out T t)
+        public bool TryPeek(out TKey priority, out TValue t)
         {
             if (count > 0)
             {
@@ -90,7 +90,7 @@ namespace RandomizerCore.Collections
             }
         }
 
-        public void UpdateHead(int newPriority)
+        public void UpdateHead(TKey newPriority)
         {
             if (Count == 0) throw new InvalidOperationException("Priority queue empty");
 
@@ -138,17 +138,17 @@ namespace RandomizerCore.Collections
             ExtractMin(out _, out _);
         }
 
-        public void ExtractMin(out T t)
+        public void ExtractMin(out TValue t)
         {
             ExtractMin(out _, out t);
         }
 
-        public void ExtractMin(out int priority, out T t)
+        public void ExtractMin(out TKey priority, out TValue t)
         {
             if (!TryExtractMin(out priority, out t)) throw new InvalidOperationException("Priority queue empty.");
         }
 
-        public bool TryExtractMin(out int priority, out T t)
+        public bool TryExtractMin(out TKey priority, out TValue t)
         {
             if (count > 0)
             {
@@ -203,8 +203,6 @@ namespace RandomizerCore.Collections
             }
         }
 
-
-
         private void EnsureCapacity(int min)
         {
             if (list.Length < min) Capacity = Math.Max(min, 2 * list.Length);
@@ -213,7 +211,7 @@ namespace RandomizerCore.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsLessThan(int i, int p)
         {
-            return list[i].priority < list[p].priority || ((list[i].priority == list[p].priority) && list[i].version < list[p].version);
+            return list[i].CompareTo(list[p]) < 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -235,11 +233,11 @@ namespace RandomizerCore.Collections
 
         private readonly struct PriorityEntry : IComparable<PriorityEntry>
         {
-            public readonly int priority;
+            public readonly TKey priority;
             public readonly int version;
-            public readonly T t;
+            public readonly TValue t;
 
-            public PriorityEntry(int priority, int version, T t)
+            public PriorityEntry(TKey priority, int version, TValue t)
             {
                 this.priority = priority;
                 this.version = version;
@@ -248,9 +246,9 @@ namespace RandomizerCore.Collections
 
             public int CompareTo(PriorityEntry other)
             {
-                int diff = priority - other.priority;
-                if (diff != 0) return diff;
-                return version - other.version;
+                int c = priority.CompareTo(other.priority);
+                if (c != 0) return c;
+                return version.CompareTo(other.version);
             }
         }
     }

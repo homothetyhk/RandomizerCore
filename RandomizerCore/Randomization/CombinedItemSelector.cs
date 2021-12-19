@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Collections;
+using RandomizerCore.Exceptions;
 using RandomizerCore.Extensions;
 
 namespace RandomizerCore.Randomization
@@ -10,7 +11,7 @@ namespace RandomizerCore.Randomization
     {
         readonly GroupItemSelector[] selectors;
 
-        readonly PriorityQueue<GroupItemSelector> openSelectors;
+        readonly PriorityQueue<float, GroupItemSelector> openSelectors;
         readonly Stack<GroupItemSelector> proposeOrder;
 
         public CombinedItemSelector(RandomizationGroup[] groups)
@@ -133,7 +134,7 @@ namespace RandomizerCore.Randomization
             }
 
             proposeOrder.Push(s);
-            if (s.TryGetNextProposalPriority(out int priority))
+            if (s.TryGetNextProposalPriority(out float priority))
             {
                 openSelectors.UpdateHead(priority);
             }
@@ -173,7 +174,7 @@ namespace RandomizerCore.Randomization
             for (int i = 0; i < selectors.Length; i++)
             {
                 selectors[i].IncrementCap(last[i].Locations.Count);
-                if (selectors[i].TryGetNextProposalPriority(out int priority))
+                if (selectors[i].TryGetNextProposalPriority(out float priority))
                 {
                     openSelectors.Enqueue(priority, selectors[i]);
                 }

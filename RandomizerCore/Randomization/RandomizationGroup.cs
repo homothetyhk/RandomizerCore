@@ -8,6 +8,7 @@
         public IRandoItem[] Items;
         public IRandoLocation[] Locations;
         public string Label;
+        public GroupPlacementStrategy Strategy;
 
         /// <summary>
         /// An event invoked after the items and locations of the group are permuted and have their priorities set.

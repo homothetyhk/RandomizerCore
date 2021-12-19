@@ -16,8 +16,9 @@ namespace RandomizerCore
         [JsonIgnore]
         public string Name => logic.Name;
 
-        public int Priority { get ; set; }
+        public float Priority { get ; set; }
         public State Reachable { get; set; }
+        public int Sphere { get; set; }
 
         public bool CanGet(ProgressionManager pm)
         {
@@ -61,5 +62,9 @@ namespace RandomizerCore
             return Name;
         }
 
+        int IComparable<IRandoLocation>.CompareTo(IRandoLocation other)
+        {
+            return Priority.CompareTo(other.Priority);
+        }
     }
 }
