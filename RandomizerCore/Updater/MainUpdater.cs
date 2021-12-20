@@ -87,6 +87,11 @@ namespace RandomizerCore.Logic
             foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.target, p.source));
         }
 
+        public void AddPlacements(IEnumerable<RandoPlacement> ps)
+        {
+            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.Item, p.Location));
+        }
+
 
         public void EnqueueUpdates(ILogicItem item)
         {

@@ -26,7 +26,7 @@ namespace RandomizerCore
             serializer.Converters.Add(ldc);
 
             ctx.InitialProgression = jo[nameof(ctx.InitialProgression)].ToObject<ILogicItem>(serializer);
-            ctx.Vanilla = jo[nameof(ctx.Vanilla)].ToObject<List<GeneralizedPlacement>>(serializer);
+            ctx.Vanilla = jo[nameof(ctx.Vanilla)].ToObject<List<RandoPlacement>>(serializer);
             ctx.itemPlacements = jo[nameof(ctx.itemPlacements)].ToObject<List<ItemPlacement>>(serializer);
             ctx.transitionPlacements = jo[nameof(ctx.transitionPlacements)].ToObject<List<TransitionPlacement>>(serializer);
             ctx.notchCosts = jo[nameof(ctx.notchCosts)].ToObject<List<int>>(serializer);
@@ -75,7 +75,7 @@ namespace RandomizerCore
     {
         public LogicManager LM;
         public ILogicItem InitialProgression;
-        public List<GeneralizedPlacement> Vanilla;
+        public List<RandoPlacement> Vanilla;
 
         public List<ItemPlacement> itemPlacements;
         public List<TransitionPlacement> transitionPlacements;
@@ -83,8 +83,8 @@ namespace RandomizerCore
 
         public IEnumerable<GeneralizedPlacement> EnumerateExistingPlacements()
         {
-            if (Vanilla != null) foreach (GeneralizedPlacement p in Vanilla) yield return p;
-            if (itemPlacements != null) foreach (GeneralizedPlacement p in itemPlacements) yield return p;
+            if (Vanilla != null) foreach (RandoPlacement p in Vanilla) yield return p;
+            if (itemPlacements != null) foreach (ItemPlacement p in itemPlacements) yield return p;
             if (transitionPlacements != null) foreach (TransitionPlacement p in transitionPlacements) yield return p;
         }
     }
