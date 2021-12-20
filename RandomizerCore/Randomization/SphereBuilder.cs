@@ -1,4 +1,5 @@
-﻿using RandomizerCore.Logic;
+﻿using RandomizerCore.Exceptions;
+using RandomizerCore.Logic;
 
 namespace RandomizerCore.Randomization
 {
@@ -155,7 +156,7 @@ namespace RandomizerCore.Randomization
             int[] items = new int[groups.Length];
             int[] locations = new int[groups.Length];
 
-            Log($"Total: {string.Join(", ", groups.Select(g => g.Items.Length))}");
+            Log($"Total: {string.Join(", ", groups.Select(g => $"{g.Items.Length}/{g.Locations.Length}"))}");
 
             for (int i = 0; i < Spheres.Count; i++)
             {
@@ -208,6 +209,14 @@ namespace RandomizerCore.Randomization
 
                 if (!rt.FoundNew)
                 {
+                    // any locations which are not reachable at this point are unreachable
+                    // randomization will fail during placement, so better to throw early and provide info
+                    List<IRandoLocation>[] unreachable = rt.FindNonreachableLocations();
+                    if (unreachable.Any(l => l.Count != 0))
+                    {
+                        throw new UnreachableLocationException(unreachable, groups);
+                    }
+
                     // Nothing found by audit, so this is the last step, and we output all remaining items, unlocking no locations
                     selector.UnacceptAll();
                     selector.Finish(out placed);

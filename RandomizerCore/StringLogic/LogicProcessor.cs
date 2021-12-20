@@ -39,11 +39,13 @@ namespace RandomizerCore.StringLogic
         public void SetMacro(KeyValuePair<string, string> kvp) => SetMacro(kvp.Key, ParseInfixToClause(kvp.Value));
         public void SetMacro(string key, LogicClause c)
         {
-            macros[key] = c;
-            if (!tokenPool.TryGetValue(key, out LogicToken lt) || lt is not MacroToken)
+            if (tokenPool.TryGetValue(key, out LogicToken lt) && lt is not MacroToken)
             {
-                tokenPool[key] = new MacroToken(key, this);
+                throw new ArgumentException($"Key {key} cannot be used as a macro since it is already in use for {lt}");
             }
+
+            macros[key] = c;
+            if (lt is null) tokenPool[key] = new MacroToken(key, this);
         }
 
         public LogicClause GetMacro(string name)
