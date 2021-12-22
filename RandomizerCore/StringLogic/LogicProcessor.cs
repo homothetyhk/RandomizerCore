@@ -27,6 +27,12 @@ namespace RandomizerCore.StringLogic
             macros = new();
         }
 
+        public LogicProcessor(LogicProcessor source)
+        {
+            tokenPool = new(source.tokenPool);
+            macros = new(source.macros);
+        }
+
         public void SetMacro(Dictionary<string, string> newMacros)
         {
             if (newMacros == null) return;

@@ -53,13 +53,7 @@ namespace RandomizerCore.Randomization
 
         public DefaultGroupPlacementStrategy(float depthPriorityScalingFactor)
         {
-            void DPT(IRandoItem item, IRandoLocation location, int itemDepth, int itemPriorityDepth, int locationDepth, ref float locationPriority)
-            {
-                if (itemPriorityDepth < locationDepth) return;
-                locationPriority -= depthPriorityScalingFactor * locationDepth;
-            }
-
-            depthPriorityTransform = DPT;
+            depthPriorityTransform = PriorityTransformUtil.CreateTransform(depthPriorityScalingFactor);
         }
 
         public override List<RandoPlacement> PlaceGroup(RandomizationGroup group, IEnumerable<Sphere> spheres, State placementState)

@@ -14,7 +14,6 @@ namespace RandomizerCore.Randomization
         private readonly CombinedLocationTracker rt;
         private readonly ProgressionManager pm;
         private readonly MainUpdater mu;
-        // TODO: doublecheck empty case handling
 
         /// <summary>
         /// Creates a new SphereBuilder, using the ProgressionManager and MainUpdater to monitor reachable locations.

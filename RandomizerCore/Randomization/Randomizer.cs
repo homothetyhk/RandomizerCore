@@ -70,13 +70,12 @@ namespace RandomizerCore.Randomization
         private void Permute(RandomizationStage stage)
         {
             RandomizationGroup[] groups = stage.groups;
-            float maxLength = groups.Max(g => g.Items.Length);
 
             for (int i = 0; i < groups.Length; i++)
             {
-                float scale = maxLength / groups[i].Items.Length;
-                rng.PermuteInPlace(groups[i].Items, (i, p) => i.Priority = p * scale);
-                rng.PermuteInPlace(groups[i].Locations, (i, p) => i.Priority = p * scale);
+                float scale = groups[i].Items.Length;
+                rng.PermuteInPlace(groups[i].Items, (i, p) => i.Priority = p / scale);
+                rng.PermuteInPlace(groups[i].Locations, (i, p) => i.Priority = p / scale);
                 groups[i].InvokeOnPermute(rng);
 
                 groups[i].Items.StableSort();
@@ -255,10 +254,9 @@ namespace RandomizerCore.Randomization
                 {
                     foreach (RandoPlacement p in ps)
                     {
-                        PrePlacedItemUpdateEntry e = new PrePlacedItemUpdateEntry(p.Item, p.Location);
+                        PrePlacedItemUpdateEntry e = new(p.Item, p.Location);
                         entries.Add(e);
                         mu.AddEntry(e);
-                        // TODO: update entry for coupled placement
                     }
                 }
             }

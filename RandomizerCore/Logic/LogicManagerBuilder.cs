@@ -29,7 +29,7 @@ namespace RandomizerCore.Logic
         {
             terms = new(source.terms);
             termLookup = new(source.termLookup);
-            LP = source.LP;
+            LP = new(source.LP);
             VariableResolver = source.VariableResolver;
             PrefabItems = new(source.PrefabItems);
             UnparsedItems = new(source.UnparsedItems);
@@ -42,8 +42,8 @@ namespace RandomizerCore.Logic
         {
             terms = new(source.Terms);
             termLookup = new(source.TermLookup);
-            LP = source.LP;
-            VariableResolver = new(); // TODO: Expose in LM?
+            LP = new(source.LP);
+            VariableResolver = source.VariableResolver;
             PrefabItems = new(source.ItemLookup);
             UnparsedItems = new();
             LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());

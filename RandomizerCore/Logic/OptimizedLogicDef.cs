@@ -137,7 +137,7 @@ namespace RandomizerCore.Logic
                     case (int)LogicOperators.EQ:
                         {
                             GetComparisonStrings(ref i, out string left, out string right);
-                            lcb.Append(lm.LP.GetComparisonToken(ComparisonType.EQ, left, right)); // TODO: use token pool
+                            lcb.Append(lm.LP.GetComparisonToken(ComparisonType.EQ, left, right));
                         }
                         break;
                     case (int)LogicOperators.LT:
@@ -153,7 +153,7 @@ namespace RandomizerCore.Logic
                         }
                         break;
                     default:
-                        lcb.Append(lm.LP.GetTermToken(logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name)); // TODO: use token pool
+                        lcb.Append(lm.LP.GetTermToken(logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name));
                         break;
                 }
             }

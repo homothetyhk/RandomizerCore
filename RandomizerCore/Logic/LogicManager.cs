@@ -20,7 +20,6 @@ namespace RandomizerCore.Logic
             lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>();
 
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
-            // TODO: variables
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Locations, lm["Logic"]);
