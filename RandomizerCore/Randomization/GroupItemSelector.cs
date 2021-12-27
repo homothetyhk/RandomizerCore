@@ -126,6 +126,15 @@ namespace RandomizerCore.Randomization
             }
         }
 
+        public void RejectAllRemaining()
+        {
+            while (proposedItems.TryPop(out IRandoItem t))
+            {
+                t.Placed = State.None;
+                rejectedItems.Push(t);
+            }
+        }
+
         public void RejectCurrentAndUnacceptAll()
         {
             IRandoItem r = proposedItems.Pop();
@@ -136,20 +145,22 @@ namespace RandomizerCore.Randomization
 
         public void RejectLast()
         {
-            while (proposedItems.TryPop(out IRandoItem t))
+            if (proposedItems.TryPop(out IRandoItem t))
             {
                 t.Placed = State.None;
                 rejectedItems.Push(t);
-                return;
             }
-            throw new InvalidOperationException("RejectLast called with no valid proposed transitions.");
+            else throw new InvalidOperationException("RejectLast called with no valid proposed transitions.");
         }
 
         /// <summary>
-        /// Outputs list of accepted items. Moves all rejected items to proposed items and starts new acccepted item list.
+        /// Outputs list of accepted items. Restores all rejected items and starts new acccepted item list.
         /// </summary>
+        /// <exception cref="InvalidOperationException">There are unhandled proposed items.</exception>
         public void FinishAccepting(out List<IRandoItem> newItems)
         {
+            if (proposedItems.Count != 0) throw new InvalidOperationException("FinishAccepting called with unhandled proposed items!");
+
             newItems = acceptedItems;
             acceptedItems = new List<IRandoItem>();
             while (rejectedItems.TryPop(out IRandoItem item)) proposedItems.Push(item);
@@ -165,10 +176,10 @@ namespace RandomizerCore.Randomization
         /// <summary>
         /// Outputs all items which have not yet been accepted.
         /// </summary>
-        /// <exception cref="InvalidOperationException">There are uncollected accepted items.</exception>
         public void Finish(out List<IRandoItem> remainingItems)
         {
-            if (acceptedItems.Count != 0) throw new InvalidOperationException("ItemSelector.Finish called with uncollected accepted items!");
+            for (int i = acceptedItems.Count - 1; i >= 0; i--) proposedItems.Push(acceptedItems[i]);
+            acceptedItems.Clear();
             while (rejectedItems.TryPop(out IRandoItem r)) proposedItems.Push(r);
             while (proposedItems.TryPop(out IRandoItem p)) unusedItems.Push(p);
             remainingItems = new();
@@ -178,7 +189,7 @@ namespace RandomizerCore.Randomization
                 else remainingItems.Add(t);
             }
 
-            foreach (var t in remainingItems) t.Placed = State.Permanent;
+            foreach (IRandoItem t in remainingItems) t.Placed = State.Permanent;
             Finished = true;
             IncrementCap(-remainingItems.Count);
         }

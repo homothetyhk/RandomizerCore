@@ -13,6 +13,7 @@ namespace RandomizerCore.Randomization
 
         readonly PriorityQueue<float, GroupItemSelector> openSelectors;
         readonly Stack<GroupItemSelector> proposeOrder;
+        readonly Stack<GroupItemSelector> acceptOrder;
 
         public CombinedItemSelector(RandomizationGroup[] groups)
         {
@@ -24,6 +25,7 @@ namespace RandomizerCore.Randomization
 
             openSelectors = new();
             proposeOrder = new();
+            acceptOrder = new();
         }
 
         public bool Finished
@@ -76,9 +78,15 @@ namespace RandomizerCore.Randomization
 
         public void AcceptLast()
         {
-            proposeOrder.Pop().AcceptLast();
+            GroupItemSelector s = proposeOrder.Pop();
+            s.AcceptLast();
+            acceptOrder.Push(s);
         }
 
+        /// <summary>
+        /// Outputs list of accepted items. Restores all rejected items and starts new acccepted item list.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">There are unhandled proposed items.</exception>
         public void FinishAccepting(out List<IRandoItem>[] newItems)
         {
             newItems = new List<IRandoItem>[selectors.Length];
@@ -87,23 +95,12 @@ namespace RandomizerCore.Randomization
                 selectors[i].FinishAccepting(out newItems[i]);
             }
             proposeOrder.Clear();
+            acceptOrder.Clear();
         }
 
-        public void RejectCurrentAndUnacceptAll()
-        {
-            GroupItemSelector s = proposeOrder.Peek();
-            s.RejectCurrentAndUnacceptAll();
-            foreach (GroupItemSelector t in selectors)
-            {
-                if (t != s) t.UnacceptAll();
-            }
-        }
-
-        public void UnacceptAll()
-        {
-            foreach (GroupItemSelector s in selectors) s.UnacceptAll();
-        }
-
+        /// <summary>
+        /// Outputs all items which have not yet been accepted.
+        /// </summary>
         public void Finish(out List<IRandoItem>[] newItems)
         {
             newItems = new List<IRandoItem>[selectors.Length];
@@ -112,11 +109,30 @@ namespace RandomizerCore.Randomization
                 selectors[i].Finish(out newItems[i]);
             }
             proposeOrder.Clear();
+            acceptOrder.Clear();
+        }
+
+        public void RejectCurrentAndUnacceptAll()
+        {
+            GroupItemSelector s = proposeOrder.Pop();
+            s.RejectCurrentAndUnacceptAll();
+            foreach (GroupItemSelector t in selectors)
+            {
+                if (t != s) t.UnacceptAll();
+            }
+            while (acceptOrder.TryPop(out GroupItemSelector g)) proposeOrder.Push(g);
+        }
+
+        public void RejectAllRemaining()
+        {
+            foreach (GroupItemSelector s in selectors) s.RejectAllRemaining();
+            proposeOrder.Clear();
         }
 
         public void RejectLast()
         {
-            proposeOrder.Pop().RejectLast();
+            GroupItemSelector s = proposeOrder.Pop();
+            s.RejectLast();
         }
 
         public bool TryProposeNext(out IRandoItem item)

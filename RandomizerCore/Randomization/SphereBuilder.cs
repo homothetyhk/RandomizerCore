@@ -51,7 +51,7 @@ namespace RandomizerCore.Randomization
             {
                 if (groups.Any(g => g.Items.Any() || g.Locations.Any()))
                 {
-                    throw new InvalidOperationException("Nonempty randomizer request has no reachable locations at start!");
+                    throw new OutOfLocationsException("Nonempty randomizer request has no reachable locations at start!");
                 }
                 else return;
             }
@@ -90,6 +90,7 @@ namespace RandomizerCore.Randomization
         {
             Step(out List<IRandoItem>[] newItems);
             rt.Collect(out List<IRandoLocation>[] newLocations);
+            
             Sphere[] next = new Sphere[groups.Length];
             for (int i = 0; i < next.Length; i++)
             {
@@ -211,13 +212,15 @@ namespace RandomizerCore.Randomization
                     // any locations which are not reachable at this point are unreachable
                     // randomization will fail during placement, so better to throw early and provide info
                     List<IRandoLocation>[] unreachable = rt.FindNonreachableLocations();
-                    if (unreachable.Any(l => l.Count != 0))
+                    for (int i = 0; i < groups.Length; i++)
                     {
-                        throw new UnreachableLocationException(unreachable, groups);
+                        if (unreachable[i].Count != 0)
+                        {
+                            throw new UnreachableLocationException(unreachable, groups);
+                        }
                     }
 
                     // Nothing found by audit, so this is the last step, and we output all remaining items, unlocking no locations
-                    selector.UnacceptAll();
                     selector.Finish(out placed);
                     pm.SaveTempItems();
                     return;
@@ -228,9 +231,10 @@ namespace RandomizerCore.Randomization
             {
                 if (Decide(t) && IsFinalItem())
                 {
+                    selector.RejectAllRemaining();
                     break;
                 }
-                if (!rt.FoundNew) throw new Exception("Decide deleted necessary transition?!?!");
+                if (!rt.FoundNew) throw new InvalidOperationException("Decide deleted necessary transition?!?!");
             }
 
             selector.FinishAccepting(out placed);

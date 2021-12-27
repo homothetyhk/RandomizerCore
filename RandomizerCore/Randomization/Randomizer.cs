@@ -51,6 +51,12 @@ namespace RandomizerCore.Randomization
                     rm.SendEvent(RandoEventType.Error, e.ToString());
                     Reset();
                 }
+                catch (UnreachableLocationException e)
+                {
+                    rm.SendEvent(RandoEventType.Error, e.ToString());
+                    LogDebug(e.GetVerboseMessage());
+                    Reset();
+                }
             }
 
             rm.SendEvent(RandoEventType.Validating);
