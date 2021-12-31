@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace RandomizerCore.Randomization
 {
+    /// <summary>
+    /// Utility class for creating Depth Priority Transforms that do simple mathematical operations.
+    /// </summary>
     public static class PriorityTransformUtil
     {
+        /// <summary>
+        /// Parameter which determines the function applied to the location depth.
+        /// </summary>
         public enum TransformType
         {
             Linear,
@@ -16,15 +22,31 @@ namespace RandomizerCore.Randomization
             Logarithmic
         }
 
+        /// <summary>
+        /// Parameter which determines how location depth should be adjusted according to item priority depth.
+        /// </summary>
         public enum ItemPriorityDepthEffect
         {
-            DefaultCutoff,
+            /// <summary>
+            /// Cancel priority transform if item priority depth exceeds location depth.
+            /// </summary>
+            Cliff,
+            /// <summary>
+            /// Adjust location depth to fade linearly to 0 when greater than item priority depth.
+            /// </summary>
             Fade,
+            /// <summary>
+            /// Clamp location depth to item priority depth as an upper bound.
+            /// </summary>
+            Cap,
+            /// <summary>
+            /// Item priority depth has no effect.
+            /// </summary>
             Ignore,
         }
 
         public static DefaultGroupPlacementStrategy.DepthPriorityTransformHandler CreateTransform
-            (float coefficient, TransformType type = TransformType.Linear, ItemPriorityDepthEffect priorityDepthEffect = ItemPriorityDepthEffect.DefaultCutoff)
+            (float coefficient, TransformType type = TransformType.Linear, ItemPriorityDepthEffect priorityDepthEffect = ItemPriorityDepthEffect.Cliff)
         {
             coefficient /= 100f;
             return DPT;
@@ -33,11 +55,17 @@ namespace RandomizerCore.Randomization
             {
                 switch (priorityDepthEffect)
                 {
-                    case ItemPriorityDepthEffect.DefaultCutoff:
+                    case ItemPriorityDepthEffect.Cliff:
                         if (itemPriorityDepth < locationDepth) return;
                         break;
                     case ItemPriorityDepthEffect.Fade:
-                        locationDepth -= itemPriorityDepth;
+                        if (locationDepth > itemPriorityDepth)
+                        {
+                            locationDepth = Math.Max(2 * itemPriorityDepth - locationDepth, 0);
+                        }
+                        break;
+                    case ItemPriorityDepthEffect.Cap:
+                        locationDepth = Math.Min(locationDepth, itemPriorityDepth);
                         break;
                     default:
                     case ItemPriorityDepthEffect.Ignore:

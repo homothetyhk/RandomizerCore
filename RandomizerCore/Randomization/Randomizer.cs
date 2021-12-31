@@ -48,12 +48,12 @@ namespace RandomizerCore.Randomization
                 }
                 catch (OutOfLocationsException e)
                 {
-                    rm.SendEvent(RandoEventType.Error, e.ToString());
+                    rm.SendError(e);
                     Reset();
                 }
                 catch (UnreachableLocationException e)
                 {
-                    rm.SendEvent(RandoEventType.Error, e.ToString());
+                    rm.SendError(e);
                     LogDebug(e.GetVerboseMessage());
                     Reset();
                 }
