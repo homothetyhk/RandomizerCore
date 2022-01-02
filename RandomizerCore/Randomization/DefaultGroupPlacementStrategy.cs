@@ -174,18 +174,23 @@ namespace RandomizerCore.Randomization
                     }
 
                     bool test = CanPlace(item, rl);
-                    if (constraintSatisfied && !test) continue;
-
-                    float priority = rl.Priority;
-                    depthPriorityTransform(item, rl, s.depth, priorityDepth, j, ref priority);
-
-                    if (priority < locationPriority)
+                    if (constraintSatisfied && !test) continue; // old passes constraint, new fails
+                    else if (!(constraintSatisfied ^ test)) // both pass or both fail constraint
                     {
-                        depth = j;
-                        index = k;
-                        locationPriority = priority;
-                        if (test) constraintSatisfied = true;
+                        float priority = rl.Priority;
+                        depthPriorityTransform(item, rl, s.depth, priorityDepth, j, ref priority);
+                        if (priority >= locationPriority) continue;
+                        else locationPriority = priority;
                     }
+                    else // old fails constraint, new passes
+                    {
+                        locationPriority = rl.Priority;
+                        depthPriorityTransform(item, rl, s.depth, priorityDepth, j, ref locationPriority);
+                    }
+
+                    depth = j;
+                    index = k;
+                    constraintSatisfied = test;
 
                     if (constraintSatisfied) break;
                 }
@@ -193,7 +198,12 @@ namespace RandomizerCore.Randomization
 
             if (index < 0) throw new OutOfLocationsException($"SelectNext failed on group {s.groupLabel}.");
             IRandoLocation location = locations[depth][index];
-            if (!CanPlace(item, location)) InvokeOnConstraintViolated(item, location);
+            if (!constraintSatisfied)
+            {
+                InvokeOnConstraintViolated(item, location);
+                // Log($"Available locations were: {string.Join(", ", locations.SelectMany(l => l.Select(rl => rl.Name)))}");
+            }
+
             locations[depth].RemoveAt(index);
             return location;
         }
