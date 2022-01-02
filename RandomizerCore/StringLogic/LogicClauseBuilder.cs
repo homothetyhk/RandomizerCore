@@ -217,6 +217,7 @@ namespace RandomizerCore.StringLogic
                 {
                     _tokens.RemoveAt(i);
                     _tokens.InsertRange(i, mt.Value.Tokens);
+                    i--;
                 }
             }
         }
@@ -233,7 +234,7 @@ namespace RandomizerCore.StringLogic
         }
 
         /// <summary>
-        /// Replaces all occurences that match the old token with the new clause. Acts recursively.
+        /// Replaces all occurences that match the old token with the new clause. Is not recursive--it is safe to reference the old token inside the new clause.
         /// </summary>
         public void Subst(TermToken oldToken, LogicClause newClause)
         {
@@ -243,6 +244,7 @@ namespace RandomizerCore.StringLogic
                 {
                     _tokens.RemoveAt(i);
                     _tokens.InsertRange(i, newClause.Tokens);
+                    i += newClause.Count - 1;
                 }
             }
         }
