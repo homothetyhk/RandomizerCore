@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RandomizerCore.Extensions;
-
-namespace RandomizerCore.StringLogic
+﻿namespace RandomizerCore.StringLogic
 {
     public static class Infix
     {

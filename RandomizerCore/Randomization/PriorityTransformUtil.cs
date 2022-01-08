@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RandomizerCore.Randomization
+﻿namespace RandomizerCore.Randomization
 {
     /// <summary>
     /// Utility class for creating Depth Priority Transforms that do simple mathematical operations.

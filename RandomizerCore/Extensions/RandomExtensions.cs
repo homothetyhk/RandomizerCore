@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace RandomizerCore.Extensions
+﻿namespace RandomizerCore.Extensions
 {
     public static class RandomExtensions
     {

@@ -1,13 +1,11 @@
 ﻿using RandomizerCore.Extensions;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RandomizerCore.Collections
 {
+    /// <summary>
+    /// A sorted list which maintains its sort through binary search during list operations.
+    /// </summary>
     public class SortedArrayList<T> : IReadOnlyList<T>, ICollection<T> where T : IComparable<T>
     {
         private readonly List<T> ts;

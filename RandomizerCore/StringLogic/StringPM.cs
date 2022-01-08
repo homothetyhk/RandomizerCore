@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RandomizerCore.StringLogic
+﻿namespace RandomizerCore.StringLogic
 {
     /// <summary>
     /// Base class for an object which can evaluate tokenized logic.

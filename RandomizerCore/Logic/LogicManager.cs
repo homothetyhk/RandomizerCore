@@ -1,72 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using RandomizerCore.Json;
 using RandomizerCore.StringLogic;
-using static RandomizerCore.LogHelper;
+using System.Collections.ObjectModel;
 
 namespace RandomizerCore.Logic
 {
-    public class LMConverter : JsonConverter<LogicManager>
-    {
-        public override LogicManager ReadJson(JsonReader reader, Type objectType, LogicManager existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            LogicManagerBuilder lmb = new();
-            JObject lm = JObject.Load(reader);
-            lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>();
-            lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>();
-
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Locations, lm["Logic"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Items, lm["Items"]);
-
-            return new(lmb);
-        }
-
-        public override void WriteJson(JsonWriter writer, LogicManager value, JsonSerializer serializer)
-        {
-            writer.WriteStartObject();
-
-            TermConverter tc = new() { LM = value };
-            LogicDefConverter ldc = new() { LM = value };
-            serializer.Converters.Add(tc);
-            serializer.Converters.Add(ldc);
-
-            writer.WritePropertyName("Terms");
-            serializer.Serialize(writer, value.Terms);
-
-            writer.WritePropertyName("Variables");
-            serializer.Serialize(writer, value.Variables);
-
-            writer.WritePropertyName("Logic");
-            serializer.Serialize(writer, value.LogicLookup.Values.Select(l => new RawLogicDef(l.Name, l.ToInfix())));
-
-            writer.WritePropertyName("Items");
-            serializer.Serialize(writer, value.ItemLookup.Values);
-
-            writer.WritePropertyName("Transitions");
-            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => t.ToRaw()));
-
-            writer.WritePropertyName("Waypoints");
-            serializer.Serialize(writer, value.Waypoints.Select(w => new RawLogicDef(w.Name, w.logic.ToInfix())));
-
-            writer.WritePropertyName(nameof(value.LP));
-            serializer.Serialize(writer, value.LP);
-
-            writer.WritePropertyName(nameof(value.VariableResolver));
-            serializer.Serialize(writer, value.VariableResolver);
-
-            writer.WriteEndObject();
-            serializer.Converters.Remove(ldc);
-            serializer.Converters.Remove(tc);
-        }
-    }
-
     [JsonConverter(typeof(LMConverter))]
     public class LogicManager : ILogicManager
     {

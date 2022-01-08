@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Exceptions;
 using RandomizerCore.Logic;
+using System.Diagnostics;
 
 namespace RandomizerCore.Randomization
 {
@@ -123,6 +124,7 @@ namespace RandomizerCore.Randomization
             selector.UpdateCaps(next);
         }
 
+        [Conditional("DEBUG")]
         internal void LogSpheres()
         {
             Log();

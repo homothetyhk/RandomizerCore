@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static RandomizerCore.LogHelper;
-
-namespace RandomizerCore.Logic
+﻿namespace RandomizerCore.Logic
 {
     public class MainUpdater
     {
@@ -112,7 +105,6 @@ namespace RandomizerCore.Logic
 
         public void DoUpdate(int term)
         {
-            //Log("Doing update for term: " + lm.GetTerm(term));
             foreach (var entry in entriesByTerm[term])
             {
                 DoUpdateEntry(entry);
@@ -146,8 +138,6 @@ namespace RandomizerCore.Logic
 
         public void OnRemove()
         {
-            //Log("Beginning OnRemove with " + temp.Count);
-
             for (int i = 0; i < temp.Count; i++)
             {
                 var entry = temp[i];
@@ -166,8 +156,8 @@ namespace RandomizerCore.Logic
                 updated = false;
                 for (int i = 0; i < temp.Count; i++)
                 {
-                    var entry = temp[i];
-                    //Log(entry.ToString() + $" {entry.obtained}, {entry.CanGet(pm)}");
+                    UpdateEntry entry = temp[i];
+
                     if (!entry.obtained && entry.CanGet(pm))
                     {
                         updated = true;
@@ -178,9 +168,7 @@ namespace RandomizerCore.Logic
             }
             while (updated);
 
-            //Log("Almost finished recalculate with " + temp.Count);
             temp.RemoveAll(e => !e.obtained);
-            //Log("Finished recalculate with " + temp.Count);
             OnEndRecalculuate?.Invoke();
         }
 

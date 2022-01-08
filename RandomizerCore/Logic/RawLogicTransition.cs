@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 namespace RandomizerCore.Logic
-{
-    
+{ 
     public readonly record struct LogicTransitionData(string SceneName, string GateName, OneWayType OneWayType)
     {
         public string Name => $"{SceneName}[{GateName}]";

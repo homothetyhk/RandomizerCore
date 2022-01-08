@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace RandomizerCore.Logic
+﻿namespace RandomizerCore.Logic
 {
     public class LogicWaypoint : ILogicDef, ILogicItem
     {

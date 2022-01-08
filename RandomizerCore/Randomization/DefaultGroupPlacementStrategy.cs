@@ -1,10 +1,5 @@
 ﻿using RandomizerCore.Collections;
 using RandomizerCore.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RandomizerCore.Randomization
 {
@@ -201,7 +196,6 @@ namespace RandomizerCore.Randomization
             if (!constraintSatisfied)
             {
                 InvokeOnConstraintViolated(item, location);
-                // Log($"Available locations were: {string.Join(", ", locations.SelectMany(l => l.Select(rl => rl.Name)))}");
             }
 
             locations[depth].RemoveAt(index);

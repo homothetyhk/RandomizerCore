@@ -1,7 +1,4 @@
-﻿using RandomizerCore.Collections;
-using RandomizerCore.Exceptions;
-
-namespace RandomizerCore.Randomization
+﻿namespace RandomizerCore.Randomization
 {
     /// <summary>
     /// Base class for stage-level placement strategy. Manages the placement of each group.

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
 {
@@ -196,18 +192,16 @@ namespace RandomizerCore.Logic
             AfterEndTemp?.Invoke(true);
         }
 
-        public ProgressionSnapshot GetSnapshot()
-        {
-            return new(lm, obtained);
-        }
-
+        /// <summary>
+        /// Converts the ProgressionManager to a JSON-serialized dictionary with keys given by term names and values given by the integer values of the ProgressionManager for each term.
+        /// </summary>
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.AppendLine("{");
             for (int i = 0; i < lm.TermCount; i++)
             {
-                sb.AppendLine($"  {lm.GetTerm(i)}: {obtained[i]}");
+                sb.AppendLine($"  \"{lm.GetTerm(i)}\": {obtained[i]},");
             }
             sb.AppendLine("}");
             return sb.ToString();

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RandomizerCore.Exceptions
+﻿namespace RandomizerCore.Exceptions
 {
     public class OutOfLocationsException : Exception
     {

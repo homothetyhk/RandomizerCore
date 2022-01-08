@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using RandomizerCore.Logic;
+﻿using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
-
     /// <summary>
     /// Interface used by items and itemlikes (transitions, waypoints).
     /// </summary>

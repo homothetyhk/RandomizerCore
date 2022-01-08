@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using static RandomizerCore.LogHelper;
-using RandomizerCore.Logic;
+﻿using RandomizerCore.Logic;
 using Newtonsoft.Json;
 
 namespace RandomizerCore

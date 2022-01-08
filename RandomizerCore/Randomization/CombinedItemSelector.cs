@@ -1,5 +1,4 @@
 ﻿using RandomizerCore.Collections;
-using RandomizerCore.Exceptions;
 using RandomizerCore.Extensions;
 
 namespace RandomizerCore.Randomization

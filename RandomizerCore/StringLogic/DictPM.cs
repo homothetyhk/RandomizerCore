@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace RandomizerCore.StringLogic
+﻿namespace RandomizerCore.StringLogic
 {
     /// <summary>
     /// Object which evaluates tokenized logic using a dictionary of recognized terms and their values.

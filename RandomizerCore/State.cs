@@ -6,5 +6,4 @@
         Temporary,
         Permanent
     }
-
 }

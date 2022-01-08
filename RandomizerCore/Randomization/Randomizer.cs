@@ -6,13 +6,13 @@ namespace RandomizerCore.Randomization
 {
     public class Randomizer
     {
-        readonly LogicManager lm;
-        readonly RandomizationStage[] stages;
-        readonly RandoContext ctx;
+        public readonly LogicManager lm;
+        public readonly RandomizationStage[] stages;
+        public readonly RandoContext ctx;
         readonly ProgressionManager pm;
-        readonly Random rng;
-        readonly RandoMonitor rm;
-        readonly List<List<RandoPlacement>[]> stagedPlacements;
+        public readonly Random rng;
+        public readonly RandoMonitor rm;
+        public readonly List<List<RandoPlacement>[]> stagedPlacements;
 
         public Randomizer(Random rng, RandoContext ctx, RandomizationStage[] stages, RandoMonitor rm = null)
         {
@@ -30,7 +30,6 @@ namespace RandomizerCore.Randomization
                     if (group.Items.Length != group.Locations.Length) throw new ArgumentException($"Group {group.Label} in stage {stage.label} has nonmatching arrays!");
                 }
             }
-
         }
 
         public List<List<RandoPlacement>[]> Run()
@@ -199,8 +198,6 @@ namespace RandomizerCore.Randomization
         /// <exception cref="ValidationException"></exception>
         public void Validate()
         {
-            Log("Beginning validation.");
-
             // First, check that each RandomizationGroup matches the output, by checking that the counts of items and locations by name match.
             Dictionary<string, int> nameCounts = new();
             for (int i = 0; i < stages.Length; i++)
@@ -273,8 +270,7 @@ namespace RandomizerCore.Randomization
                 if (!e.obtained) throw new ValidationException($"Unreachable item placement detected: {e.item.Name} at {e.location.Name}");
             }
 
-            Log("Validation completed successfully!");
-
+            #if DEBUG
             Log();
             Log("Placements:");
             foreach (var l in stagedPlacements)
@@ -287,8 +283,8 @@ namespace RandomizerCore.Randomization
                     }
                 }
             }
-
             Log();
+            #endif
         }
     }
 }
