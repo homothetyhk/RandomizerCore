@@ -208,42 +208,46 @@ namespace RandomizerCore.Randomization
                     RandomizationGroup group = stage.groups[j];
                     List<RandoPlacement> ps = stagedPlacements[i][j];
 
-                    if (group.Items.Length < ps.Count)
+                    if (group.Items.Length > ps.Count)
                     {
-                        throw new ValidationException("Items deleted from final placement for randomization group " + group.Label);
+                        throw new ValidationException($"Items deleted from final placement for randomization group {group.Label}. Group expected {group.Items.Length} placements, but has {ps.Count} placements.");
                     }
-                    else if (group.Items.Length > ps.Count)
+                    else if (group.Items.Length < ps.Count)
                     {
-                        throw new ValidationException("Too many items found in final placement for randomization group " + group.Label);
+                        throw new ValidationException($"Too many items found in final placement for randomization group {group.Label}. Group expected {group.Items.Length} placements, but has {ps.Count} placements.");
                     }
-                    else
-                    {
-                        foreach (IRandoItem r in group.Items)
-                        {
-                            nameCounts.TryGetValue(r.Name, out int value);
-                            nameCounts[r.Name] = value + 1;
-                        }
-                        foreach (RandoPlacement p in ps)
-                        {
-                            nameCounts.TryGetValue(p.Item.Name, out int value);
-                            nameCounts[p.Item.Name] = value - 1;
-                        }
-                        if (nameCounts.Values.Any(i => i != 0)) throw new ValidationException("Improper item counts found in randomization group " + group.Label);
-                        nameCounts.Clear();
 
-                        foreach (IRandoLocation r in group.Locations)
-                        {
-                            nameCounts.TryGetValue(r.Name, out int value);
-                            nameCounts[r.Name] = value + 1;
-                        }
-                        foreach (RandoPlacement p in ps)
-                        {
-                            nameCounts.TryGetValue(p.Location.Name, out int value);
-                            nameCounts[p.Location.Name] = value - 1;
-                        }
-                        if (nameCounts.Values.Any(i => i != 0)) throw new ValidationException("Improper item counts found in randomization group " + group.Label);
-                        nameCounts.Clear();
+                    foreach (IRandoItem r in group.Items)
+                    {
+                        nameCounts.TryGetValue(r.Name, out int value);
+                        nameCounts[r.Name] = value + 1;
                     }
+                    foreach (RandoPlacement p in ps)
+                    {
+                        nameCounts.TryGetValue(p.Item.Name, out int value);
+                        nameCounts[p.Item.Name] = value - 1;
+                    }
+                    foreach (KeyValuePair<string, int> kvp in nameCounts)
+                    {
+                        if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
+                    }
+                    nameCounts.Clear();
+
+                    foreach (IRandoLocation r in group.Locations)
+                    {
+                        nameCounts.TryGetValue(r.Name, out int value);
+                        nameCounts[r.Name] = value + 1;
+                    }
+                    foreach (RandoPlacement p in ps)
+                    {
+                        nameCounts.TryGetValue(p.Location.Name, out int value);
+                        nameCounts[p.Location.Name] = value - 1;
+                    }
+                    foreach (KeyValuePair<string, int> kvp in nameCounts)
+                    {
+                        if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
+                    }
+                    nameCounts.Clear();
                 }
             }
 

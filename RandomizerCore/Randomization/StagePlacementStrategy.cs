@@ -29,7 +29,8 @@
                     if (i <= j)
                     {
                         placements[i] = group.Strategy.PlaceCoupledGroup(couple, spheres.Select(l => l[i]), spheres.Select(l => l[j]), placementState);
-                        placements[j] = placements[i].Select(p => new RandoPlacement((IRandoCouple)p.Location, (IRandoCouple)p.Item)).ToList();
+                        if (i != j) placements[j] = placements[i].Select(p => new RandoPlacement((IRandoCouple)p.Location, (IRandoCouple)p.Item)).ToList();
+                        else placements[i].AddRange(placements[i].Where(p => !Equals(p.Item, p.Location)).Select(p => new RandoPlacement((IRandoCouple)p.Location, (IRandoCouple)p.Item)).ToList());
                     }
                 }
             }

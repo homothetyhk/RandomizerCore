@@ -14,7 +14,7 @@ namespace RandomizerCore.Collections
 
         public bool IsReadOnly => ((ICollection<T>)ts).IsReadOnly;
 
-        public T this[int index] { get => ts[index]; set => ts[index] = value; }
+        public T this[int index] { get => ts[Count - 1 - index]; set => ts[Count - 1 - index] = value; }
 
         public SortedArrayList()
         {
@@ -30,6 +30,7 @@ namespace RandomizerCore.Collections
         {
             ts = input.ToList();
             ts.StableSort();
+            ts.Reverse();
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace RandomizerCore.Collections
         /// </summary>
         public void Add(T t)
         {
-            ts.Insert(FindInclusiveLowerBound(t), t);
+            ts.Insert(Count - FindInclusiveLowerBound(t), t);
         }
 
         /// <summary>
@@ -78,13 +79,13 @@ namespace RandomizerCore.Collections
         public int FindInclusiveLowerBound(T t)
         {
             int lb = 0;
-            int ub = ts.Count;
+            int ub = Count;
 
             while (lb < ub)
             {
                 int mid = (lb + ub) / 2;
 
-                if (t.CompareTo(ts[mid]) > 0)
+                if (t.CompareTo(this[mid]) > 0)
                 {
                     lb = mid + 1;
                 }
@@ -102,13 +103,13 @@ namespace RandomizerCore.Collections
         public int FindExclusiveUpperBound(T t)
         {
             int lb = 0;
-            int ub = ts.Count;
+            int ub = Count;
 
             while (lb < ub)
             {
                 int mid = (lb + ub) / 2;
 
-                if (t.CompareTo(ts[mid]) < 0)
+                if (t.CompareTo(this[mid]) < 0)
                 {
                     ub = mid;
                 }
@@ -128,7 +129,7 @@ namespace RandomizerCore.Collections
         bool ICollection<T>.Contains(T item)
         {
             int i = FindInclusiveLowerBound(item);
-            return i < ts.Count && ts[i].CompareTo(item) == 0;
+            return i < Count && this[i].CompareTo(item) == 0;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
@@ -139,9 +140,9 @@ namespace RandomizerCore.Collections
         public bool Remove(T item)
         {
             int i = FindInclusiveLowerBound(item);
-            if (i < ts.Count && ts[i].CompareTo(item) == 0)
+            if (i < Count && this[i].CompareTo(item) == 0)
             {
-                ts.RemoveAt(i);
+                RemoveAt(i);
                 return true;
             }
 
@@ -150,39 +151,39 @@ namespace RandomizerCore.Collections
 
         public void RemoveAt(int index)
         {
-            ts.RemoveAt(index);
+            ts.RemoveAt(Count - 1 - index);
         }
 
-        public T ExtractMax()
+        public T ExtractMin()
         {
-            T t = ts[^1];
-            ts.RemoveAt(ts.Count - 1);
+            T t = this[0];
+            RemoveAt(0);
             return t;
         }
 
-        public bool TryExtractMax(out T t)
+        public bool TryExtractMin(out T t)
         {
-            if (ts.Count == 0)
+            if (Count == 0)
             {
                 t = default;
                 return false;
             }
             else
             {
-                t = ts[^1];
-                ts.RemoveAt(ts.Count - 1);
+                t = this[0];
+                RemoveAt(0);
                 return true;
             }
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return ((IEnumerable<T>)ts).GetEnumerator();
+            for (int i = 0; i < Count; i++) yield return this[i];
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable)ts).GetEnumerator();
+            return ((IEnumerable<T>)this).GetEnumerator();
         }
     }
 }
