@@ -48,6 +48,8 @@
             if (lt is null) tokenPool[key] = new MacroToken(key, this);
         }
 
+        public bool IsMacro(string name) => macros.ContainsKey(name);
+
         public LogicClause GetMacro(string name)
         {
             return macros[name];

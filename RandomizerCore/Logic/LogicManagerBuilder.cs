@@ -86,6 +86,7 @@ namespace RandomizerCore.Logic
             Locations,
             LogicEdit,
             MacroEdit,
+            LogicSubst,
         }
 
         public void DeserializeJson(JsonType type, string s)
@@ -173,6 +174,28 @@ namespace RandomizerCore.Logic
                         LP.SetMacro(kvp.Key, new LogicClause(lcb));
                     }
                     break;
+
+                case JsonType.LogicSubst:
+                    foreach (RawSubstDef def in JsonUtil.Deserialize<List<RawSubstDef>>(jtr) ?? Enumerable.Empty<RawSubstDef>())
+                    {
+                        TermToken tt = LP.GetTermToken(def.old);
+                        LogicClause lc = LP.ParseInfixToClause(def.replacement);
+                        if (LP.IsMacro(def.name))
+                        {
+                            LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
+                            lcb.Subst(tt, lc);
+                            LP.SetMacro(def.name, new LogicClause(lcb));
+                        }
+                        else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
+                        {
+                            LogicClauseBuilder lcb = new(orig);
+                            lcb.Subst(tt, lc);
+                            LogicLookup[def.name] = new(lcb);
+                        }
+                        else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
+                    }
+                    break;
+
             }
         }
 
@@ -245,6 +268,26 @@ namespace RandomizerCore.Logic
                             lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
                         }
                         LP.SetMacro(kvp.Key, new LogicClause(lcb));
+                    }
+                    break;
+                case JsonType.LogicSubst:
+                    foreach (RawSubstDef def in t.ToObject<List<RawSubstDef>>() ?? Enumerable.Empty<RawSubstDef>())
+                    {
+                        TermToken tt = LP.GetTermToken(def.old);
+                        LogicClause lc = LP.ParseInfixToClause(def.replacement);
+                        if (LP.IsMacro(def.name))
+                        {
+                            LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
+                            lcb.Subst(tt, lc);
+                            LP.SetMacro(def.name, new LogicClause(lcb));
+                        }
+                        else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
+                        {
+                            LogicClauseBuilder lcb = new(orig);
+                            lcb.Subst(tt, lc);
+                            LogicLookup[def.name] = new(lcb);
+                        }
+                        else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
                     }
                     break;
             }
