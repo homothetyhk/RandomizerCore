@@ -143,13 +143,15 @@ namespace RandomizerCore.Randomization
             }
             else
             {
-                SortedArrayList<IRandoItem> remainingItems = new(locations.SelectMany(l => l.Cast<IRandoCouple>()));
+                Dictionary<IRandoCouple, int> locDepthLookup = locations.SelectMany((l, i) => l.Select(rl => (rl, i))).ToDictionary(p => (IRandoCouple)p.rl, p => p.i);
+                SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys);
                 Sphere s = spheres[^1];
                 while (remainingItems.TryExtractMin(out IRandoItem ri))
                 {
                     IRandoLocation rl = SelectNext(s, locations, meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
                     placements.Add(new(ri, rl));
                     remainingItems.Remove((IRandoCouple)rl);
+                    locations[locDepthLookup[(IRandoCouple)ri]].Remove((IRandoCouple)ri);
                 }
 
                 if (locations.Any(l => l.Count > 0)) throw new InvalidOperationException($"Failure in PlaceCoupledGroup: group {spheres[0].groupLabel} has " +
