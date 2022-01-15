@@ -123,13 +123,25 @@
             StableSort(ts, (t, u) => t.CompareTo(u));
         }
 
-        public static void StableSort<T>(this IList<T> ts, Comparison<T> comparison)
+        public static void StableSort<T>(this IList<T> ts, IComparer<T> comparer)
         {
             KeyValuePair<int, T>[] keys = new KeyValuePair<int, T>[ts.Count];
             for (int i = 0; i < ts.Count; i++) keys[i] = new(i, ts[i]);
 
-            StableComparer<T> comparer = new(comparison);
-            Array.Sort(keys, comparer);
+            StableComparer<T> stableComparer = new(comparer);
+            Array.Sort(keys, stableComparer);
+
+            for (int i = 0; i < ts.Count; i++)
+            {
+                ts[i] = keys[i].Value;
+            }
+        }
+
+        public static void StableSort<T>(this IList<T> ts, Comparison<T> comparison)
+        {
+            KeyValuePair<int, T>[] keys = new KeyValuePair<int, T>[ts.Count];
+            for (int i = 0; i < ts.Count; i++) keys[i] = new(i, ts[i]);
+            Array.Sort(keys, StableComparer<T>.GetStableComparison(comparison));
 
             for (int i = 0; i < ts.Count; i++)
             {
@@ -139,12 +151,22 @@
 
         private class StableComparer<T> : IComparer<KeyValuePair<int, T>>
         {
-            public StableComparer(Comparison<T> comparison) => this.comparison = comparison;
-            private readonly Comparison<T> comparison;
+            public StableComparer(IComparer<T> comparison) => this.comparer = comparison;
+            private readonly IComparer<T> comparer;
+
+            public static Comparison<KeyValuePair<int, T>> GetStableComparison(Comparison<T> comparison)
+            {
+                int CompareTo(KeyValuePair<int, T> x, KeyValuePair<int, T> y)
+                {
+                    int diff = comparison(x.Value, y.Value);
+                    return diff != 0 ? diff : x.Key - y.Key;
+                }
+                return CompareTo;
+            }
 
             public int Compare(KeyValuePair<int, T> x, KeyValuePair<int, T> y)
             {
-                int diff = comparison(x.Value, y.Value);
+                int diff = comparer.Compare(x.Value, y.Value);
                 return diff != 0 ? diff : x.Key - y.Key;
             }
         }

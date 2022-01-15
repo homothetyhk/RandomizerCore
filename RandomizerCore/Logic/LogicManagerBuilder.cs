@@ -42,8 +42,8 @@ namespace RandomizerCore.Logic
             PrefabItems = new(source.ItemLookup);
             UnparsedItems = new();
             LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());
-            Waypoints = source.Waypoints.Select(w => w.Name).ToList();
-            Transitions = source.TransitionLookup.Values.Select(lt => lt.data).ToList();
+            Waypoints = new(source.Waypoints.Select(w => w.Name));
+            Transitions = new(source.TransitionLookup.Values.Select(lt => lt.data));
         }
 
 
@@ -58,9 +58,21 @@ namespace RandomizerCore.Logic
         public readonly Dictionary<string, LogicItem> PrefabItems;
         public readonly Dictionary<string, JObject> UnparsedItems;
         public readonly Dictionary<string, LogicClause> LogicLookup;
-        public readonly List<string> Waypoints;
-        public readonly List<LogicTransitionData> Transitions;
+        public readonly HashSet<string> Waypoints;
+        public readonly HashSet<LogicTransitionData> Transitions;
 
+        /// <summary>
+        /// Returns whether the string is a key in the term lookup.
+        /// </summary>
+        public bool IsTerm(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return termLookup.ContainsKey(value);
+        }
+
+        /// <summary>
+        /// If the string is a key in the term lookup, returns the corresponding term. Otherwise, creates, saves, and returns a new term.
+        /// </summary>
         public Term GetOrAddTerm(string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -71,9 +83,109 @@ namespace RandomizerCore.Logic
             return termLookup[value] = t;
         }
 
+        /// <summary>
+        /// Adds the LogicItem to the builder's dictionary. Overwrites any existing LogicItem with the same name.
+        /// </summary>
+        /// <param name="item"></param>
         public void AddItem(LogicItem item)
         {
             PrefabItems[item.Name] = item;
+        }
+
+        /// <summary>
+        /// Adds the JLINQ representation of the LogicItem to the builder's dictionary. Overwrites any existing unparsed item with the same name.
+        /// </summary>
+        public void AddUnparsedItem(JObject item)
+        {
+            UnparsedItems[item.Value<string>("Name")] = item;
+        }
+
+        /// <summary>
+        /// Adds the RawLogicDef as a new waypoint. Overwrites any existing logic with the same name.
+        /// </summary>
+        public void AddWaypoint(RawLogicDef def)
+        {
+            GetOrAddTerm(def.name);
+            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            Waypoints.Add(def.name);
+        }
+
+        /// <summary>
+        /// Adds the RawLogicTransition as a new transition. Overwrites any existing logic with the same name.
+        /// </summary>
+        public void AddTransition(RawLogicTransition def)
+        {
+            GetOrAddTerm(def.Name);
+            LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
+            Transitions.Add(def.GetTransitionData());
+        }
+
+        /// <summary>
+        /// Adds the RawLogicDef for general use. Overwrites any existing logic with the same name.
+        /// </summary>
+        public void AddLogicDef(RawLogicDef def)
+        {
+            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+        }
+
+        /// <summary>
+        /// If the input contains the ORIG token and the logic def is already defined, substitutes the old value for ORIG in the input, and overwrites the old logic.
+        /// <br/>If the input does not contain the ORIG token, is equivalent to AddLogicDef.
+        /// </summary>
+        public void DoLogicEdit(RawLogicDef def)
+        {
+            LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
+            if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+            {
+                if (!LogicLookup.TryGetValue(def.name, out LogicClause orig))
+                {
+                    throw new ArgumentException($"ORIG edit requested for nonexistent logic def {def.name}: {def.logic}");
+                }
+
+                lcb.Subst(LP.GetTermToken("ORIG"), orig);
+            }
+            LogicLookup[def.name] = new(lcb);
+        }
+
+        /// <summary>
+        /// If the input contains the ORIG token and the macro is already defined, substitutes the old value for ORIG in the input, and overwrites the old macro.
+        /// <br/>If the input does not contain the ORIG token, is equivalent to LP.SetMacro.
+        /// </summary>
+        public void DoMacroEdit(KeyValuePair<string, string> kvp)
+        {
+            LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
+            if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+            {
+                if (!LP.IsMacro(kvp.Key))
+                {
+                    throw new ArgumentException($"ORIG edit requested for nonexistent macro {kvp.Key}: {kvp.Value}");
+                }
+
+                lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
+            }
+            LP.SetMacro(kvp.Key, new LogicClause(lcb));
+        }
+
+        /// <summary>
+        /// Performs the requested substitution on the named logic def or macro.
+        /// </summary>
+        public void DoSubst(RawSubstDef def)
+        {
+            TermToken tt = LP.GetTermToken(def.old);
+            LogicClause lc = LP.ParseInfixToClause(def.replacement);
+            if (LP.IsMacro(def.name))
+            {
+                LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
+                lcb.Subst(tt, lc);
+                LP.SetMacro(def.name, new LogicClause(lcb));
+            }
+            else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
+            {
+                LogicClauseBuilder lcb = new(orig);
+                lcb.Subst(tt, lc);
+                LogicLookup[def.name] = new(lcb);
+            }
+            else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
         }
 
         public enum JsonType
@@ -117,18 +229,14 @@ namespace RandomizerCore.Logic
                 case JsonType.Waypoints:
                     foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        GetOrAddTerm(def.name);
-                        LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
-                        Waypoints.Add(def.name);
+                        AddWaypoint(def);
                     }
                     break;
 
                 case JsonType.Transitions:
                     foreach (RawLogicTransition def in JsonUtil.Deserialize<RawLogicTransition[]>(jtr) ?? Enumerable.Empty<RawLogicTransition>())
                     {
-                        GetOrAddTerm(def.Name);
-                        LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
-                        Transitions.Add(def.GetTransitionData());
+                        AddTransition(def);
                     }
                     break;
 
@@ -140,7 +248,7 @@ namespace RandomizerCore.Logic
                     {
                         foreach (JObject jo in JArray.Load(jtr).Cast<JObject>())
                         {
-                            UnparsedItems[jo.Value<string>("Name")] = jo;
+                            AddUnparsedItem(jo);
                         }
                     }
                     break;
@@ -148,51 +256,27 @@ namespace RandomizerCore.Logic
                 case JsonType.Locations:
                     foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                        AddLogicDef(def);
                     }
                     break;
 
                 case JsonType.LogicEdit:
                     foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
-                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
-                        {
-                            lcb.Subst(LP.GetTermToken("ORIG"), LogicLookup[def.name]);
-                        }
-                        LogicLookup[def.name] = new(lcb);
+                        DoLogicEdit(def);
                     }
                     break;
                 case JsonType.MacroEdit:
                     foreach (KeyValuePair<string, string> kvp in JsonUtil.Deserialize<Dictionary<string, string>>(jtr) ?? Enumerable.Empty<KeyValuePair<string, string>>())
                     {
-                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
-                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
-                        {
-                            lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
-                        }
-                        LP.SetMacro(kvp.Key, new LogicClause(lcb));
+                        DoMacroEdit(kvp);
                     }
                     break;
 
                 case JsonType.LogicSubst:
                     foreach (RawSubstDef def in JsonUtil.Deserialize<List<RawSubstDef>>(jtr) ?? Enumerable.Empty<RawSubstDef>())
                     {
-                        TermToken tt = LP.GetTermToken(def.old);
-                        LogicClause lc = LP.ParseInfixToClause(def.replacement);
-                        if (LP.IsMacro(def.name))
-                        {
-                            LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
-                            lcb.Subst(tt, lc);
-                            LP.SetMacro(def.name, new LogicClause(lcb));
-                        }
-                        else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
-                        {
-                            LogicClauseBuilder lcb = new(orig);
-                            lcb.Subst(tt, lc);
-                            LogicLookup[def.name] = new(lcb);
-                        }
-                        else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
+                        DoSubst(def);
                     }
                     break;
 
@@ -213,18 +297,14 @@ namespace RandomizerCore.Logic
                 case JsonType.Waypoints:
                     foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        GetOrAddTerm(def.name);
-                        LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
-                        Waypoints.Add(def.name);
+                        AddWaypoint(def);
                     }
                     break;
 
                 case JsonType.Transitions:
                     foreach (RawLogicTransition def in t.ToObject<List<RawLogicTransition>>() ?? Enumerable.Empty<RawLogicTransition>())
                     {
-                        GetOrAddTerm(def.Name);
-                        LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
-                        Transitions.Add(def.GetTransitionData());
+                        AddTransition(def);
                     }
                     break;
 
@@ -236,7 +316,7 @@ namespace RandomizerCore.Logic
                     {
                         foreach (JObject jo in (JArray)t)
                         {
-                            UnparsedItems[jo.Value<string>("Name")] = jo;
+                            AddUnparsedItem(jo);
                         }
                     }
                     break;
@@ -244,50 +324,26 @@ namespace RandomizerCore.Logic
                 case JsonType.Locations:
                     foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                        AddLogicDef(def);
                     }
                     break;
 
                 case JsonType.LogicEdit:
                     foreach (RawLogicDef def in t.ToObject<RawLogicDef[]>() ?? Enumerable.Empty<RawLogicDef>())
                     {
-                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
-                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
-                        {
-                            lcb.Subst(LP.GetTermToken("ORIG"), LogicLookup[def.name]);
-                        }
-                        LogicLookup[def.name] = new(lcb);
+                        DoLogicEdit(def);
                     }
                     break;
                 case JsonType.MacroEdit:
                     foreach (KeyValuePair<string, string> kvp in t.ToObject<Dictionary<string, string>>() ?? Enumerable.Empty<KeyValuePair<string, string>>())
                     {
-                        LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
-                        if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
-                        {
-                            lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
-                        }
-                        LP.SetMacro(kvp.Key, new LogicClause(lcb));
+                        DoMacroEdit(kvp);
                     }
                     break;
                 case JsonType.LogicSubst:
                     foreach (RawSubstDef def in t.ToObject<List<RawSubstDef>>() ?? Enumerable.Empty<RawSubstDef>())
                     {
-                        TermToken tt = LP.GetTermToken(def.old);
-                        LogicClause lc = LP.ParseInfixToClause(def.replacement);
-                        if (LP.IsMacro(def.name))
-                        {
-                            LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
-                            lcb.Subst(tt, lc);
-                            LP.SetMacro(def.name, new LogicClause(lcb));
-                        }
-                        else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
-                        {
-                            LogicClauseBuilder lcb = new(orig);
-                            lcb.Subst(tt, lc);
-                            LogicLookup[def.name] = new(lcb);
-                        }
-                        else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
+                        DoSubst(def);
                     }
                     break;
             }

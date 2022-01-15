@@ -71,7 +71,7 @@ namespace RandomizerCore.Randomization
                 }
                 else meanSphereProgressionPriorities.Add(int.MinValue);
 
-                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations));
+                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
             }
 
             return placements;
@@ -104,7 +104,7 @@ namespace RandomizerCore.Randomization
                 }
                 else meanSphereProgressionPriorities.Add(int.MinValue);
 
-                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations));
+                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
             }
 
             if (!selfDual)
@@ -129,7 +129,7 @@ namespace RandomizerCore.Randomization
                     dualLocations.Add(new SortedArrayList<IRandoLocation>(sd.Locations));
                 }
 
-                SortedArrayList<IRandoItem> remainingItems = new(dualLocations.SelectMany(l => l.Cast<IRandoCouple>()));
+                SortedArrayList<IRandoItem> remainingItems = new(dualLocations.SelectMany(l => l.Cast<IRandoItem>()), ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
                 Sphere s = spheres[^1];
                 while (remainingItems.TryExtractMin(out IRandoItem ri))
                 {
@@ -144,7 +144,7 @@ namespace RandomizerCore.Randomization
             else
             {
                 Dictionary<IRandoCouple, int> locDepthLookup = locations.SelectMany((l, i) => l.Select(rl => (rl, i))).ToDictionary(p => (IRandoCouple)p.rl, p => p.i);
-                SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys);
+                SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys, ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
                 Sphere s = spheres[^1];
                 while (remainingItems.TryExtractMin(out IRandoItem ri))
                 {

@@ -83,9 +83,9 @@ namespace RandomizerCore.Randomization
                 rng.PermuteInPlace(groups[i].Locations, (i, p) => i.Priority = p / scale);
                 groups[i].InvokeOnPermute(rng);
 
-                groups[i].Items.StableSort();
+                groups[i].Items.StableSort(ComparerUtil.ItemComparer);
                 Array.Reverse(groups[i].Items); // items are sorted in reverse since they will be loaded into a stack
-                groups[i].Locations.StableSort();
+                groups[i].Locations.StableSort(ComparerUtil.LocationComparer);
             }
         }
 

@@ -56,10 +56,5 @@ namespace RandomizerCore
         {
             return Name;
         }
-
-        int IComparable<IRandoLocation>.CompareTo(IRandoLocation other)
-        {
-            return Priority.CompareTo(other.Priority);
-        }
     }
 }

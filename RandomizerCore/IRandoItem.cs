@@ -1,6 +1,6 @@
 ﻿namespace RandomizerCore
 {
-    public interface IRandoItem : ILogicItem, IComparable<IRandoItem>
+    public interface IRandoItem : ILogicItem
     {
         /// <summary>
         /// Property managed by the randomizer and certain events. Lower priorities are placed first.

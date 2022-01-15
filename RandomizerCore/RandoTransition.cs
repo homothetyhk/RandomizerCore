@@ -58,16 +58,6 @@ namespace RandomizerCore
         {
             return lt.GetAffectedTerms();
         }
-
-        int IComparable<IRandoLocation>.CompareTo(IRandoLocation other)
-        {
-            return sourcePriority.CompareTo(other.Priority);
-        }
-
-        int IComparable<IRandoItem>.CompareTo(IRandoItem other)
-        {
-            return targetPriority.CompareTo(other.Priority);
-        }
     }
 
 }

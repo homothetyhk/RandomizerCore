@@ -6,9 +6,12 @@ namespace RandomizerCore.Collections
     /// <summary>
     /// A sorted list which maintains its sort through binary search during list operations.
     /// </summary>
-    public class SortedArrayList<T> : IReadOnlyList<T>, ICollection<T> where T : IComparable<T>
+    public class SortedArrayList<T> : IReadOnlyList<T>, ICollection<T>
     {
         private readonly List<T> ts;
+
+        private readonly IComparer<T> comparer;
+        private readonly IEqualityComparer<T> eqComparer;
 
         public int Count => ts.Count;
 
@@ -19,26 +22,55 @@ namespace RandomizerCore.Collections
         public SortedArrayList()
         {
             ts = new();
+            comparer = Comparer<T>.Default;
+            eqComparer = EqualityComparer<T>.Default;
+        }
+
+        public SortedArrayList(IComparer<T> comparer, IEqualityComparer<T> eqComparer)
+        {
+            ts = new();
+            this.comparer = comparer;
+            this.eqComparer = eqComparer;
         }
 
         public SortedArrayList(int capacity)
         {
             ts = new(capacity);
+            comparer = Comparer<T>.Default;
+            eqComparer = EqualityComparer<T>.Default;
+        }
+
+        public SortedArrayList(int capacity, IComparer<T> comparer, IEqualityComparer<T> eqComparer)
+        {
+            ts = new(capacity);
+            this.comparer = comparer;
+            this.eqComparer = eqComparer;
         }
 
         public SortedArrayList(IEnumerable<T> input)
         {
             ts = input.ToList();
-            ts.StableSort();
+            comparer = Comparer<T>.Default;
+            eqComparer = EqualityComparer<T>.Default;
+            ts.StableSort(comparer);
+            ts.Reverse();
+        }
+
+        public SortedArrayList(IEnumerable<T> input, IComparer<T> comparer, IEqualityComparer<T> eqComparer)
+        {
+            ts = input.ToList();
+            this.comparer = comparer;
+            this.eqComparer = eqComparer;
+            ts.StableSort(comparer);
             ts.Reverse();
         }
 
         /// <summary>
-        /// Inserts the item into the sorted list using binary search.
+        /// Inserts the item into the sorted list using binary search. Item will appear after all elements which compare equal.
         /// </summary>
         public void Add(T t)
         {
-            ts.Insert(Count - FindInclusiveLowerBound(t), t);
+            ts.Insert(Count - FindExclusiveUpperBound(t), t);
         }
 
         /// <summary>
@@ -78,14 +110,19 @@ namespace RandomizerCore.Collections
         /// </summary>
         public int FindInclusiveLowerBound(T t)
         {
-            int lb = 0;
-            int ub = Count;
+            return FindInclusiveLowerBound(t, 0, Count);
+        }
 
+        /// <summary>
+        /// Returns the least index in the range such that its entry is greater than or equal to the input, or lb.
+        /// </summary>
+        public int FindInclusiveLowerBound(T t, int lb, int ub)
+        {
             while (lb < ub)
             {
                 int mid = (lb + ub) / 2;
 
-                if (t.CompareTo(this[mid]) > 0)
+                if (comparer.Compare(t, this[mid]) > 0)
                 {
                     lb = mid + 1;
                 }
@@ -102,14 +139,19 @@ namespace RandomizerCore.Collections
         /// </summary>
         public int FindExclusiveUpperBound(T t)
         {
-            int lb = 0;
-            int ub = Count;
+            return FindExclusiveUpperBound(t, 0, Count);
+        }
 
+        /// <summary>
+        /// Returns the least index in the range such that its entry is strictly greater than the input, or ub.
+        /// </summary>
+        public int FindExclusiveUpperBound(T t, int lb, int ub)
+        {
             while (lb < ub)
             {
                 int mid = (lb + ub) / 2;
 
-                if (t.CompareTo(this[mid]) < 0)
+                if (comparer.Compare(t, this[mid]) < 0)
                 {
                     ub = mid;
                 }
@@ -126,10 +168,21 @@ namespace RandomizerCore.Collections
             ts.Clear();
         }
 
-        bool ICollection<T>.Contains(T item)
+        /// <summary>
+        /// Uses binary search to find the range in which the element could be found, and then tests each element in the range for equality.
+        /// </summary>
+        public bool Contains(T item)
         {
-            int i = FindInclusiveLowerBound(item);
-            return i < Count && this[i].CompareTo(item) == 0;
+            int lb = FindInclusiveLowerBound(item);
+            int ub = FindExclusiveUpperBound(item, lb, Count);
+            for (int i = lb; i < ub; i++)
+            {
+                if (eqComparer.Equals(item, this[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
@@ -137,15 +190,21 @@ namespace RandomizerCore.Collections
             ts.CopyTo(array, arrayIndex);
         }
 
+        /// <summary>
+        /// Uses binary search to find the range in which the element could be found, and then removes the first element in the range which gives equality, if it exists.
+        /// </summary>
         public bool Remove(T item)
         {
-            int i = FindInclusiveLowerBound(item);
-            if (i < Count && this[i].CompareTo(item) == 0)
+            int lb = FindInclusiveLowerBound(item);
+            int ub = FindExclusiveUpperBound(item, lb, Count);
+            for (int i = lb; i < ub; i++)
             {
-                RemoveAt(i);
-                return true;
+                if (eqComparer.Equals(item, this[i]))
+                {
+                    RemoveAt(i);
+                    return true;
+                }
             }
-
             return false;
         }
 
