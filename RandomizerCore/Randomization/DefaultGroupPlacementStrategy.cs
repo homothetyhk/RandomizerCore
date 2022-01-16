@@ -126,7 +126,7 @@ namespace RandomizerCore.Randomization
                     }
                     else dualMeanSphereProgressionPriorities.Add(int.MinValue);
 
-                    dualLocations.Add(new SortedArrayList<IRandoLocation>(sd.Locations));
+                    dualLocations.Add(new SortedArrayList<IRandoLocation>(sd.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
                 }
 
                 SortedArrayList<IRandoItem> remainingItems = new(dualLocations.SelectMany(l => l.Cast<IRandoItem>()), ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);

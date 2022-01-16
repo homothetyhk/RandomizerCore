@@ -188,6 +188,7 @@ namespace RandomizerCore.Collections
         public void CopyTo(T[] array, int arrayIndex)
         {
             ts.CopyTo(array, arrayIndex);
+            Array.Reverse(array, arrayIndex, ts.Count);
         }
 
         /// <summary>
