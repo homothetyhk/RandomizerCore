@@ -9,10 +9,13 @@ namespace RandomizerCore.Json
     {
         public override LogicManager ReadJson(JsonReader reader, Type objectType, LogicManager existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+
+
             LogicManagerBuilder lmb = new();
             JObject lm = JObject.Load(reader);
-            lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>();
-            lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>();
+            lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>(serializer);
+            lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>(serializer);
+            Log($"Deserialized VR as {lmb.VariableResolver.GetType().Name}");
 
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
@@ -28,9 +31,9 @@ namespace RandomizerCore.Json
             writer.WriteStartObject();
 
             TermConverter tc = new() { LM = value };
-            LogicDefConverter ldc = new() { LM = value };
+            LogicDefConverter.Instance.LM = value;
             serializer.Converters.Add(tc);
-            serializer.Converters.Add(ldc);
+            serializer.Converters.Add(LogicDefConverter.Instance);
 
             writer.WritePropertyName("Terms");
             serializer.Serialize(writer, value.Terms);
@@ -45,20 +48,23 @@ namespace RandomizerCore.Json
             serializer.Serialize(writer, value.ItemLookup.Values);
 
             writer.WritePropertyName("Transitions");
-            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => t.ToRaw()));
+            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => new RawLogicDef(t.Name, t.logic.ToInfix())));
 
             writer.WritePropertyName("Waypoints");
             serializer.Serialize(writer, value.Waypoints.Select(w => new RawLogicDef(w.Name, w.logic.ToInfix())));
 
             writer.WritePropertyName(nameof(value.LP));
-            serializer.Serialize(writer, value.LP);
+            serializer.Serialize(writer, value.LP, typeof(LogicProcessor));
 
             writer.WritePropertyName(nameof(value.VariableResolver));
-            serializer.Serialize(writer, value.VariableResolver);
+            serializer.Serialize(writer, value.VariableResolver, typeof(VariableResolver));
+            Log($"Serialized VR as {value.VariableResolver.GetType().Name}");
 
             writer.WriteEndObject();
-            serializer.Converters.Remove(ldc);
+            serializer.Converters.Remove(LogicDefConverter.Instance);
             serializer.Converters.Remove(tc);
+
+            LogicDefConverter.Instance.LM = null;
         }
     }
 }

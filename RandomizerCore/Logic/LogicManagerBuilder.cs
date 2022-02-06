@@ -43,7 +43,7 @@ namespace RandomizerCore.Logic
             UnparsedItems = new();
             LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());
             Waypoints = new(source.Waypoints.Select(w => w.Name));
-            Transitions = new(source.TransitionLookup.Values.Select(lt => lt.data));
+            Transitions = new(source.TransitionLookup.Values.Select(lt => lt.Name));
         }
 
 
@@ -59,7 +59,7 @@ namespace RandomizerCore.Logic
         public readonly Dictionary<string, JObject> UnparsedItems;
         public readonly Dictionary<string, LogicClause> LogicLookup;
         public readonly HashSet<string> Waypoints;
-        public readonly HashSet<LogicTransitionData> Transitions;
+        public readonly HashSet<string> Transitions;
 
         /// <summary>
         /// Returns whether the string is a key in the term lookup.
@@ -113,11 +113,11 @@ namespace RandomizerCore.Logic
         /// <summary>
         /// Adds the RawLogicTransition as a new transition. Overwrites any existing logic with the same name.
         /// </summary>
-        public void AddTransition(RawLogicTransition def)
+        public void AddTransition(RawLogicDef def)
         {
-            GetOrAddTerm(def.Name);
-            LogicLookup[def.Name] = LP.ParseInfixToClause(def.logic);
-            Transitions.Add(def.GetTransitionData());
+            GetOrAddTerm(def.name);
+            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            Transitions.Add(def.name);
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace RandomizerCore.Logic
                     break;
 
                 case JsonType.Transitions:
-                    foreach (RawLogicTransition def in JsonUtil.Deserialize<RawLogicTransition[]>(jtr) ?? Enumerable.Empty<RawLogicTransition>())
+                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
                     {
                         AddTransition(def);
                     }
@@ -302,7 +302,7 @@ namespace RandomizerCore.Logic
                     break;
 
                 case JsonType.Transitions:
-                    foreach (RawLogicTransition def in t.ToObject<List<RawLogicTransition>>() ?? Enumerable.Empty<RawLogicTransition>())
+                    foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
                         AddTransition(def);
                     }

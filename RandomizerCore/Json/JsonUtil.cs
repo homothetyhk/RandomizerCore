@@ -10,8 +10,6 @@ namespace RandomizerCore.Json
     {
         public static JsonSerializer GetLogicSerializer(ILogicManager lm)
         {
-            TermConverter tc = new() { LM = lm };
-            LogicDefConverter ldc = new() { LM = lm };
             JsonSerializer js = new()
             {
                 DefaultValueHandling = DefaultValueHandling.Include,
@@ -19,8 +17,12 @@ namespace RandomizerCore.Json
                 TypeNameHandling = TypeNameHandling.Auto,
             };
             js.Converters.Add(new StringEnumConverter());
-            js.Converters.Add(tc);
-            js.Converters.Add(ldc);
+            js.Converters.Add(new TermConverter() { LM = lm });
+            if (lm is LogicManager logicManager)
+            {
+                LogicDefConverter.Instance.LM = logicManager;
+                js.Converters.Add(LogicDefConverter.Instance);
+            }
 
             return js;
         }

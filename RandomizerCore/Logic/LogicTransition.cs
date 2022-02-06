@@ -5,10 +5,9 @@ namespace RandomizerCore.Logic
     public class LogicTransition : ILogicItem, ILogicDef
     {
         [JsonConstructor]
-        public LogicTransition(OptimizedLogicDef logic, LogicTransitionData data, Term term)
+        public LogicTransition(OptimizedLogicDef logic, Term term)
         {
             this.logic = logic;
-            this.data = data;
             this.term = term;
         }
 
@@ -16,7 +15,6 @@ namespace RandomizerCore.Logic
         public string Name => logic.Name;
 
         public readonly OptimizedLogicDef logic;
-        public readonly LogicTransitionData data;
         public readonly Term term;
 
 
@@ -26,11 +24,6 @@ namespace RandomizerCore.Logic
         public IEnumerable<Term> GetAffectedTerms()
         {
             yield return term;
-        }
-
-        public RawLogicTransition ToRaw()
-        {
-            return new RawLogicTransition(data.SceneName, data.GateName, logic.ToInfix(), data.OneWayType);
         }
     }
 }

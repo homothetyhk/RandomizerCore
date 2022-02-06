@@ -5,7 +5,7 @@
         public ILogicItem item;
         public ILogicDef location;
 
-        public PrePlacedItemUpdateEntry(ItemPlacement placement) : this(placement.item, placement.location) { }
+        public PrePlacedItemUpdateEntry(GeneralizedPlacement placement) : this(placement.Item, placement.Location) { }
 
         public PrePlacedItemUpdateEntry(ILogicItem item, ILogicDef location)
         {

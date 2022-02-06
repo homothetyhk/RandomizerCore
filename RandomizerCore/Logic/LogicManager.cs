@@ -61,11 +61,7 @@ namespace RandomizerCore.Logic
             Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(_termLookup[name], _logicDefs[name])).ToArray());
 
             // Transitions
-            _transitions = new(source.Transitions.Count);
-            foreach (LogicTransitionData data in source.Transitions)
-            {
-                _transitions.Add(data.Name, new LogicTransition(_logicDefs[data.Name], data, _termLookup[data.Name]));
-            }
+            _transitions = source.Transitions.ToDictionary(name => name, name => new LogicTransition(_logicDefs[name], _termLookup[name]));
             TransitionLookup = new(_transitions);
 
             // Items

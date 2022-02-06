@@ -1,4 +1,5 @@
-﻿using RandomizerCore.StringLogic;
+﻿using Newtonsoft.Json;
+using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
 {
@@ -13,7 +14,15 @@ namespace RandomizerCore.Logic
             this.logic = logic;
         }
 
+        public OptimizedLogicDef(OptimizedLogicDef def)
+        {
+            this.Name = def.Name;
+            this.lm = def.lm;
+            this.logic = def.logic;
+        }
+
         public string Name { get; }
+
         private readonly int[] logic;
         private readonly LogicManager lm;
 
@@ -176,5 +185,11 @@ namespace RandomizerCore.Logic
             right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
         }
 
+        // cursed hacks below to make polymorphic deserialization work
+        [JsonConstructor]
+        private OptimizedLogicDef(string Name, string Logic) : this(Json.LogicDefConverter.Instance.LM.FromString(new(Name, Logic)))
+        {
+        }
+        [JsonProperty("Logic")] private string Infix { get => ToInfix(); }
     }
 }

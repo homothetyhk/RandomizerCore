@@ -65,26 +65,15 @@
             foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.Item, p.Location));
         }
 
-        public void AddEntries(IEnumerable<UpdateEntry> entries)
-        {
-            foreach (var entry in entries) AddEntry(entry);
-        }
-
-        public void AddPlacements(IEnumerable<ItemPlacement> ps)
-        {
-            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p));
-        }
-
-        public void AddPlacements(IEnumerable<TransitionPlacement> ps)
-        {
-            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.target, p.source));
-        }
-
         public void AddPlacements(IEnumerable<RandoPlacement> ps)
         {
             foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p.Item, p.Location));
         }
 
+        public void AddEntries(IEnumerable<UpdateEntry> entries)
+        {
+            foreach (var entry in entries) AddEntry(entry);
+        }
 
         public void EnqueueUpdates(ILogicItem item)
         {
