@@ -198,97 +198,34 @@ namespace RandomizerCore.Randomization
         /// <exception cref="ValidationException"></exception>
         public void Validate()
         {
-            // First, check that each RandomizationGroup matches the output, by checking that the counts of items and locations by name match.
-            Dictionary<string, int> nameCounts = new();
-            for (int i = 0; i < stages.Length; i++)
-            {
-                RandomizationStage stage = stages[i];
-                for (int j = 0; j < stage.groups.Length; j++)
-                {
-                    RandomizationGroup group = stage.groups[j];
-                    List<RandoPlacement> ps = stagedPlacements[i][j];
-
-                    if (group.Items.Length > ps.Count)
-                    {
-                        throw new ValidationException($"Items deleted from final placement for randomization group {group.Label}. Group expected {group.Items.Length} placements, but has {ps.Count} placements.");
-                    }
-                    else if (group.Items.Length < ps.Count)
-                    {
-                        throw new ValidationException($"Too many items found in final placement for randomization group {group.Label}. Group expected {group.Items.Length} placements, but has {ps.Count} placements.");
-                    }
-
-                    foreach (IRandoItem r in group.Items)
-                    {
-                        nameCounts.TryGetValue(r.Name, out int value);
-                        nameCounts[r.Name] = value + 1;
-                    }
-                    foreach (RandoPlacement p in ps)
-                    {
-                        nameCounts.TryGetValue(p.Item.Name, out int value);
-                        nameCounts[p.Item.Name] = value - 1;
-                    }
-                    foreach (KeyValuePair<string, int> kvp in nameCounts)
-                    {
-                        if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
-                    }
-                    nameCounts.Clear();
-
-                    foreach (IRandoLocation r in group.Locations)
-                    {
-                        nameCounts.TryGetValue(r.Name, out int value);
-                        nameCounts[r.Name] = value + 1;
-                    }
-                    foreach (RandoPlacement p in ps)
-                    {
-                        nameCounts.TryGetValue(p.Location.Name, out int value);
-                        nameCounts[p.Location.Name] = value - 1;
-                    }
-                    foreach (KeyValuePair<string, int> kvp in nameCounts)
-                    {
-                        if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
-                    }
-                    nameCounts.Clear();
-                }
-            }
-
             pm.Reset();
             MainUpdater mu = InitializeUpdater();
 
-            List<PrePlacedItemUpdateEntry> entries = new();
-            foreach (List<RandoPlacement>[] arr in stagedPlacements)
+            List<List<PrePlacedItemUpdateEntry>[]> entries = new();
+            for (int i = 0; i < stages.Length; i++)
             {
-                foreach (List<RandoPlacement> ps in arr)
+                entries.Add(new List<PrePlacedItemUpdateEntry>[stages[i].groups.Length]);
+                for (int j = 0; j < stages[i].groups.Length; j++)
                 {
-                    foreach (RandoPlacement p in ps)
+                    List<PrePlacedItemUpdateEntry> groupEntries = entries[i][j] = new();
+                    foreach (RandoPlacement p in stagedPlacements[i][j])
                     {
                         PrePlacedItemUpdateEntry e = new(p.Item, p.Location);
-                        entries.Add(e);
+                        groupEntries.Add(e);
                         mu.AddEntry(e);
                     }
                 }
             }
 
             mu.Hook(pm);
-            foreach (PrePlacedItemUpdateEntry e in entries)
+            
+            for (int i = 0; i < stages.Length; i++)
             {
-                if (!e.obtained) throw new ValidationException($"Unreachable item placement detected: {e.item.Name} at {e.location.Name}");
-            }
-
-            #if DEBUG
-            Log();
-            Log("Placements:");
-            foreach (var l in stagedPlacements)
-            {
-                foreach (var m in l)
+                for (int j = 0; j < stages[i].groups.Length; j++)
                 {
-                    foreach (var p in m)
-                    {
-                        Log($"({p.Item.Priority})  {{{p.Item.Name}}}   at   ({p.Location.Priority}) {{{p.Location.Name}}}");
-                    }
+                    stages[i].groups[j].Validator.Validate(stages[i].groups[j], pm, stagedPlacements[i][j], entries[i][j]);
                 }
             }
-            Log();
-            #endif
         }
     }
 }

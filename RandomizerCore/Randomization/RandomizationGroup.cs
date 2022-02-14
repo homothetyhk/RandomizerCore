@@ -9,6 +9,7 @@
         public IRandoLocation[] Locations;
         public string Label;
         public GroupPlacementStrategy Strategy;
+        public Validator Validator = new();
 
         /// <summary>
         /// An event invoked after the items and locations of the group are permuted and have their priorities set.

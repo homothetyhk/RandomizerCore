@@ -26,9 +26,7 @@ namespace RandomizerCore.Logic
         private readonly int[] logic;
         private readonly LogicManager lm;
 
-        // recycling the stack saves approx 0.03s in 129000 calls of CanGet (i.e. standard preset)
-        // we don't ever clear the stack -- this causes no issues if all logic has correct syntax.
-        static readonly Stack<bool> stack = new();
+        private readonly Stack<bool> stack = new();
 
         public bool CanGet(ProgressionManager pm)
         {

@@ -9,13 +9,10 @@ namespace RandomizerCore.Json
     {
         public override LogicManager ReadJson(JsonReader reader, Type objectType, LogicManager existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-
-
             LogicManagerBuilder lmb = new();
             JObject lm = JObject.Load(reader);
             lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>(serializer);
             lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>(serializer);
-            Log($"Deserialized VR as {lmb.VariableResolver.GetType().Name}");
 
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
