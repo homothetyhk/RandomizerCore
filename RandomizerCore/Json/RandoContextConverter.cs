@@ -6,8 +6,8 @@ namespace RandomizerCore.Json
 {
     public class RandoContextConverter : JsonConverter<RandoContext>
     {
-        [ThreadStatic] public static bool canWrite = true;
-        public override bool CanWrite => canWrite;
+        [ThreadStatic] public static bool inUse;
+        public override bool CanWrite => !inUse;
 
         public override RandoContext ReadJson(JsonReader reader, Type objectType, RandoContext existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
@@ -38,9 +38,9 @@ namespace RandomizerCore.Json
             serializer.Converters.Add(tc);
             serializer.Converters.Add(LogicDefConverter.Instance);
 
-            canWrite = false;
+            inUse = true;
             serializer.Serialize(writer, value);
-            canWrite = true;
+            inUse = false;
 
             serializer.Converters.Remove(LogicDefConverter.Instance);
             serializer.Converters.Remove(tc);

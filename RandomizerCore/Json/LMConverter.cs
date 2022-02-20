@@ -55,7 +55,6 @@ namespace RandomizerCore.Json
 
             writer.WritePropertyName(nameof(value.VariableResolver));
             serializer.Serialize(writer, value.VariableResolver, typeof(VariableResolver));
-            Log($"Serialized VR as {value.VariableResolver.GetType().Name}");
 
             writer.WriteEndObject();
             serializer.Converters.Remove(LogicDefConverter.Instance);
