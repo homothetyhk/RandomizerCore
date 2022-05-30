@@ -79,6 +79,13 @@
             if (globalTokens.TryGetValue(name, out LogicToken lt) || tokenPool.TryGetValue(name, out lt)) return (TermToken)lt;
             else
             {
+                if (name[0] == '*')
+                {
+                    ReferenceToken rt = new(name[1..]);
+                    tokenPool.Add(name, rt);
+                    return rt;
+                }
+
                 TermToken tt = new SimpleToken(name);
                 tokenPool.Add(name, tt);
                 return tt;

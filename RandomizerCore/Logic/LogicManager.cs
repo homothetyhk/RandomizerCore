@@ -26,12 +26,15 @@ namespace RandomizerCore.Logic
         private readonly Dictionary<string, int> _variableIndices;
         private readonly Dictionary<string, LogicItem> _items;
         private readonly Dictionary<string, LogicTransition> _transitions;
+        private readonly LogicManagerBuilder _source; // set to null on exiting constructor
+
         public VariableResolver VariableResolver { get; }
 
         public const int intVariableOffset = -100;
 
         public LogicManager(LogicManagerBuilder source)
         {
+            _source = source;
             LP = source.LP;
             VariableResolver = source.VariableResolver;
 
@@ -76,6 +79,8 @@ namespace RandomizerCore.Logic
                 _items[kvp.Key] = kvp.Value;
             }
             ItemLookup = new(_items);
+
+            _source = null;
         }
 
         public OptimizedLogicDef GetLogicDef(string name)
@@ -219,7 +224,18 @@ namespace RandomizerCore.Logic
             }
             else if (lt is MacroToken mt)
             {
-                foreach (var tt in mt.Value) ApplyToken(logic, tt);
+                foreach (LogicToken tt in mt.Value) ApplyToken(logic, tt);
+            }
+            else if (lt is ReferenceToken rt)
+            {
+                if (_logicDefs.TryGetValue(rt.Target, out OptimizedLogicDef o))
+                {
+                    OptimizedLogicDef.Concat(logic, o);
+                }
+                else if (_source != null && _source.LogicLookup.TryGetValue(rt.Target, out LogicClause lc))
+                {
+                    foreach (LogicToken tt in lc) ApplyToken(logic, tt);
+                }
             }
             else if (lt is SimpleToken st)
             {
