@@ -63,6 +63,10 @@
             {
                 return Evaluate(mt.Value);
             }
+            else if (token is ReferenceToken rt)
+            {
+                throw new NotSupportedException($"Unable to evaluate token: {rt}. DictPM does not store named logic references.");
+            }
             throw new ArgumentException($"Unable to evaluate TermToken: {token}");
         }
     }

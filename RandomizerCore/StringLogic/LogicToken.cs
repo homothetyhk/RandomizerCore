@@ -78,6 +78,14 @@
     }
 
     /// <summary>
+    /// TermToken which represents a nested LogicClause by name.
+    /// </summary>
+    public record ReferenceToken(string Target) : TermToken
+    {
+        public override string Write() => $"*{Target}";
+    }
+
+    /// <summary>
     /// TermToken which represents a constant bool.
     /// </summary>
     public record ConstToken(bool Value) : TermToken

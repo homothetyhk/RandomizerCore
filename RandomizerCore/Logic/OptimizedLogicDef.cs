@@ -183,6 +183,11 @@ namespace RandomizerCore.Logic
             right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
         }
 
+        internal static void Concat(List<int> ts, OptimizedLogicDef o)
+        {
+            ts.AddRange(o.logic);
+        }
+
         // cursed hacks below to make polymorphic deserialization work
         [JsonConstructor]
         private OptimizedLogicDef(string Name, string Logic) : this(Json.LogicDefConverter.Instance.LM.FromString(new(Name, Logic)))
