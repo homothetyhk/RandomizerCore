@@ -120,6 +120,19 @@ namespace RandomizerCore.Logic
             return _variables[intVariableOffset - id];
         }
 
+        public LogicInt GetVariable(string name)
+        {
+            if (_variableIndices.TryGetValue(name, out int index)) return _variables[intVariableOffset - index];
+            else if (VariableResolver.TryMatch(this, name, out LogicInt li))
+            {
+                index = intVariableOffset - _variables.Count;
+                _variableIndices.Add(name, index);
+                _variables.Add(li);
+                return li;
+            }
+            else return null;
+        }
+
         public LogicItem GetItem(string name)
         {
             if (!_items.TryGetValue(name, out LogicItem item))

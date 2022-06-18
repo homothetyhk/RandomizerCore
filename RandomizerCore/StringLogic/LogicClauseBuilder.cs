@@ -58,7 +58,7 @@ namespace RandomizerCore.StringLogic
         public void OrWith(IEnumerable<LogicToken> ts)
         {
             Append(ts);
-            Append(OperatorToken.AND);
+            Append(OperatorToken.OR);
         }
 
         public void OrWith(TermToken t)

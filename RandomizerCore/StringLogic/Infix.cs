@@ -82,6 +82,9 @@
                             output.Add(tokenSource.GetComparisonToken(ComparerEnum[op], left, right));
                         }
                         break;
+                    case "(":
+                    case ")":
+                        throw new ArgumentException($"Failed to tokenize infix {infix}: extra parens found after parsing.");
                     default:
                         {
                             output.Add(tokenSource.GetTermToken(postfix[j]));
