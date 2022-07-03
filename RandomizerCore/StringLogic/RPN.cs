@@ -38,7 +38,7 @@
                 else if (logic[index] is TermToken) operands++;
                 else throw new ArgumentException("Unknown token found in logic.", nameof(logic));
 
-                if (operands - operators == 1 && logic[index] is OperatorToken) break;
+                if (operands - operators <= 1 && logic[index] is OperatorToken) break;
             }
 
             if (index == logic.Count) throw new InvalidOperationException("Malformed logic.");
@@ -74,9 +74,9 @@
         /// Returns the disjunctive normal form of the expression. That is,
         /// <br/>ORing together the results of ANDing the terms in each list results in an expression equivalent to the input.
         /// </summary>
-        public static List<List<TermToken>> GetDNF(IReadOnlyList<LogicToken> logic)
+        public static List<HashSet<TermToken>> GetDNF(IReadOnlyList<LogicToken> logic)
         {
-            Stack<List<List<TermToken>>> stack = new();
+            Stack<List<HashSet<TermToken>>> stack = new();
             foreach (LogicToken lt in logic)
             {
                 if (lt is OperatorToken ot)
@@ -84,24 +84,24 @@
                     switch (ot.OperatorType)
                     {
                         case OperatorType.AND:
-                            List<List<TermToken>> andRight = stack.Pop();
-                            List<List<TermToken>> andLeft = stack.Pop();
-                            List<List<TermToken>> and = new(andRight.Count * andLeft.Count);
+                            List<HashSet<TermToken>> andRight = stack.Pop();
+                            List<HashSet<TermToken>> andLeft = stack.Pop();
+                            List<HashSet<TermToken>> and = new(andRight.Count * andLeft.Count);
                             for (int i = 0; i < andRight.Count; i++)
                             {
                                 for (int j = 0; j < andLeft.Count; j++)
                                 {
-                                    List<TermToken> c = new(andRight[i].Count + andLeft[j].Count);
-                                    c.AddRange(andLeft[j]);
-                                    c.AddRange(andRight[i]);
+                                    HashSet<TermToken> c = new(andRight[i].Count + andLeft[j].Count);
+                                    c.UnionWith(andLeft[j]);
+                                    c.UnionWith(andRight[i]);
                                     and.Add(c);
                                 }
                             }
                             stack.Push(and);
                             break;
                         case OperatorType.OR:
-                            List<List<TermToken>> orRight = stack.Pop();
-                            List<List<TermToken>> orLeft = stack.Pop();
+                            List<HashSet<TermToken>> orRight = stack.Pop();
+                            List<HashSet<TermToken>> orLeft = stack.Pop();
                             orLeft.AddRange(orRight);
                             stack.Push(orLeft);
                             break;

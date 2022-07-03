@@ -2,9 +2,11 @@
 {
     public static class Infix
     {
+        private static readonly LogicProcessor _sharedTokenSource = new();
+
         public static List<LogicToken> Tokenize(string infix)
         {
-            return Tokenize(infix, null);
+            return Tokenize(infix, _sharedTokenSource);
         }
 
         public static List<LogicToken> Tokenize(string infix, ITokenSource tokenSource)
