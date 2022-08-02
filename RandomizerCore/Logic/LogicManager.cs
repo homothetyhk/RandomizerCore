@@ -68,11 +68,15 @@ namespace RandomizerCore.Logic
             TransitionLookup = new(_transitions);
 
             // Items
-            _items = new(source.UnparsedItems.Count + source.PrefabItems.Count);
+            _items = new(source.UnparsedItems.Count + source.TemplateItems.Count + source.PrefabItems.Count);
             JsonSerializer js = JsonUtil.GetLogicSerializer(this);
             foreach (var kvp in source.UnparsedItems)
             {
                 _items.Add(kvp.Key, kvp.Value.ToObject<LogicItem>(js));
+            }
+            foreach (var kvp in source.TemplateItems)
+            {
+                _items.Add(kvp.Key, kvp.Value.Create(this));
             }
             foreach (var kvp in source.PrefabItems)
             {
@@ -249,6 +253,7 @@ namespace RandomizerCore.Logic
                 {
                     foreach (LogicToken tt in lc) ApplyToken(logic, tt);
                 }
+                else throw new ArgumentException($"ReferenceToken {rt.Write()} points to undefined logic.");
             }
             else if (lt is SimpleToken st)
             {
