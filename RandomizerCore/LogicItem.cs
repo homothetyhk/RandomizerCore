@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic;
+using RandomizerCore.LogicItems;
 
 namespace RandomizerCore
 {
@@ -25,7 +26,7 @@ namespace RandomizerCore
         void RemoveFrom(ProgressionManager pm);
     }
 
-    public abstract record LogicItem(string Name) : ILogicItem
+    public abstract record LogicItem(string Name) : ILogicItem, ILogicItemTemplate
     {
         public abstract void AddTo(ProgressionManager pm);
 
@@ -33,5 +34,10 @@ namespace RandomizerCore
         /// Returns the pm indices potentially modified by the item.
         /// </summary>
         public abstract IEnumerable<Term> GetAffectedTerms();
+
+        LogicItem ILogicItemTemplate.Create(LogicManager lm)
+        {
+            return this;
+        }
     }    
 }

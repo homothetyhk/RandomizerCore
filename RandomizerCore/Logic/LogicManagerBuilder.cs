@@ -193,19 +193,28 @@ namespace RandomizerCore.Logic
         {
             TermToken tt = LP.GetTermToken(def.old);
             LogicClause lc = LP.ParseInfixToClause(def.replacement);
-            if (LP.IsMacro(def.name))
+            bool isMacro = LP.IsMacro(def.name);
+            bool isLocation = LogicLookup.TryGetValue(def.name, out LogicClause orig);
+            if (isMacro && isLocation)
+            {
+                throw new ArgumentException($"Ambiguous substituion request: \"{def.name}\" is used as a macro and as a logic def.");
+            }
+            else if (isMacro)
             {
                 LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
                 lcb.Subst(tt, lc);
                 LP.SetMacro(def.name, new LogicClause(lcb));
             }
-            else if (LogicLookup.TryGetValue(def.name, out LogicClause orig))
+            else if (isLocation)
             {
                 LogicClauseBuilder lcb = new(orig);
                 lcb.Subst(tt, lc);
                 LogicLookup[def.name] = new(lcb);
             }
-            else throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
+            else
+            {
+                throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
+            }
         }
 
         public enum JsonType
