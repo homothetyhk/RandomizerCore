@@ -9,5 +9,6 @@
         GT = -5,
         LT = -6,
         EQ = -7,
+        COALESCE = -8,
     }
 }

@@ -15,6 +15,7 @@
             { ">", (int)LogicOperators.GT },
             { "<", (int)LogicOperators.LT },
             { "=", (int)LogicOperators.EQ },
+            { "?", (int)LogicOperators.COALESCE },
         };
 
         public static bool TryGetOperator(string op, out int index)

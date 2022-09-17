@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.StringLogic
+﻿using RandomizerCore.Extensions;
+
+namespace RandomizerCore.StringLogic
 {
     public static class Infix
     {
@@ -73,6 +75,13 @@
                         break;
                     case "+":
                         output.Add(OperatorToken.AND);
+                        break;
+                    case "?":
+                        {
+                            TermToken right = (TermToken)output.Pop();
+                            TermToken left = (TermToken)output.Pop();
+                            output.Add(new CoalescingToken(left, right));
+                        }
                         break;
                     case ">":
                     case "<":
@@ -154,7 +163,7 @@
 
         private static readonly char[] SpecialCharacters = new char[]
         {
-            '(', ')', '+', '|', '>', '<', '='
+            '(', ')', '+', '|', '>', '<', '=', '?'
         };
 
         // combinators that take terms to a term
@@ -181,6 +190,7 @@
         {
             { "|", 0 },
             { "+", 1 },
+            { "?", 10 },
         };
     }
 }

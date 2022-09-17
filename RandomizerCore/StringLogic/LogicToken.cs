@@ -86,6 +86,14 @@
     }
 
     /// <summary>
+    /// TermToken which is parsed as its left argument if defined, otherwise as its right argument.
+    /// </summary>
+    public record CoalescingToken(TermToken Left, TermToken Right) : TermToken
+    {
+        public override string Write() => $"{Left.Write()}?{Right.Write()}";
+    }
+
+    /// <summary>
     /// TermToken which represents a constant bool.
     /// </summary>
     public record ConstToken(bool Value) : TermToken

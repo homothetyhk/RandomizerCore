@@ -67,7 +67,25 @@
             {
                 throw new NotSupportedException($"Unable to evaluate token: {rt}. DictPM does not store named logic references.");
             }
+            else if (token is CoalescingToken qt)
+            {
+                return IsValidToken(qt.Left) ? Evaluate(qt.Left) : Evaluate(qt.Right);
+            }
             throw new ArgumentException($"Unable to evaluate TermToken: {token}");
+        }
+
+        private bool IsValidToken(TermToken tt)
+        {
+            return tt switch
+            {
+                ConstToken => true,
+                SimpleToken st => terms.ContainsKey(st.Name),
+                ComparisonToken ct => terms.ContainsKey(ct.Left) && int.TryParse(ct.Right, out _),
+                ReferenceToken => false,
+                MacroToken mt => mt.Source?.GetMacro(mt.Name) is not null,
+                CoalescingToken qt => IsValidToken(qt.Left) || IsValidToken(qt.Right),
+                _ => false,
+            };
         }
     }
 

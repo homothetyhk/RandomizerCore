@@ -214,51 +214,108 @@ namespace RandomizerCore.Logic
 
         private void ApplyToken(List<int> logic, LogicToken lt)
         {
-            if (lt is OperatorToken ot)
+            switch (lt)
             {
-                logic.Add(ot.OperatorType switch
-                {
-                    OperatorType.AND => (int)LogicOperators.AND,
-                    OperatorType.OR => (int)LogicOperators.OR,
-                    _ => throw new NotImplementedException()
-                });
+                case OperatorToken ot:
+                    ApplyOperatorToken(logic, ot);
+                    break;
+                case SimpleToken st:
+                    ApplySimpleToken(logic, st);
+                    break;
+                case ComparisonToken ct:
+                    ApplyComparisonToken(logic, ct);
+                    break;
+                case ConstToken bt:
+                    ApplyConstToken(logic, bt);
+                    break;
+                case MacroToken mt:
+                    ApplyMacroToken(logic, mt);
+                    break;
+                case ReferenceToken rt:
+                    ApplyReferenceToken(logic, rt);
+                    break;
+                case CoalescingToken qt:
+                    ApplyCoalescingToken(logic, qt);
+                    break;
+                default:
+                    throw new ArgumentException($"Found unrecognized token in logic: {lt}");
             }
-            else if (lt is ComparisonToken ct)
+        }
+
+        private void ApplyOperatorToken(List<int> logic, OperatorToken ot)
+        {
+            logic.Add(ot.OperatorType switch
             {
-                logic.Add(ct.ComparisonType switch
-                {
-                    ComparisonType.EQ => (int)LogicOperators.EQ,
-                    ComparisonType.LT => (int)LogicOperators.LT,
-                    ComparisonType.GT => (int)LogicOperators.GT,
-                    _ => throw new NotImplementedException(),
-                });
-                ApplyTermOrVariable(logic, ct.Left);
-                ApplyTermOrVariable(logic, ct.Right);
-            }
-            else if (lt is ConstToken bt)
+                OperatorType.AND => (int)LogicOperators.AND,
+                OperatorType.OR => (int)LogicOperators.OR,
+                _ => throw new NotImplementedException()
+            });
+        }
+
+        private void ApplySimpleToken(List<int> logic, SimpleToken st)
+        {
+            ApplyTermOrVariable(logic, st.Name);
+        }
+
+        private void ApplyComparisonToken(List<int> logic, ComparisonToken ct)
+        {
+            logic.Add(ct.ComparisonType switch
             {
-                logic.Add(bt.Value ? (int)LogicOperators.ANY : (int)LogicOperators.NONE);
-            }
-            else if (lt is MacroToken mt)
+                ComparisonType.EQ => (int)LogicOperators.EQ,
+                ComparisonType.LT => (int)LogicOperators.LT,
+                ComparisonType.GT => (int)LogicOperators.GT,
+                _ => throw new NotImplementedException(),
+            });
+            ApplyTermOrVariable(logic, ct.Left);
+            ApplyTermOrVariable(logic, ct.Right);
+        }
+
+        private void ApplyConstToken(List<int> logic, ConstToken bt)
+        {
+            logic.Add(bt.Value ? (int)LogicOperators.ANY : (int)LogicOperators.NONE);
+        }
+
+        private void ApplyMacroToken(List<int> logic, MacroToken mt)
+        {
+            foreach (LogicToken tt in mt.Value) ApplyToken(logic, tt);
+        }
+
+        private void ApplyReferenceToken(List<int> logic, ReferenceToken rt)
+        {
+            if (_logicDefs.TryGetValue(rt.Target, out OptimizedLogicDef o))
             {
-                foreach (LogicToken tt in mt.Value) ApplyToken(logic, tt);
+                OptimizedLogicDef.Concat(logic, o);
             }
-            else if (lt is ReferenceToken rt)
+            else if (_source != null && _source.LogicLookup.TryGetValue(rt.Target, out LogicClause lc))
             {
-                if (_logicDefs.TryGetValue(rt.Target, out OptimizedLogicDef o))
-                {
-                    OptimizedLogicDef.Concat(logic, o);
-                }
-                else if (_source != null && _source.LogicLookup.TryGetValue(rt.Target, out LogicClause lc))
-                {
-                    foreach (LogicToken tt in lc) ApplyToken(logic, tt);
-                }
-                else throw new ArgumentException($"ReferenceToken {rt.Write()} points to undefined logic.");
+                foreach (LogicToken tt in lc) ApplyToken(logic, tt);
             }
-            else if (lt is SimpleToken st)
+            else throw new ArgumentException($"ReferenceToken {rt.Write()} points to undefined logic.");
+        }
+
+        private void ApplyCoalescingToken(List<int> logic, CoalescingToken qt)
+        {
+            if (IsValidToken(qt.Left)) ApplyToken(logic, qt.Left);
+            else ApplyToken(logic, qt.Right);
+        }
+
+        private bool IsValidToken(LogicToken lt)
+        {
+            return lt switch
             {
-                ApplyTermOrVariable(logic, st.Name);
-            }
+                OperatorToken => true,
+                SimpleToken st => IsTermOrVariable(st.Name),
+                ComparisonToken ct => IsTermOrVariable(ct.Left) && IsTermOrVariable(ct.Right),
+                ConstToken => true,
+                MacroToken mt => mt.Source?.GetMacro(mt.Name) is not null,
+                CoalescingToken qt => IsValidToken(qt.Left) || IsValidToken(qt.Right),
+                _ => false,
+            };
+        }
+
+        private bool IsTermOrVariable(string name)
+        {
+            return name != null && (_termLookup.ContainsKey(name) || _variableIndices.ContainsKey(name) || VariableResolver.TryMatch(this, name, out _));
         }
 
         private void ApplyTermOrVariable(List<int> logic, string name)
