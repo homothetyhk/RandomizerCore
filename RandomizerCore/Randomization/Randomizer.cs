@@ -18,7 +18,7 @@ namespace RandomizerCore.Randomization
         {
             this.ctx = ctx;
             this.lm = ctx.LM;
-            this.rm = rm;
+            this.rm = rm ?? new();
             this.stages = stages;
             this.rng = rng;
             stagedPlacements = new();
@@ -30,6 +30,7 @@ namespace RandomizerCore.Randomization
                     if (group.Items.Length != group.Locations.Length) throw new ArgumentException($"Group {group.Label} in stage {stage.label} has nonmatching arrays!");
                 }
             }
+            rm.SendEvent(RandoEventType.Initializing);
         }
 
         public List<List<RandoPlacement>[]> Run()
@@ -39,10 +40,12 @@ namespace RandomizerCore.Randomization
                 try
                 {
                     rm.SendEvent(RandoEventType.NewAttempt);
+                    InitializeStages();
                     PermuteAll();
-                    for (int i = 0; i < stages.Length - 1; i++) RandomizeForward(i, State.Temporary);
-                    Randomize(stages.Length - 1, State.Permanent);
-                    for (int i = stages.Length - 2; i >= 0; i--) Rerandomize(i, State.Permanent);
+                    InitializeUpdater(pm.mu);
+                    for (int i = 0; i < stages.Length - 1; i++) RandomizeForward(i, TempState.Temporary);
+                    Randomize(stages.Length - 1, TempState.Permanent);
+                    for (int i = stages.Length - 2; i >= 0; i--) Rerandomize(i, TempState.Permanent);
                     break;
                 }
                 catch (OutOfLocationsException e)
@@ -62,6 +65,14 @@ namespace RandomizerCore.Randomization
             Validate();
             rm.SendEvent(RandoEventType.Finished);
             return stagedPlacements;
+        }
+
+        private void InitializeStages()
+        {
+            for (int i = 0; i < stages.Length; i++)
+            {
+                stages[i].OnNewAttempt();
+            }
         }
 
         private void PermuteAll()
@@ -89,33 +100,37 @@ namespace RandomizerCore.Randomization
             }
         }
 
-        private MainUpdater InitializeUpdater()
+        private void InitializeUpdater(MainUpdater mu)
         {
-            MainUpdater mu = new(lm);
-            mu.AddPlacements(lm.Waypoints);
+            mu.Clear();
+            mu.AddWaypoints(lm.Waypoints);
+            mu.AddTransitions(lm.TransitionLookup.Values);
             mu.AddPlacements(ctx.EnumerateExistingPlacements());
-            return mu;
+            mu.SetLongTermRevertPoint();
         }
 
         private void ResetStage(RandomizationStage stage)
         {
             foreach (RandomizationGroup group in stage.groups) ResetGroup(group);
+            stage.strategy.Reset();
         }
 
         private void ResetGroup(RandomizationGroup group)
         {
             foreach (IRandoItem item in group.Items)
             {
-                item.Placed = State.None;
+                item.Placed = TempState.None;
                 item.Sphere = -1;
                 item.Required = false;
             }
 
             foreach (IRandoLocation location in group.Locations)
             {
-                location.Reachable = State.None;
+                location.Reachable = TempState.None;
                 location.Sphere = -1;
             }
+
+            group.Strategy.Reset();
         }
 
         // Randomizes the groups in the stage with the given index.
@@ -123,13 +138,11 @@ namespace RandomizerCore.Randomization
         // All staged placements will be accounted for during randomization.
         // For stages of greater index, their items will be added directly to the ProgressionManager before randomization.
         // Finishes by adding a new entry to the stagedPlacements list.
-        private void RandomizeForward(int index, State state)
+        private void RandomizeForward(int index, TempState state)
         {
-            RandomizationGroup[] groups = stages[index].groups;
-            MainUpdater mu = InitializeUpdater();
             for (int i = 0; i < stagedPlacements.Count; i++)
             {
-                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
+                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) pm.mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
             }
 
             for (int i = index + 1; i < stages.Length; i++)
@@ -137,9 +150,9 @@ namespace RandomizerCore.Randomization
                 foreach (RandomizationGroup g in stages[i].groups) pm.Add(g.Items);
             }
 
-            SphereBuilder sb = new(groups, pm, mu);
+            SphereBuilder sb = new(stages[index], pm, state);
             sb.Advance();
-            stagedPlacements.Add(stages[index].strategy.PlaceItems(stages[index], sb.Spheres, state));
+            stagedPlacements.Add(sb.Placements);
             pm.Reset();
         }
 
@@ -148,18 +161,16 @@ namespace RandomizerCore.Randomization
         // All staged placements will be accounted for during randomization.
         // No handling for stages of greater index.
         // Finishes by adding a new entry to the stagedPlacements list.
-        private void Randomize(int index, State state)
+        private void Randomize(int index, TempState state)
         {
-            RandomizationGroup[] groups = stages[index].groups;
-            MainUpdater mu = InitializeUpdater();
             for (int i = 0; i < stagedPlacements.Count; i++)
             {
-                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
+                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) pm.mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
             }
 
-            SphereBuilder sb = new(groups, pm, mu);
+            SphereBuilder sb = new(stages[index], pm, state);
             sb.Advance();
-            stagedPlacements.Add(stages[index].strategy.PlaceItems(stages[index], sb.Spheres, state));
+            stagedPlacements.Add(sb.Placements);
             pm.Reset();
         }
 
@@ -168,20 +179,18 @@ namespace RandomizerCore.Randomization
         // Staged placements will be accounted for during randomization, except for the entry with the same index as the current stage which is ignored.
         // No handling for stages of greater index.
         // Finishes by overwriting the entry with the given index in stagedPlacements.
-        private void Rerandomize(int index, State state)
+        private void Rerandomize(int index, TempState state)
         {
             ResetStage(stages[index]);
-            RandomizationGroup[] groups = stages[index].groups;
-            MainUpdater mu = InitializeUpdater();
             for (int i = 0; i < stagedPlacements.Count; i++)
             {
                 if (i == index) continue;
-                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
+                foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) pm.mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
             }
 
-            SphereBuilder sb = new(groups, pm, mu);
+            SphereBuilder sb = new(stages[index], pm, state);
             sb.Advance();
-            stagedPlacements[index] = stages[index].strategy.PlaceItems(stages[index], sb.Spheres, state);
+            stagedPlacements[index] = sb.Placements;
             pm.Reset();
         }
 
@@ -199,7 +208,6 @@ namespace RandomizerCore.Randomization
         public void Validate()
         {
             pm.Reset();
-            MainUpdater mu = InitializeUpdater();
 
             List<List<PrePlacedItemUpdateEntry>[]> entries = new();
             for (int i = 0; i < stages.Length; i++)
@@ -212,12 +220,12 @@ namespace RandomizerCore.Randomization
                     {
                         PrePlacedItemUpdateEntry e = new(p.Item, p.Location);
                         groupEntries.Add(e);
-                        mu.AddEntry(e);
+                        pm.mu.AddEntry(e);
                     }
                 }
             }
 
-            mu.Hook(pm);
+            pm.mu.StartUpdating();
             
             for (int i = 0; i < stages.Length; i++)
             {

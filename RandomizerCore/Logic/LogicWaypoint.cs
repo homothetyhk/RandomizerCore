@@ -1,19 +1,29 @@
-﻿namespace RandomizerCore.Logic
+﻿using RandomizerCore.Logic.StateLogic;
+
+namespace RandomizerCore.Logic
 {
     public class LogicWaypoint : ILogicDef, ILogicItem
     {
-        public LogicWaypoint(Term term, OptimizedLogicDef logic)
+        public LogicWaypoint(Term term, StateLogicDef logic)
         {
-            this.logic = logic;
             this.term = term;
+            this.logic = logic;
         }
 
-        public readonly OptimizedLogicDef logic;
+        public readonly StateLogicDef logic;
         public readonly Term term;
 
         public void AddTo(ProgressionManager pm)
         {
-            pm.Set(term.Id, 1);
+            switch (term.Type)
+            {
+                case TermType.State:
+                    if (pm.GetState(term.Id) is null) pm.SetState(term.Id, new(logic.EvaluateState(pm)));
+                    break;
+                default:
+                    pm.Set(term.Id, 1);
+                    break;
+            }
         }
 
         public IEnumerable<Term> GetAffectedTerms()

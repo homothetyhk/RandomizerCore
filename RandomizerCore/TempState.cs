@@ -1,6 +1,6 @@
 ﻿namespace RandomizerCore
 {
-    public enum State
+    public enum TempState
     {
         None,
         Temporary,

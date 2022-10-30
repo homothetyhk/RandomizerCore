@@ -21,6 +21,14 @@ namespace RandomizerCore
         IEnumerable<Term> GetAffectedTerms();
     }
 
+    /// <summary>
+    /// Interface which indicates the item has an action once its location is determined.
+    /// </summary>
+    public interface ILocationDependentItem : ILogicItem
+    {
+        void Place(ProgressionManager pm, ILogicDef location);
+    }
+
     public interface IRemovableItem
     {
         void RemoveFrom(ProgressionManager pm);

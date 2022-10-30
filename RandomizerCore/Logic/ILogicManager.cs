@@ -4,6 +4,6 @@
     {
         Term GetTerm(string term);
         Term GetTerm(int index);
-        OptimizedLogicDef FromString(RawLogicDef def);
+        LogicDef FromString(RawLogicDef def);
     }
 }

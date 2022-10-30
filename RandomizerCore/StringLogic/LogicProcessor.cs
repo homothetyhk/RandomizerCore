@@ -35,8 +35,35 @@
                 SetMacro(kvp);
             }
         }
-        public void SetMacro(string key, string infix) => SetMacro(key, ParseInfixToClause(infix));
-        public void SetMacro(KeyValuePair<string, string> kvp) => SetMacro(kvp.Key, ParseInfixToClause(kvp.Value));
+        public void SetMacro(string key, string infix)
+        {
+            LogicClause lc;
+            try
+            {
+                lc = ParseInfixToClause(infix);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{infix}\" for macro {key} is malformed.", e);
+            }
+            SetMacro(key, lc);
+        }
+
+        public void SetMacro(KeyValuePair<string, string> kvp)
+        {
+            LogicClause lc;
+            try
+            {
+                lc = ParseInfixToClause(kvp.Value);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
+            }
+
+            SetMacro(kvp.Key, lc);
+        }
+
         public void SetMacro(string key, LogicClause c)
         {
             if (tokenPool.TryGetValue(key, out LogicToken lt) && lt is not MacroToken)

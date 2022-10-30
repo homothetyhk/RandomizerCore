@@ -1,38 +1,113 @@
-﻿namespace RandomizerCore.Logic
+﻿using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.Updater;
+
+namespace RandomizerCore.Logic
 {
+    /// <summary>
+    /// Class which indexes subscribers by their dependency on progression terms to optimize updating in response to new progression.
+    /// </summary>
     public class MainUpdater
     {
-        readonly List<UpdateEntry>[] entriesByTerm;
+        readonly TermIndexedCollection<List<UpdateEntry>> entriesByTerm;
         readonly List<UpdateEntry> individualEntries;
-        readonly List<UpdateEntry> temp;
-        ProgressionManager pm;
+        
+        readonly ProgressionManager pm;
         readonly HashSet<int> addEntryHelper;
         readonly HashQueue<int> updates;
 
-        public MainUpdater(LogicManager lm)
-        {
-            entriesByTerm = new List<UpdateEntry>[lm.TermCount];
-            for (int i = 0; i < entriesByTerm.Length; i++) entriesByTerm[i] = new List<UpdateEntry>();
-            individualEntries = new List<UpdateEntry>(2000);
+        readonly RevertPoint longTermRevertPoint;
+        readonly RevertPoint shortTermRevertPoint;
 
-            temp = new List<UpdateEntry>(128);
-            updates = new HashQueue<int>(lm.TermCount);
-            addEntryHelper = new HashSet<int>(lm.TermCount);
+        bool active;
+
+        private class RevertPoint
+        {
+            readonly TermIndexedCollection<int> revertCounts;
+            int revertIndividualCount;
+
+            public RevertPoint(TermCollection terms)
+            {
+                revertCounts = new(terms);
+            }
+
+            public void Set(MainUpdater mu)
+            {
+                if (mu.individualEntries.Count == revertIndividualCount) return;
+                revertIndividualCount = mu.individualEntries.Count;
+                revertCounts.PopulateFrom(mu.entriesByTerm, l => l.Count);
+            }
+
+            public void Apply(MainUpdater mu)
+            {
+                if (mu.individualEntries.Count == revertIndividualCount) return;
+                mu.entriesByTerm.ZipAction(revertCounts, (i, l) => l.RemoveRange(i, l.Count - i));
+                mu.individualEntries.RemoveRange(revertIndividualCount, mu.individualEntries.Count - revertIndividualCount);
+            }
+
         }
 
-        public void Hook(ProgressionManager pm)
+        public MainUpdater(LogicManager lm, ProgressionManager pm)
         {
-            if (this.pm != pm)
+            entriesByTerm = TermIndexedCollection<List<UpdateEntry>>.CreatePopulated<List<UpdateEntry>>(lm.Terms);
+            individualEntries = new List<UpdateEntry>(2000);
+            this.pm = pm;
+            updates = new HashQueue<int>(lm.Terms.Count);
+            addEntryHelper = new HashSet<int>(lm.Terms.Count);
+            longTermRevertPoint = new(lm.Terms);
+            shortTermRevertPoint = new(lm.Terms);
+        }
+
+        public void StartUpdating()
+        {
+            if (!active)
             {
-                this.pm = pm;
                 pm.AfterAddItem += EnqueueUpdates;
                 pm.AfterAddRange += EnqueueUpdates;
+                pm.AfterStartTemp += SetShortTermRevertPoint;
                 pm.AfterEndTemp += OnEndTemp;
                 pm.OnRemove += OnRemove;
                 pm.AfterRemove += DoRecalculate;
+                active = true;
             }
 
             DoUpdateAll();
+        }
+
+        
+
+        public void StopUpdating()
+        {
+            if (active)
+            {
+                pm.AfterAddItem -= EnqueueUpdates;
+                pm.AfterAddRange -= EnqueueUpdates;
+                pm.AfterStartTemp -= SetShortTermRevertPoint;
+                pm.AfterEndTemp -= OnEndTemp;
+                pm.OnRemove -= OnRemove;
+                pm.AfterRemove -= DoRecalculate;
+                active = false;
+            }
+        }
+
+        private void SetShortTermRevertPoint()
+        {
+            shortTermRevertPoint.Set(this);
+        }
+
+        public void SetLongTermRevertPoint()
+        {
+            longTermRevertPoint.Set(this);
+        }
+
+        /// <summary>
+        /// Resets the MU and rolls back entry list to the long term revert point.
+        /// </summary>
+        public void RevertLong()
+        {
+            Reset();
+            OnBeginRecalculate = null;
+            OnEndRecalculuate = null;
+            longTermRevertPoint.Apply(this);
         }
 
 
@@ -52,12 +127,56 @@
             individualEntries.Add(entry);
             addEntryHelper.Clear();
 
-            if (pm != null) DoUpdateEntry(entry);
+            if (active) DoUpdateEntry(entry);
         }
 
-        public void AddPlacements(IEnumerable<LogicWaypoint> ps)
+        /// <summary>
+        /// Adds entries with default waypoint behavior, inferring bool- or state-behavior based on term type.
+        /// </summary>
+        public void AddWaypoints(IEnumerable<LogicWaypoint> ps)
         {
-            foreach (var p in ps) AddEntry(new PrePlacedItemUpdateEntry(p, p));
+            foreach (var p in ps)
+            {
+                if (p.term.Type == TermType.State)
+                {
+                    AddEntry(new StateUpdateEntry(p.term, p.logic));
+                }
+                else
+                {
+                    AddEntry(new PrePlacedItemUpdateEntry(p, p));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds entries which manage state for each transition.
+        /// </summary>
+        public void AddTransitions(IEnumerable<LogicTransition> ts)
+        {
+            foreach (var t in ts)
+            {
+                if (t.term.Type == TermType.State)
+                {
+                    AddEntry(new StateUpdateEntry(t.term, t.logic));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds entries which manage the state term according to its paired logic.
+        /// <br/>Nonstate terms in the sequence are ignored.
+        /// </summary>
+        public void AddManagedStates(IEnumerable<(Term, StateLogicDef)> ts)
+        {
+            foreach (var t in ts)
+            {
+                if (t.Item1.Type == TermType.State) AddEntry(new StateUpdateEntry(t.Item1, t.Item2));
+            }
+        }
+
+        public void LinkState(Term source, Term target)
+        {
+            AddEntry(new StateTransmittingUpdateEntry(source, target));
         }
 
         public void AddPlacements(IEnumerable<GeneralizedPlacement> ps)
@@ -92,23 +211,33 @@
             while (updates.TryDequeue(out int term)) DoUpdate(term);
         }
 
+        int i;
+
         public void DoUpdate(int term)
         {
-            foreach (var entry in entriesByTerm[term])
+            i++;
+            if (i > 10000) throw new StackOverflowException();
+            try
             {
-                DoUpdateEntry(entry);
+                List<UpdateEntry> l = entriesByTerm[term];
+                for (int i = 0; i < l.Count; i++)
+                {
+                    DoUpdateEntry(l[i]);
+                }
             }
+            catch (StackOverflowException)
+            {
+                Log(pm.lm.Terms[term].Name);
+                throw;
+            }
+            i--;
         }
 
         public void DoUpdateEntry(UpdateEntry entry)
         {
-            if (!entry.obtained && entry.CanGet(pm))
+            if (entry.state == TempState.None && entry.CanGet(pm))
             {
-                entry.obtained = true;
-                if (pm.Temp)
-                {
-                    temp.Add(entry);
-                }
+                entry.state = pm.Temp ? TempState.Temporary : TempState.Permanent;
                 entry.OnAdd(pm);
             }
             else if (entry.alwaysUpdate && entry.CanGet(pm))
@@ -119,45 +248,29 @@
 
         public void DoUpdateAll()
         {
-            foreach (var entry in individualEntries)
+            for (int i = 0; i < individualEntries.Count; i++)
             {
-                DoUpdateEntry(entry);
+                DoUpdateEntry(individualEntries[i]);
             }
         }
 
         public void OnRemove()
         {
-            for (int i = 0; i < temp.Count; i++)
+            foreach (var entry in individualEntries)
             {
-                var entry = temp[i];
-                entry.obtained = false;
-                entry.OnRemove(pm);
+                if (entry.state == TempState.Temporary)
+                {
+                    entry.state = TempState.None;
+                    entry.OnRemove(pm);
+                }
             }
+            shortTermRevertPoint.Apply(this);
         }
 
         public void DoRecalculate()
         {
             OnBeginRecalculate?.Invoke();
-
-            bool updated;
-            do
-            {
-                updated = false;
-                for (int i = 0; i < temp.Count; i++)
-                {
-                    UpdateEntry entry = temp[i];
-
-                    if (!entry.obtained && entry.CanGet(pm))
-                    {
-                        updated = true;
-                        entry.obtained = true;
-                        entry.OnAdd(pm);
-                    }
-                }
-            }
-            while (updated);
-
-            temp.RemoveAll(e => !e.obtained);
+            DoUpdateAll();
             OnEndRecalculuate?.Invoke();
         }
 
@@ -165,15 +278,26 @@
         {
             if (!saved)
             {
-                for (int i = 0; i < temp.Count; i++)
+                foreach (var entry in individualEntries)
                 {
-                    var entry = temp[i];
-                    entry.obtained = false;
-                    entry.OnRemove(pm);
+                    if (entry.state == TempState.Temporary)
+                    {
+                        entry.state = TempState.None;
+                        entry.OnRemove(pm);
+                    }
+                }
+                shortTermRevertPoint.Apply(this);
+            }
+            else
+            {
+                foreach (var entry in individualEntries)
+                {
+                    if (entry.state == TempState.Temporary)
+                    {
+                        entry.state = TempState.Permanent;
+                    }
                 }
             }
-
-            temp.Clear();
         }
 
         /// <summary>
@@ -181,12 +305,12 @@
         /// </summary>
         public void Reset()
         {
-            pm = null;
+            StopUpdating();
             OnReset?.Invoke();
             foreach (UpdateEntry entry in individualEntries)
             {
                 entry.Reset();
-                entry.obtained = false;
+                entry.state = TempState.None;
             }
         }
 
@@ -197,8 +321,6 @@
         {
             individualEntries.Clear();
             foreach (List<UpdateEntry> list in entriesByTerm) list.Clear();
-            temp.Clear();
-            pm = null;
             OnBeginRecalculate = null;
             OnEndRecalculuate = null;
         }
@@ -207,7 +329,8 @@
 
     public abstract class UpdateEntry
     {
-        public bool obtained = false;
+        public bool obtained => state != TempState.None;
+        public TempState state;
         public virtual bool alwaysUpdate => false;
         public abstract bool CanGet(ProgressionManager pm);
         public abstract IEnumerable<Term> GetTerms();

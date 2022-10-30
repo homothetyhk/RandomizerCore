@@ -31,6 +31,12 @@ namespace RandomizerCore.Randomization
             return true;
         }
 
+        private readonly List<SortedArrayList<IRandoLocation>> _locations = new();
+        private readonly List<SortedArrayList<IRandoLocation>> _dualLocations = new();
+        private readonly SortedArrayList<float> _meanSphereProgressionPriorities = new();
+        private readonly SortedArrayList<float> _dualMeanSphereProgressionPriorities = new();
+        private readonly List<RandoPlacement> _placements = new();
+
         /// <summary>
         /// Event for when no reachable locations satisfy the constraint for item.
         /// <br/>Raise OutOfLocationsException to trigger rerandomization. Raise other exceptions to halt randomization.
@@ -51,114 +57,95 @@ namespace RandomizerCore.Randomization
             depthPriorityTransform = PriorityTransformUtil.CreateTransform(depthPriorityScalingFactor);
         }
 
-        public override List<RandoPlacement> PlaceGroup(RandomizationGroup group, IEnumerable<Sphere> spheres, State placementState)
+        public override List<RandoPlacement> PlaceGroup(RandomizationGroup group, Sphere sphere, TempState placementState)
         {
-            List<SortedArrayList<IRandoLocation>> locations = new();
-            SortedArrayList<float> meanSphereProgressionPriorities = new();
-            List<RandoPlacement> placements = new();
+            _placements.Clear();
 
-            foreach (Sphere s in spheres)
+            foreach (IRandoItem ri in sphere.Items)
             {
-                foreach (IRandoItem ri in s.Items)
-                {
-                    IRandoLocation rl = SelectNext(s, locations, meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
-                    placements.Add(new(ri, rl));
-                }
-
-                if (s.Items.Count > 0)
-                {
-                    meanSphereProgressionPriorities.Add(s.Items.Sum(r => r.Priority) / s.Items.Count);
-                }
-                else meanSphereProgressionPriorities.Add(int.MinValue);
-
-                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
+                IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
+                _placements.Add(new(ri, rl));
             }
 
-            return placements;
+            if (sphere.Items.Count > 0)
+            {
+                _meanSphereProgressionPriorities.Add(sphere.Items.Sum(r => r.Priority) / sphere.Items.Count);
+            }
+            else _meanSphereProgressionPriorities.Add(int.MinValue);
+
+            _locations.Add(new SortedArrayList<IRandoLocation>(sphere.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
+
+            return _placements;
         }
 
-        public sealed override List<RandoPlacement> PlaceCoupledGroup(CoupledRandomizationGroup group, IEnumerable<Sphere> spheres, IEnumerable<Sphere> dualSpheres, State placementState)
+        public override List<RandoPlacement> PlaceCoupledGroup(CoupledRandomizationGroup group, Sphere sphere, Sphere dualSphere, TempState placementState)
         {
-            return PlaceCoupledGroup(group, spheres.ToList(), dualSpheres.ToList(), placementState);
-        }
-
-        public virtual List<RandoPlacement> PlaceCoupledGroup(CoupledRandomizationGroup group, List<Sphere> spheres, List<Sphere> dualSpheres, State placementState)
-        {
-            List<RandoPlacement> placements = new();
+            _placements.Clear();
             bool selfDual = ReferenceEquals(group, group.Dual);
 
-            List<SortedArrayList<IRandoLocation>> locations = new();
-            SortedArrayList<float> meanSphereProgressionPriorities = new();
-
-            foreach (Sphere s in spheres)
+            foreach (IRandoItem ri in sphere.Items)
             {
-                foreach (IRandoItem ri in s.Items)
-                {
-                    IRandoLocation rl = SelectNext(s, locations, meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
-                    placements.Add(new(ri, rl));
-                }
-
-                if (s.Items.Count > 0)
-                {
-                    meanSphereProgressionPriorities.Add(s.Items.Sum(r => r.Priority) / s.Items.Count);
-                }
-                else meanSphereProgressionPriorities.Add(int.MinValue);
-
-                locations.Add(new SortedArrayList<IRandoLocation>(s.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
+                IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
+                _placements.Add(new(ri, rl));
             }
+
+            if (sphere.Items.Count > 0)
+            {
+                _meanSphereProgressionPriorities.Add(sphere.Items.Sum(r => r.Priority) / sphere.Items.Count);
+            }
+            else _meanSphereProgressionPriorities.Add(int.MinValue);
+
+            _locations.Add(new SortedArrayList<IRandoLocation>(sphere.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
 
             if (!selfDual)
             {
-                List<SortedArrayList<IRandoLocation>> dualLocations = new();
-                SortedArrayList<float> dualMeanSphereProgressionPriorities = new();
-
-                foreach (Sphere sd in dualSpheres)
+                foreach (IRandoItem ri in dualSphere.Items)
                 {
-                    foreach (IRandoItem ri in sd.Items)
-                    {
-                        IRandoLocation rl = SelectNext(sd, dualLocations, dualMeanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
-                        placements.Add(new((IRandoCouple)rl, (IRandoCouple)ri));
-                    }
-
-                    if (sd.Items.Count > 0)
-                    {
-                        dualMeanSphereProgressionPriorities.Add(sd.Items.Sum(r => r.Priority) / sd.Items.Count);
-                    }
-                    else dualMeanSphereProgressionPriorities.Add(int.MinValue);
-
-                    dualLocations.Add(new SortedArrayList<IRandoLocation>(sd.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
+                    IRandoLocation rl = SelectNext(dualSphere, _dualLocations, _dualMeanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
+                    _placements.Add(new((IRandoCouple)rl, (IRandoCouple)ri));
                 }
 
-                SortedArrayList<IRandoItem> remainingItems = new(dualLocations.SelectMany(l => l.Cast<IRandoItem>()), ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
-                Sphere s = spheres[^1];
-                while (remainingItems.TryExtractMin(out IRandoItem ri))
+                if (dualSphere.Items.Count > 0)
                 {
-                    IRandoLocation rl = SelectNext(s, locations, meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
-                    placements.Add(new(ri, rl));
+                    _dualMeanSphereProgressionPriorities.Add(dualSphere.Items.Sum(r => r.Priority) / dualSphere.Items.Count);
                 }
+                else _dualMeanSphereProgressionPriorities.Add(int.MinValue);
 
-                if (locations.Any(l => l.Count > 0)) throw new InvalidOperationException($"Failure in PlaceCoupledGroup: group {spheres[0].groupLabel} has " +
-                    $"{locations.Select(l => l.Count).Sum()} locations leftover after group {dualSpheres[0].groupLabel} was exhausted.");
-                
+                _dualLocations.Add(new SortedArrayList<IRandoLocation>(dualSphere.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
             }
-            else
+
+            if (sphere.final)
             {
-                Dictionary<IRandoCouple, int> locDepthLookup = locations.SelectMany((l, i) => l.Select(rl => (rl, i))).ToDictionary(p => (IRandoCouple)p.rl, p => p.i);
-                SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys, ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
-                Sphere s = spheres[^1];
-                while (remainingItems.TryExtractMin(out IRandoItem ri))
+                if (!selfDual)
                 {
-                    IRandoLocation rl = SelectNext(s, locations, meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
-                    placements.Add(new(ri, rl));
-                    remainingItems.Remove((IRandoCouple)rl);
-                    locations[locDepthLookup[(IRandoCouple)ri]].Remove((IRandoCouple)ri);
-                }
+                    SortedArrayList<IRandoItem> remainingItems = new(_dualLocations.SelectMany(l => l.Cast<IRandoItem>()), ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
+                    while (remainingItems.TryExtractMin(out IRandoItem ri))
+                    {
+                        IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
+                        _placements.Add(new(ri, rl));
+                    }
 
-                if (locations.Any(l => l.Count > 0)) throw new InvalidOperationException($"Failure in PlaceCoupledGroup: group {spheres[0].groupLabel} has " +
-                    $"{locations.Select(l => l.Count).Sum()} locations leftover after group {dualSpheres[0].groupLabel} was exhausted.");
+                    if (_locations.Any(l => l.Count > 0)) throw new InvalidOperationException($"Failure in PlaceCoupledGroup: group {sphere.groupLabel} has " +
+                        $"{_locations.Select(l => l.Count).Sum()} locations leftover after group {dualSphere.groupLabel} was exhausted.");
+                }
+                else
+                {
+                    Dictionary<IRandoCouple, int> locDepthLookup = _locations.SelectMany((l, i) => l.Select(rl => (rl, i))).ToDictionary(p => (IRandoCouple)p.rl, p => p.i);
+                    SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys, ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
+                    while (remainingItems.TryExtractMin(out IRandoItem ri))
+                    {
+                        IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
+                        _placements.Add(new(ri, rl));
+                        remainingItems.Remove((IRandoCouple)rl);
+                        _locations[locDepthLookup[(IRandoCouple)ri]].Remove((IRandoCouple)ri);
+                    }
+
+                    if (_locations.Any(l => l.Count > 0)) throw new InvalidOperationException($"Failure in PlaceCoupledGroup: group {sphere.groupLabel} has " +
+                        $"{_locations.Select(l => l.Count).Sum()} locations leftover after group {dualSphere.groupLabel} was exhausted.");
+                }
             }
 
-            return placements;
+            return _placements;
         }
 
         public IRandoLocation SelectNext(Sphere s, List<SortedArrayList<IRandoLocation>> locations, SortedArrayList<float> meanSphereProgressionPriorities, IRandoItem item, out int priorityDepth, out int depth, out float locationPriority)
@@ -218,6 +205,16 @@ namespace RandomizerCore.Randomization
 
             locations[depth].RemoveAt(index);
             return location;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            _locations.Clear();
+            _dualLocations.Clear();
+            _meanSphereProgressionPriorities.Clear();
+            _dualMeanSphereProgressionPriorities.Clear();
+            _placements.Clear();
         }
     }
 }

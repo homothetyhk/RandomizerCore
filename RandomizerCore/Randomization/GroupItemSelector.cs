@@ -59,7 +59,7 @@ namespace RandomizerCore.Randomization
         /// Detects coupled items which must be discarded.
         /// <br/>An element of a coupled group has item and location behavior. If it becomes reachable before it is placed, it is slated into the locations of a sphere of the dual group, and can no longer be placed.
         /// </summary>
-        public bool ShouldDiscard(IRandoItem t) => coupled && ((IRandoCouple)t).Reachable == State.Permanent;
+        public bool ShouldDiscard(IRandoItem t) => coupled && ((IRandoCouple)t).Reachable == TempState.Permanent;
 
         public IEnumerable<IRandoItem> GetAcceptedItems() => acceptedItems;
         public IEnumerable<IRandoItem> GetProposedItems() => proposedItems;
@@ -86,7 +86,7 @@ namespace RandomizerCore.Randomization
                 AdvanceToNextProposal();
                 if (unusedItems.TryPop(out t))
                 {
-                    t.Placed = State.Temporary;
+                    t.Placed = TempState.Temporary;
                     proposedItems.Push(t);
                     return true;
                 }
@@ -109,7 +109,7 @@ namespace RandomizerCore.Randomization
         {
             while (proposedItems.TryPop(out IRandoItem t))
             {
-                t.Placed = State.Permanent;
+                t.Placed = TempState.Permanent;
                 acceptedItems.Add(t);
                 return;
             }
@@ -121,7 +121,7 @@ namespace RandomizerCore.Randomization
             while (acceptedItems.Count > 0)
             {
                 IRandoItem t = acceptedItems.Pop();
-                t.Placed = State.Temporary;
+                t.Placed = TempState.Temporary;
                 proposedItems.Push(t);
             }
         }
@@ -130,7 +130,7 @@ namespace RandomizerCore.Randomization
         {
             while (proposedItems.TryPop(out IRandoItem t))
             {
-                t.Placed = State.None;
+                t.Placed = TempState.None;
                 rejectedItems.Push(t);
             }
         }
@@ -139,7 +139,7 @@ namespace RandomizerCore.Randomization
         {
             IRandoItem r = proposedItems.Pop();
             UnacceptAll();
-            r.Placed = State.None;
+            r.Placed = TempState.None;
             rejectedItems.Push(r);
         }
 
@@ -147,7 +147,7 @@ namespace RandomizerCore.Randomization
         {
             if (proposedItems.TryPop(out IRandoItem t))
             {
-                t.Placed = State.None;
+                t.Placed = TempState.None;
                 rejectedItems.Push(t);
             }
             else throw new InvalidOperationException("RejectLast called with no valid proposed transitions.");
@@ -166,7 +166,7 @@ namespace RandomizerCore.Randomization
             while (rejectedItems.TryPop(out IRandoItem item)) proposedItems.Push(item);
             while (proposedItems.TryPop(out IRandoItem item))
             {
-                item.Placed = State.None;
+                item.Placed = TempState.None;
                 unusedItems.Push(item);
             }
             if (unusedItems.Count == 0) Finished = true;
@@ -189,7 +189,7 @@ namespace RandomizerCore.Randomization
                 else remainingItems.Add(t);
             }
 
-            foreach (IRandoItem t in remainingItems) t.Placed = State.Permanent;
+            foreach (IRandoItem t in remainingItems) t.Placed = TempState.Permanent;
             Finished = true;
             IncrementCap(-remainingItems.Count);
         }

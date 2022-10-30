@@ -8,6 +8,7 @@
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
+    <Nullable>annotations</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Using Remove="System.Net.Http" />

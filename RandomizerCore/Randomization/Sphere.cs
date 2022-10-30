@@ -21,6 +21,11 @@
         public string groupLabel;
 
         /// <summary>
+        /// Indicates whether this is the result of the final step of the stage.
+        /// </summary>
+        public bool final;
+
+        /// <summary>
         /// Items to be placed in the current sphere or earlier.
         /// </summary>
         public List<IRandoItem> Items;

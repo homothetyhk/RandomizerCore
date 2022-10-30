@@ -1,7 +1,37 @@
-﻿namespace RandomizerCore.StringLogic
+﻿using RandomizerCore.Logic;
+
+namespace RandomizerCore.StringLogic
 {
+    /// <summary>
+    /// Utility methods for dealing with logic in RPN form.
+    /// </summary>
     public static class RPN
     {
+        public static IEnumerable<LogicToken> OperateOver(IEnumerable<TermToken> terms, OperatorToken op)
+        {
+            var e = terms.GetEnumerator();
+            if (!e.MoveNext()) yield break;
+            yield return e.Current;
+            while (e.MoveNext())
+            {
+                yield return e.Current;
+                yield return op;
+            }
+        }
+
+        public static IEnumerable<LogicToken> OperateOver(IEnumerable<IEnumerable<LogicToken>> clauses, OperatorToken op)
+        {
+            var e = clauses.GetEnumerator();
+            if (!e.MoveNext()) yield break;
+            foreach (var lt in e.Current) yield return lt;
+            while (e.MoveNext())
+            {
+                foreach (var lt in e.Current) yield return lt;
+                yield return op;
+            }
+        }
+
+
         /// <summary>
         /// Given the index of a term, finds the index of the operator it is bound to, and the range of indices corresponding to the other argument of the operator.
         /// </summary>
@@ -22,6 +52,39 @@
                 operand = GetClauseRangeFromEnd(logic, termIndex - 1);
                 return;
             }
+        }
+
+        /// <summary>
+        /// Given an index and a subsequent operator index, returns the range corresponding to the argument of the operator containing the first index.
+        /// </summary>
+        internal static Range GetEnclosingClause(IReadOnlyList<LogicToken> logic, int index, int op)
+        {
+            Range r = GetClauseRangeFromEnd(logic, op - 1);
+            int boundary = r.Start.GetOffset(logic.Count);
+            if (boundary <= index) return r;
+            else return GetClauseRangeFromEnd(logic, boundary - 1);
+        }
+
+        /// <summary>
+        /// Returns the index of the operator bound to the term or clause ending at startIndex.
+        /// If startIndex points to the final token of the list, returns -1.
+        /// </summary>
+        public static int GetBoundOperatorAlt(IReadOnlyList<LogicToken> logic, int startIndex)
+        {
+            if (startIndex == logic.Count - 1) return -1;
+
+            int operands = 1;
+            for (int i = startIndex + 1; i < logic.Count; i++)
+            {
+                if (logic[i] is OperatorToken)
+                {
+                    operands--;
+                    if (operands <= 1) return i;
+                }
+                else if (logic[i] is TermToken) operands++;
+                else throw new ArgumentException("Unknown token found in logic.", nameof(logic));
+            }
+            throw new InvalidOperationException("Failed to find bound operator. Possibly malformed logic?");
         }
 
         /// <summary>

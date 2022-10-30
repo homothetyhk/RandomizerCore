@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RandomizerCore.Json;
+using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringLogic;
 
@@ -10,8 +11,7 @@ namespace RandomizerCore.Logic
     {
         public LogicManagerBuilder()
         {
-            terms = new();
-            termLookup = new();
+            Terms = new();
             LP = new();
             VariableResolver = new();
             PrefabItems = new();
@@ -20,12 +20,12 @@ namespace RandomizerCore.Logic
             LogicLookup = new();
             Waypoints = new();
             Transitions = new();
+            StateManager = new();
         }
 
         public LogicManagerBuilder(LogicManagerBuilder source)
         {
-            terms = new(source.terms);
-            termLookup = new(source.termLookup);
+            Terms = new(source.Terms);
             LP = new(source.LP);
             VariableResolver = source.VariableResolver;
             PrefabItems = new(source.PrefabItems);
@@ -34,12 +34,12 @@ namespace RandomizerCore.Logic
             LogicLookup = new(source.LogicLookup);
             Waypoints = new(source.Waypoints);
             Transitions = new(source.Transitions);
+            StateManager = new(source.StateManager);
         }
 
         public LogicManagerBuilder(LogicManager source)
         {
-            terms = new(source.Terms);
-            termLookup = new(source.TermLookup);
+            Terms = new(source.Terms);
             LP = new(source.LP);
             VariableResolver = source.VariableResolver;
             PrefabItems = new(source.ItemLookup);
@@ -48,15 +48,11 @@ namespace RandomizerCore.Logic
             LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());
             Waypoints = new(source.Waypoints.Select(w => w.Name));
             Transitions = new(source.TransitionLookup.Values.Select(lt => lt.Name));
+            StateManager = new(source.StateManager);
         }
 
 
-        private readonly List<Term> terms;
-        public IReadOnlyList<Term> Terms => terms;
-
-        private readonly Dictionary<string, Term> termLookup;
-        public IReadOnlyDictionary<string, Term> TermLookup => termLookup;
-
+        public readonly TermCollectionBuilder Terms;
         public LogicProcessor LP { get; set; }
         public VariableResolver VariableResolver { get; set; }
         public readonly Dictionary<string, LogicItem> PrefabItems;
@@ -65,28 +61,33 @@ namespace RandomizerCore.Logic
         public readonly Dictionary<string, LogicClause> LogicLookup;
         public readonly HashSet<string> Waypoints;
         public readonly HashSet<string> Transitions;
+        public readonly StateManagerBuilder StateManager;
 
         /// <summary>
         /// Returns whether the string is a key in the term lookup.
         /// </summary>
         public bool IsTerm(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            return termLookup.ContainsKey(value);
+            return Terms.IsTerm(value);
         }
 
         /// <summary>
-        /// If the string is a key in the term lookup, returns the corresponding term. Otherwise, creates, saves, and returns a new term.
+        /// If the string is a key in the term lookup, returns the corresponding term. Otherwise, creates, saves, and returns a new term, of Byte type.
         /// </summary>
         public Term GetOrAddTerm(string value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-
-            if (termLookup.TryGetValue(value, out Term t)) return t;
-            t = new(terms.Count, value);
-            terms.Add(t);
-            return termLookup[value] = t;
+            return Terms.GetOrAddTerm(value, TermType.Byte);
         }
+
+        /// <summary>
+        /// If the string is a key in the term lookup, returns the corresponding term. Otherwise, creates, saves, and returns a new term of the given type.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The term has been defined with a different type.</exception>
+        public Term GetOrAddTerm(string value, TermType type)
+        {
+            return Terms.GetOrAddTerm(value, type);
+        }
+
 
         /// <summary>
         /// Adds the LogicItem to the builder's dictionary. Overwrites any existing item with the same name.
@@ -123,10 +124,20 @@ namespace RandomizerCore.Logic
         /// <summary>
         /// Adds the RawLogicDef as a new waypoint. Overwrites any existing logic with the same name.
         /// </summary>
-        public void AddWaypoint(RawLogicDef def)
+        public void AddWaypoint(RawWaypointDef def)
         {
-            GetOrAddTerm(def.name);
-            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            if (!IsTerm(def.name))
+            {
+                GetOrAddTerm(def.name, def.stateless ? TermType.Byte : TermType.State);
+            }
+            try
+            {
+                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{def.logic}\" for {def.name} is malformed.", e);
+            }
             Waypoints.Add(def.name);
         }
 
@@ -135,8 +146,18 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void AddTransition(RawLogicDef def)
         {
-            GetOrAddTerm(def.name);
-            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            if (!IsTerm(def.name))
+            {
+                GetOrAddTerm(def.name, TermType.State);
+            }
+            try
+            {
+                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{def.logic}\" for {def.name} is malformed.", e);
+            }
             Transitions.Add(def.name);
         }
 
@@ -145,7 +166,14 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void AddLogicDef(RawLogicDef def)
         {
-            LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            try
+            {
+                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{def.logic}\" for {def.name} is malformed.", e);
+            }
         }
 
         /// <summary>
@@ -154,7 +182,16 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void DoLogicEdit(RawLogicDef def)
         {
-            LogicClauseBuilder lcb = LP.ParseInfixToBuilder(def.logic);
+            LogicClauseBuilder lcb;
+            try
+            {
+                lcb = LP.ParseInfixToBuilder(def.logic);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic edit \"{def.logic}\" for {def.name} is malformed.", e);
+            }
+
             if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
             {
                 if (!LogicLookup.TryGetValue(def.name, out LogicClause orig))
@@ -173,7 +210,16 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void DoMacroEdit(KeyValuePair<string, string> kvp)
         {
-            LogicClauseBuilder lcb = LP.ParseInfixToBuilder(kvp.Value);
+            LogicClauseBuilder lcb;
+            try
+            {
+                lcb = LP.ParseInfixToBuilder(kvp.Value);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic edit \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
+            }
+            
             if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
             {
                 if (!LP.IsMacro(kvp.Key))
@@ -192,7 +238,15 @@ namespace RandomizerCore.Logic
         public void DoSubst(RawSubstDef def)
         {
             TermToken tt = LP.GetTermToken(def.old);
-            LogicClause lc = LP.ParseInfixToClause(def.replacement);
+            LogicClause lc;
+            try
+            {
+                lc = LP.ParseInfixToClause(def.replacement);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic subst replacement \"{def.replacement}\" for {def.old} in {def.name} is malformed.", e);
+            }
             bool isMacro = LP.IsMacro(def.name);
             bool isLocation = LogicLookup.TryGetValue(def.name, out LogicClause orig);
             if (isMacro && isLocation)
@@ -229,6 +283,7 @@ namespace RandomizerCore.Logic
             MacroEdit,
             LogicSubst,
             ItemTemplates,
+            StateFields,
         }
 
         public void DeserializeJson(JsonType type, string s)
@@ -250,14 +305,12 @@ namespace RandomizerCore.Logic
             switch (type)
             {
                 case JsonType.Terms:
-                    foreach (string term in JsonUtil.Deserialize<string[]>(jtr) ?? Enumerable.Empty<string>())
-                    {
-                        GetOrAddTerm(term);
-                    }
+                    JToken termDoc = JToken.Load(jtr); // we need to JToken to identify which format the term doc is in
+                    DeserializeJson(type, termDoc);
                     break;
 
                 case JsonType.Waypoints:
-                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
+                    foreach (RawWaypointDef def in JsonUtil.Deserialize<RawWaypointDef[]>(jtr) ?? Enumerable.Empty<RawWaypointDef>())
                     {
                         AddWaypoint(def);
                     }
@@ -315,6 +368,13 @@ namespace RandomizerCore.Logic
                         AddTemplateItem(template);
                     }
                     break;
+                case JsonType.StateFields:
+                    foreach (KeyValuePair<string, List<string>> kvp in JsonUtil.Deserialize<Dictionary<string, List<string>>>(jtr) ?? new())
+                    {
+                        StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
+                        for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
+                    }
+                    break;
             }
         }
 
@@ -323,21 +383,39 @@ namespace RandomizerCore.Logic
             switch (type)
             {
                 case JsonType.Terms:
-                    foreach (string term in t.ToObject<List<string>>() ?? Enumerable.Empty<string>())
+                    if (t.Type == JTokenType.Array)
                     {
-                        GetOrAddTerm(term);
+                        foreach (string term in t.ToObject<List<string>>())
+                        {
+                            GetOrAddTerm(term, TermType.Int); // legacy format
+                        }
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<string, List<string>> kvp in t.ToObject<Dictionary<string, List<string>>>())
+                        {
+                            if (!Enum.TryParse(kvp.Key, true, out TermType termType))
+                            {
+                                Log($"Unable to parse {kvp.Key} as TermType, assuming Int...");
+                                termType = TermType.Int;
+                            }
+                            foreach (string term in kvp.Value)
+                            {
+                                GetOrAddTerm(term, termType);
+                            }
+                        }
                     }
                     break;
 
                 case JsonType.Waypoints:
-                    foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
+                    foreach (RawWaypointDef def in t?.ToObject<List<RawWaypointDef>>() ?? Enumerable.Empty<RawWaypointDef>())
                     {
                         AddWaypoint(def);
                     }
                     break;
 
                 case JsonType.Transitions:
-                    foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
+                    foreach (RawLogicDef def in t?.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
                         AddTransition(def);
                     }
@@ -357,34 +435,41 @@ namespace RandomizerCore.Logic
                     break;
 
                 case JsonType.Locations:
-                    foreach (RawLogicDef def in t.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
+                    foreach (RawLogicDef def in t?.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
                     {
                         AddLogicDef(def);
                     }
                     break;
 
                 case JsonType.LogicEdit:
-                    foreach (RawLogicDef def in t.ToObject<RawLogicDef[]>() ?? Enumerable.Empty<RawLogicDef>())
+                    foreach (RawLogicDef def in t?.ToObject<RawLogicDef[]>() ?? Enumerable.Empty<RawLogicDef>())
                     {
                         DoLogicEdit(def);
                     }
                     break;
                 case JsonType.MacroEdit:
-                    foreach (KeyValuePair<string, string> kvp in t.ToObject<Dictionary<string, string>>() ?? Enumerable.Empty<KeyValuePair<string, string>>())
+                    foreach (KeyValuePair<string, string> kvp in t?.ToObject<Dictionary<string, string>>() ?? Enumerable.Empty<KeyValuePair<string, string>>())
                     {
                         DoMacroEdit(kvp);
                     }
                     break;
                 case JsonType.LogicSubst:
-                    foreach (RawSubstDef def in t.ToObject<List<RawSubstDef>>() ?? Enumerable.Empty<RawSubstDef>())
+                    foreach (RawSubstDef def in t?.ToObject<List<RawSubstDef>>() ?? Enumerable.Empty<RawSubstDef>())
                     {
                         DoSubst(def);
                     }
                     break;
                 case JsonType.ItemTemplates:
-                    foreach (ILogicItemTemplate template in t.ToObject<IEnumerable<ILogicItemTemplate>>() ?? Enumerable.Empty<ILogicItemTemplate>())
+                    foreach (ILogicItemTemplate template in t?.ToObject<IEnumerable<ILogicItemTemplate>>() ?? Enumerable.Empty<ILogicItemTemplate>())
                     {
                         AddTemplateItem(template);
+                    }
+                    break;
+                case JsonType.StateFields:
+                    foreach (KeyValuePair<string, List<string>> kvp in t?.ToObject<Dictionary<string, List<string>>>() ?? new())
+                    {
+                        StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
+                        for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
                     }
                     break;
             }
@@ -392,12 +477,12 @@ namespace RandomizerCore.Logic
 
         public Term GetTerm(string term)
         {
-            return termLookup[term];
+            return Terms.TermLookup[term];
         }
 
-        public Term GetTerm(int index)
+        public Term GetTerm(int id)
         {
-            return terms[index];
+            return Terms[id];
         }
     }
 }

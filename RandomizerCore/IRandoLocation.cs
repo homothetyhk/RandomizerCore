@@ -13,7 +13,7 @@ namespace RandomizerCore
         /// <summary>
         /// Property managed by the randomizer for internal tracking.
         /// </summary>
-        public State Reachable { get; set; }
+        public TempState Reachable { get; set; }
         /// <summary>
         /// Property managed by the randomizer. Set to the index of the sphere in which the location is first reachable.
         /// </summary>

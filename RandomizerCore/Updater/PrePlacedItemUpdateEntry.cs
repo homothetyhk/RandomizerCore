@@ -26,7 +26,14 @@
         public override void OnAdd(ProgressionManager pm)
         {
             pm.Add(item);
-            if (location is ILogicItem li) pm.Add(li);
+            if (location is ILogicItem li)
+            {
+                pm.Add(li);
+            }
+            if (item is ILocationDependentItem ildri)
+            {
+                ildri.Place(pm, location);
+            }
         }
 
         public override void OnRemove(ProgressionManager pm)

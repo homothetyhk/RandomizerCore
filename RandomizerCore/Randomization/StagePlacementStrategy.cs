@@ -12,7 +12,7 @@
         /// <param name="spheres">The list of spheres of the randomizer. Each sphere array has a sphere for each RandomizationGroup, containing the items which must be placed at that depth, and the locations unlocked as a result.</param>
         /// <param name="placementState">The current state. Temporary indicates that the placement will be eventually overwritten. Permanent indicates that it is final. Otherwise, the placement may or may not be final.</param>
         /// <returns></returns>
-        public virtual List<RandoPlacement>[] PlaceItems(RandomizationStage stage, List<Sphere[]> spheres, State placementState)
+        public virtual List<RandoPlacement>[] PlaceItems(RandomizationStage stage, Sphere[] spheres, TempState placementState)
         {
             List<RandoPlacement>[] placements = new List<RandoPlacement>[stage.groups.Length];
             for (int i = 0; i < placements.Length; i++)
@@ -20,7 +20,7 @@
                 RandomizationGroup group = stage.groups[i];
                 if (group is not CoupledRandomizationGroup couple)
                 {
-                    placements[i] = group.Strategy.PlaceGroup(stage.groups[i], spheres.Select(l => l[i]), placementState);
+                    placements[i] = group.Strategy.PlaceGroup(stage.groups[i], spheres[i], placementState);
                 }
                 else
                 {
@@ -28,7 +28,7 @@
                     if (j < 0) throw new InvalidOperationException("Dual group not found in same stage.");
                     if (i <= j)
                     {
-                        placements[i] = group.Strategy.PlaceCoupledGroup(couple, spheres.Select(l => l[i]), spheres.Select(l => l[j]), placementState);
+                        placements[i] = group.Strategy.PlaceCoupledGroup(couple, spheres[i], spheres[j], placementState);
                         if (i != j) placements[j] = placements[i].Select(p => new RandoPlacement((IRandoCouple)p.Location, (IRandoCouple)p.Item)).ToList();
                         else placements[i].AddRange(placements[i].Where(p => !Equals(p.Item, p.Location)).Select(p => new RandoPlacement((IRandoCouple)p.Location, (IRandoCouple)p.Item)).ToList());
                     }
@@ -37,5 +37,10 @@
 
             return placements;
         }
+
+        /// <summary>
+        /// Called before rerandomization, or if the randomizer resets for subsequent attempts.
+        /// </summary>
+        public virtual void Reset() { }
     }
 }

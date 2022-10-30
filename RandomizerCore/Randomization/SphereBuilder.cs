@@ -10,36 +10,40 @@ namespace RandomizerCore.Randomization
     public class SphereBuilder
     {
         public List<Sphere[]> Spheres = new();
+        private readonly RandomizationStage stage;
         private readonly RandomizationGroup[] groups;
         private readonly CombinedItemSelector selector;
         private readonly CombinedLocationTracker rt;
         private readonly ProgressionManager pm;
-        private readonly MainUpdater mu;
+        public List<RandoPlacement>[] Placements;
+        private readonly TempState tempState;
 
         /// <summary>
-        /// Creates a new SphereBuilder, using the ProgressionManager and MainUpdater to monitor reachable locations.
+        /// Creates a new SphereBuilder, using the ProgressionManager to monitor reachable locations.
         /// </summary>
-        public SphereBuilder(RandomizationGroup[] groups, ProgressionManager pm, MainUpdater mu)
+        public SphereBuilder(RandomizationStage stage, ProgressionManager pm, TempState tempState)
         {
-            this.groups = groups;
+            this.stage = stage;
+            this.groups = stage.groups;
             this.pm = pm;
-            this.mu = mu;
             this.selector = new(groups);
-            this.rt = new(mu, groups);
+            this.rt = new(pm.mu, groups);
+            this.Placements = new List<RandoPlacement>[groups.Length];
+            for (int i = 0; i < groups.Length; i++) this.Placements[i] = new();
+            this.tempState = tempState;
         }
 
         /// <summary>
-        /// Steps the SphereBuilder to completion, putting the results into the Spheres list.
+        /// Steps the SphereBuilder to completion, putting the results into the Placements list.
         /// </summary>
         public void Advance()
         {
-            mu.Hook(pm);
+            pm.mu.StartUpdating();
             AddSphereZero();
             while (!selector.Finished)
             {
                 AddNextSphere();
             }
-            //LogSpheres();
         }
 
         /// <summary>
@@ -59,13 +63,15 @@ namespace RandomizerCore.Randomization
 
             rt.Collect(out List<IRandoLocation>[] newLocations);
             Sphere[] next = new Sphere[groups.Length];
-            
+            bool final = selector.Finished;
+
             for (int i = 0; i < next.Length; i++)
             {
                 next[i] = new Sphere
                 {
                     depth = 0,
                     groupIndex = i,
+                    final = final,
                     groupLabel = groups[i].Label,
                     Items = new(0),
                     Locations = newLocations[i],
@@ -82,6 +88,7 @@ namespace RandomizerCore.Randomization
 
             Spheres.Add(next);
             selector.UpdateCaps(next);
+            PlaceSphere(next);
         }
 
         /// <summary>
@@ -91,14 +98,16 @@ namespace RandomizerCore.Randomization
         {
             Step(out List<IRandoItem>[] newItems);
             rt.Collect(out List<IRandoLocation>[] newLocations);
-            
             Sphere[] next = new Sphere[groups.Length];
+            bool final = selector.Finished;
+
             for (int i = 0; i < next.Length; i++)
             {
                 next[i] = new Sphere
                 {
                     depth = Spheres.Count,
                     groupIndex = i,
+                    final = final,
                     groupLabel = groups[i].Label,
                     Items = newItems[i],
                     Locations = newLocations[i],
@@ -122,6 +131,27 @@ namespace RandomizerCore.Randomization
 
             Spheres.Add(next);
             selector.UpdateCaps(next);
+            PlaceSphere(next);
+        }
+
+        private void PlaceSphere(Sphere[] spheres)
+        {
+            List<RandoPlacement>[] placements = stage.strategy.PlaceItems(stage, spheres, tempState);
+            if (!selector.Finished)
+            {
+                for (int i = 0; i < placements.Length; i++)
+                {
+                    for (int j = 0; j < placements[i].Count; j++)
+                    {
+                        (IRandoItem ri, IRandoLocation rl) = placements[i][j];
+                        if (ri is ILocationDependentItem ildi)
+                        {
+                            ildi.Place(pm, rl);
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < placements.Length; i++) Placements[i].AddRange(placements[i]);
         }
 
         [Conditional("DEBUG")]
@@ -176,7 +206,7 @@ namespace RandomizerCore.Randomization
 
         private static void Place(IRandoItem r, ProgressionManager pm)
         {
-            r.Placed = State.Temporary;
+            r.Placed = TempState.Temporary;
             pm.Add(r);
         }
 
@@ -188,7 +218,10 @@ namespace RandomizerCore.Randomization
             while (selector.TryProposeNext(out IRandoItem t))
             {
                 Place(t, pm);
-                if (rt.FoundNew) break;
+                if (rt.FoundNew)
+                {
+                    break;
+                }
             }
 
             if (!rt.FoundNew)
@@ -248,7 +281,7 @@ namespace RandomizerCore.Randomization
             // returns true otherwise
             bool Decide(IRandoItem t)
             {
-                t.Placed = State.None;
+                t.Placed = TempState.None;
                 pm.RestrictTempTo(selector.GetTestItems());
                 if (rt.FoundNew)
                 {
@@ -269,7 +302,7 @@ namespace RandomizerCore.Randomization
             // in this case, we can reject the current item and do the normal decision process with the remaining items.
             bool Audit(IRandoItem t)
             {
-                t.Placed = State.None;
+                t.Placed = TempState.None;
                 pm.RestrictTempTo(selector.GetTestItems());
                 if (rt.FoundNew)
                 {

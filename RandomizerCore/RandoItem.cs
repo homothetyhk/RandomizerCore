@@ -9,7 +9,7 @@ namespace RandomizerCore
 
         public string Name => item.Name;
 
-        public State Placed { get ; set ; }
+        public TempState Placed { get ; set ; }
         public int Sphere { get; set; }
         public bool Required { get; set; }
 

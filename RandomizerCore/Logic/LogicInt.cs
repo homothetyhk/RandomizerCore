@@ -1,17 +1,17 @@
 ﻿namespace RandomizerCore.Logic
 {
-    public abstract class LogicInt
+    /// <summary>
+    /// A <see cref="LogicVariable"/> which produces an int value.
+    /// </summary>
+    public abstract class LogicInt : LogicVariable
     {
-        /// <summary>
-        /// The name of the variable. Should match its usage in logic.
-        /// </summary>
-        public abstract string Name { get; }
         public abstract int GetValue(object sender, ProgressionManager pm);
-        public abstract IEnumerable<Term> GetTerms();
-        public override string ToString() => Name;
     }
 
-    public class ConstantInt : LogicInt
+    /// <summary>
+    /// A <see cref="LogicInt"/> which produces a constant value.
+    /// </summary>
+    public sealed class ConstantInt : LogicInt
     {
         public ConstantInt(int value) => this.value = value;
 

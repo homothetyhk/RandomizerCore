@@ -9,6 +9,14 @@
         public StagePlacementStrategy strategy;
         public string label;
 
+        /// <summary>
+        /// Called on each new attempt of the randomizer. Base calls OnNewAttempt on each group in the stage.
+        /// </summary>
+        public virtual void OnNewAttempt() 
+        {
+            for (int i = 0; i < groups.Length; i++) groups[i].OnNewAttempt();
+        }
+
         public override string ToString()
         {
             return label ?? base.ToString();

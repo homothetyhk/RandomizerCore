@@ -107,7 +107,7 @@ namespace RandomizerCore.StringLogic
             return output;
         }
 
-        public static string ToInfix(IList<LogicToken> tokens)
+        public static string ToInfix(IReadOnlyList<LogicToken> tokens)
         {
             Stack<(string text, OperatorToken outermost)> phrases = new();
             // a "phrase" is a string of logic in infix form

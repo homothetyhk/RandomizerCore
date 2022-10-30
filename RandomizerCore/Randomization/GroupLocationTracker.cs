@@ -29,16 +29,16 @@ namespace RandomizerCore.Randomization
             newReachable = reachable;
             foreach (IRandoLocation rl in newReachable)
             {
-                if (rl.Reachable != State.Temporary)
+                if (rl.Reachable != TempState.Temporary)
                 {
                     throw new InvalidOperationException($"Mislabeled location found in reachable during Collect: {rl}");
                 }
-                if (coupled && ((IRandoCouple)rl).Placed != State.None)
+                if (coupled && ((IRandoCouple)rl).Placed != TempState.None)
                 {
                     throw new InvalidOperationException($"Placed item found in reachable during Collect: {rl}");
                 }
 
-                rl.Reachable = State.Permanent;
+                rl.Reachable = TempState.Permanent;
             }
 
             InitializeReachable();
@@ -49,7 +49,7 @@ namespace RandomizerCore.Randomization
             List<IRandoLocation> locations = new();
             foreach (GroupLocationTrackerUpdateEntry e in entries)
             {
-                if (e.Location.Reachable == State.None && (!coupled || ((IRandoCouple)e.Location).Placed == State.None))
+                if (e.Location.Reachable == TempState.None && (!coupled || ((IRandoCouple)e.Location).Placed == TempState.None))
                 {
                     locations.Add(e.Location);
                 }
@@ -96,7 +96,7 @@ namespace RandomizerCore.Randomization
                 Location = location;
             }
 
-            public override bool alwaysUpdate => Parent.coupled && ((IRandoCouple)Location).Placed == State.Temporary;
+            public override bool alwaysUpdate => Parent.coupled && ((IRandoCouple)Location).Placed == TempState.Temporary;
 
             public override bool CanGet(ProgressionManager pm)
             {
@@ -110,18 +110,18 @@ namespace RandomizerCore.Randomization
 
             public override void OnAdd(ProgressionManager pm)
             {
-                if (Location.Reachable == State.None && (!Parent.coupled || ((IRandoCouple)Location).Placed == State.None))
+                if (Location.Reachable == TempState.None && (!Parent.coupled || ((IRandoCouple)Location).Placed == TempState.None))
                 {
                     Parent.reachable.Add(Location);
                     Parent.OnFind();
-                    Location.Reachable = State.Temporary;
+                    Location.Reachable = TempState.Temporary;
                     if (Location is ILogicItem i) pm.Add(i);
                 }
             }
 
             public override void OnRemove(ProgressionManager pm)
             {
-                if (Location.Reachable == State.Temporary) Location.Reachable = State.None;
+                if (Location.Reachable == TempState.Temporary) Location.Reachable = TempState.None;
             }
 
             public override string ToString()

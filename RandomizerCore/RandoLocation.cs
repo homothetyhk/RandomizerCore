@@ -5,14 +5,14 @@ namespace RandomizerCore
 {
     public class RandoLocation : IRandoLocation
     {
-        public OptimizedLogicDef logic;
+        public LogicDef logic;
         public List<LogicCost> costs;
 
         [JsonIgnore]
         public string Name => logic.Name;
 
         public float Priority { get ; set; }
-        public State Reachable { get; set; }
+        public TempState Reachable { get; set; }
         public int Sphere { get; set; }
 
         public bool CanGet(ProgressionManager pm)

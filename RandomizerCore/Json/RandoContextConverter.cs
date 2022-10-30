@@ -17,7 +17,9 @@ namespace RandomizerCore.Json
             RandoContext ctx = (RandoContext)Activator.CreateInstance(objectType, lm);
 
             TermConverter tc = new() { LM = lm };
+            StateFieldConverter sfc = new() { SM = lm.StateManager };
             serializer.Converters.Add(tc);
+            serializer.Converters.Add(sfc);
             serializer.Converters.Add(LogicDefConverter.Instance);
             LogicDefConverter.Instance.LM = lm;
 
@@ -25,6 +27,7 @@ namespace RandomizerCore.Json
             serializer.Populate(jr, ctx);
 
             serializer.Converters.Remove(LogicDefConverter.Instance);
+            serializer.Converters.Remove(sfc);
             serializer.Converters.Remove(tc);
             LogicDefConverter.Instance.LM = null;
 
@@ -34,8 +37,10 @@ namespace RandomizerCore.Json
         public override void WriteJson(JsonWriter writer, RandoContext value, JsonSerializer serializer)
         {
             TermConverter tc = new() { LM = value.LM };
+            StateFieldConverter sfc = new() { SM = value.LM.StateManager };
             LogicDefConverter.Instance.LM = value.LM;
             serializer.Converters.Add(tc);
+            serializer.Converters.Add(sfc);
             serializer.Converters.Add(LogicDefConverter.Instance);
 
             inUse = true;
@@ -43,6 +48,7 @@ namespace RandomizerCore.Json
             inUse = false;
 
             serializer.Converters.Remove(LogicDefConverter.Instance);
+            serializer.Converters.Remove(sfc);
             serializer.Converters.Remove(tc);
 
             LogicDefConverter.Instance.LM = null;

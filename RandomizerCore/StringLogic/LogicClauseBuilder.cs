@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 
 namespace RandomizerCore.StringLogic
 {
@@ -6,6 +8,8 @@ namespace RandomizerCore.StringLogic
     {
         private readonly List<LogicToken> _tokens;
         public readonly ReadOnlyCollection<LogicToken> Tokens;
+        public bool Complete => Arguments == 1;
+        public int Arguments { get; private set; }
 
         /// <summary>
         /// Initializes an empty LCB. The only valid operation on an empty LCB is Append with a TermToken.
@@ -50,10 +54,6 @@ namespace RandomizerCore.StringLogic
             Tokens = new(_tokens);
             Arguments = lcb.Arguments;
         }
-
-        public bool Complete => Arguments == 1;
-        public int Arguments { get; private set; }
-
 
         public void OrWith(IEnumerable<LogicToken> ts)
         {
@@ -221,6 +221,231 @@ namespace RandomizerCore.StringLogic
         }
 
         /// <summary>
+        /// Replaces MacroTokens and ReferenceTokens with the clauses they represent. Acts recursively on the inserted clauses.
+        /// </summary>
+        public void Unfold(Func<string, LogicClause> referenceResolver)
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is MacroToken mt)
+                {
+                    _tokens.RemoveAt(i);
+                    _tokens.InsertRange(i, mt.Value.Tokens);
+                    i--;
+                }
+                else if (_tokens[i] is ReferenceToken rt)
+                {
+                    _tokens.RemoveAt(i);
+                    _tokens.InsertRange(i, referenceResolver(rt.Target).Tokens);
+                    i--;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces CoalescingTokens with their result as determined by the delegate. Acts recursively on nested coalescing expressions.
+        /// </summary>
+        public void Coalesce(Func<TermToken, bool> tokenValidator)
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is CoalescingToken qt)
+                {
+                    _tokens[i] = tokenValidator(qt.Left) ? qt.Left : qt.Right;
+                    i--;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies the delegate to each term in the expression. If the result of the delegate is not null, replaces the term at that position with the result.
+        /// <br/>Returns the number of modified tokens.
+        /// </summary>
+        public int Transform(Func<TermToken, TermToken?> transformer)
+        {
+            int j = 0;
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is TermToken orig && transformer(orig) is TermToken tt)
+                {
+                    _tokens[i] = tt;
+                    j++;
+                }
+            }
+            return j;
+        }
+
+        /// <summary>
+        /// Distributes nested occurences of the inner operation acting on tokens of the type parameter.
+        /// <br/>That is, if innerOp is OperatorToken.OR, then the result will decompose as a disjunction of clauses, such that within each clause, any disjunction does not contain any specified tokens.
+        /// <br/>For example, if we push out token D, operator OR in "A | B + (C | D + (E | F) | G) | H", the result is "A | B + (C | G) | B + D + (E | F) | H".
+        /// </summary>
+        public void PushOut<T>(OperatorToken innerOp) where T : TermToken
+        {
+            OperatorToken outerOp = innerOp.OperatorType == OperatorType.OR ? OperatorToken.AND : OperatorToken.OR;
+
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is T)
+                {
+                    int firstInner = -1;
+                    int lastInner = -1;
+                    int outer = -1;
+                    for (int j = RPN.GetBoundOperatorAlt(_tokens, i); j != -1; j = RPN.GetBoundOperatorAlt(_tokens, j))
+                    {
+                        if (_tokens[j] == innerOp)
+                        {
+                            if (firstInner == -1) firstInner = j;
+                            lastInner = j;
+                        }
+                        if (_tokens[j] == outerOp)
+                        {
+                            if (firstInner != -1)
+                            {
+                                outer = j;
+                                break;
+                            }
+                        }
+                    }
+                    if (outer != -1)
+                    {
+                        if (firstInner != lastInner)
+                        {
+                            // the loop identifies an expression (a | (b | ... | SPECIALCONJ | ... | g)) + (...)
+                            // we want to commute to (SPECIALCONJ | (a | ... | g)) + (...)
+                            (int offset, int length) = RPN.GetEnclosingClause(_tokens, i, firstInner).GetOffsetAndLength(_tokens.Count);
+                            _tokens.InsertRange(lastInner + 1, _tokens.GetRange(offset, length));
+                            _tokens.Insert(lastInner + 1 + length, OperatorToken.OR);
+                            _tokens.RemoveAt(firstInner);
+                            _tokens.RemoveRange(offset, length);
+                        }
+                        // we now have (SPECIALCONJ | (a | ... | g)) + (...)
+                        // we want to distribute to (SPECIALCONJ + ...) | ((a | ... | g) + (...))
+                        if (lastInner == outer - 1)
+                        {
+                            (int innerRstart, int innerRcount) = RPN.GetClauseRangeFromEnd(_tokens, lastInner - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerLstart, int innerLcount) = RPN.GetClauseRangeFromEnd(_tokens, innerRstart - 1).GetOffsetAndLength(_tokens.Count);
+                            (int outerArgStart, int outerArgCount) = RPN.GetClauseRangeFromEnd(_tokens, innerLstart - 1).GetOffsetAndLength(_tokens.Count);
+
+                            List<LogicToken> outerArgTokens = _tokens.GetRange(outerArgStart, outerArgCount);
+                            _tokens.RemoveAt(outer);
+                            _tokens.Insert(innerRstart + innerRcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerRstart, outerArgTokens);
+
+                            _tokens.Insert(innerLstart + innerLcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerLstart, outerArgTokens);
+
+                            _tokens.RemoveRange(outerArgStart, outerArgCount);
+                        }
+                        else
+                        {
+                            (int outerArgStart, int outerArgCount) = RPN.GetClauseRangeFromEnd(_tokens, outer - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerRstart, int innerRcount) = RPN.GetClauseRangeFromEnd(_tokens, lastInner - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerLstart, int innerLcount) = RPN.GetClauseRangeFromEnd(_tokens, innerRstart - 1).GetOffsetAndLength(_tokens.Count);
+
+                            List<LogicToken> conjArgTokens = _tokens.GetRange(outerArgStart, outerArgCount);
+                            _tokens.RemoveAt(outer);
+                            _tokens.RemoveRange(outerArgStart, outerArgCount);
+
+                            _tokens.Insert(innerRstart + innerRcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerRstart + innerRcount, conjArgTokens);
+
+                            _tokens.Insert(innerLstart + innerLcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerLstart + innerLcount, conjArgTokens);
+                        }
+                        // inefficient, but easier than fixing the indices
+                        i = -1; continue;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Distributes nested occurences of the inner operation acting on the specified tokens.
+        /// <br/>That is, if innerOp is OperatorToken.OR, then the result will decompose as a disjunction of clauses, such that within each clause, any disjunction does not contain any specified tokens.
+        /// <br/>For example, if we push out token D, operator OR in "A | B + (C | D + (E | F) | G) | H", the result is "A | B + (C | G) | B + D + (E | F) | H".
+        /// </summary>
+        public void PushOut(Func<TermToken, bool> predicate, OperatorToken innerOp)
+        {
+            OperatorToken outerOp = innerOp.OperatorType == OperatorType.OR ? OperatorToken.AND : OperatorToken.OR;
+
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is TermToken tt && predicate(tt))
+                {
+                    int firstInner = -1;
+                    int lastInner = -1;
+                    int outer = -1;
+                    for (int j = RPN.GetBoundOperatorAlt(_tokens, i); j != -1; j = RPN.GetBoundOperatorAlt(_tokens, j))
+                    {
+                        if (_tokens[j] == innerOp)
+                        {
+                            if (firstInner == -1) firstInner = j;
+                            lastInner = j;
+                        }
+                        if (_tokens[j] == outerOp)
+                        {
+                            if (firstInner != -1)
+                            {
+                                outer = j;
+                                break;
+                            }
+                        }
+                    }
+                    if (outer != -1)
+                    {
+                        if (firstInner != lastInner)
+                        {
+                            // the loop identifies an expression (a | (b | ... | SPECIALCONJ | ... | g)) + (...)
+                            // we want to commute to (SPECIALCONJ | (a | ... | g)) + (...)
+                            (int offset, int length) = RPN.GetEnclosingClause(_tokens, i, firstInner).GetOffsetAndLength(_tokens.Count);
+                            _tokens.InsertRange(lastInner + 1, _tokens.GetRange(offset, length));
+                            _tokens.Insert(lastInner + 1 + length, OperatorToken.OR);
+                            _tokens.RemoveAt(firstInner);
+                            _tokens.RemoveRange(offset, length);
+                        }
+                        // we now have (SPECIALCONJ | (a | ... | g)) + (...)
+                        // we want to distribute to (SPECIALCONJ + ...) | ((a | ... | g) + (...))
+                        if (lastInner == outer - 1)
+                        {
+                            (int innerRstart, int innerRcount) = RPN.GetClauseRangeFromEnd(_tokens, lastInner - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerLstart, int innerLcount) = RPN.GetClauseRangeFromEnd(_tokens, innerRstart - 1).GetOffsetAndLength(_tokens.Count);
+                            (int outerArgStart, int outerArgCount) = RPN.GetClauseRangeFromEnd(_tokens, innerLstart - 1).GetOffsetAndLength(_tokens.Count);
+
+                            List<LogicToken> outerArgTokens = _tokens.GetRange(outerArgStart, outerArgCount);
+                            _tokens.RemoveAt(outer);
+                            _tokens.Insert(innerRstart + innerRcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerRstart, outerArgTokens);
+
+                            _tokens.Insert(innerLstart + innerLcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerLstart, outerArgTokens);
+
+                            _tokens.RemoveRange(outerArgStart, outerArgCount);
+                        }
+                        else
+                        {
+                            (int outerArgStart, int outerArgCount) = RPN.GetClauseRangeFromEnd(_tokens, outer - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerRstart, int innerRcount) = RPN.GetClauseRangeFromEnd(_tokens, lastInner - 1).GetOffsetAndLength(_tokens.Count);
+                            (int innerLstart, int innerLcount) = RPN.GetClauseRangeFromEnd(_tokens, innerRstart - 1).GetOffsetAndLength(_tokens.Count);
+
+                            List<LogicToken> conjArgTokens = _tokens.GetRange(outerArgStart, outerArgCount);
+                            _tokens.RemoveAt(outer);
+                            _tokens.RemoveRange(outerArgStart, outerArgCount);
+
+                            _tokens.Insert(innerRstart + innerRcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerRstart + innerRcount, conjArgTokens);
+
+                            _tokens.Insert(innerLstart + innerLcount, OperatorToken.AND);
+                            _tokens.InsertRange(innerLstart + innerLcount, conjArgTokens);
+                        }
+                        // inefficient, but easier than fixing the indices
+                        i = -1; continue;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Replaces all occurences that match the old token with the new token.
         /// </summary>
         public void Subst(TermToken oldToken, TermToken newToken)
@@ -245,6 +470,12 @@ namespace RandomizerCore.StringLogic
                     i += newClause.Count - 1;
                 }
             }
+        }
+
+        public void Clear()
+        {
+            _tokens.Clear();
+            Arguments = 0;
         }
 
         public string ToInfix()

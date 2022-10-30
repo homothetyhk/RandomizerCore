@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic;
+using RandomizerCore.Updater;
 
 namespace RandomizerCore
 {
@@ -9,7 +10,7 @@ namespace RandomizerCore
         OneWayOut
     }
 
-    public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple
+    public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple, ILocationDependentItem
     {
         public readonly LogicTransition lt;
 
@@ -33,11 +34,11 @@ namespace RandomizerCore
         int IRandoLocation.Sphere { get => sourceSphere; set => sourceSphere = value; }
         
 
-        public State Placed { get; set; }
+        public TempState Placed { get; set; }
 
         public string Name => lt.Name;
 
-        public State Reachable { get; set; }
+        public TempState Reachable { get; set; }
 
         public bool CanGet(ProgressionManager pm)
         {
@@ -51,12 +52,25 @@ namespace RandomizerCore
 
         public void AddTo(ProgressionManager pm)
         {
-            pm.Set(lt.term.Id, 1);
+            lt.AddTo(pm);
         }
 
         public IEnumerable<Term> GetAffectedTerms()
         {
             return lt.GetAffectedTerms();
+        }
+
+        public void Place(ProgressionManager pm, ILogicDef location)
+        {
+            if (lt.term.Type != TermType.State) return;
+            if (location is LogicTransition lt2)
+            {
+                pm.mu.LinkState(lt2.term, this.lt.term);
+            }
+            else if (location is RandoTransition rt)
+            {
+                pm.mu.LinkState(rt.lt.term, this.lt.term);
+            }
         }
     }
 

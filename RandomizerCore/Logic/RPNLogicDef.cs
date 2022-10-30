@@ -1,34 +1,35 @@
 ﻿using Newtonsoft.Json;
+using RandomizerCore.Json;
+using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
 {
-    public class OptimizedLogicDef : ILogicDef
+    /// <summary>
+    /// A <see cref="LogicDef"/> which stores its contents in reverse Polish notation.
+    /// </summary>
+    public class RPNLogicDef : LogicDef
     {
-        public OptimizedLogicDef(string Name, int[] logic, LogicManager lm)
+        public RPNLogicDef(string Name, int[] logic, LogicManager lm, string infixSource) : base(Name, infixSource)
         {
-            if (logic == null || logic.Length == 0) throw new ArgumentException($"Invalid logic array passed to OptimizedLogicDef for {Name}");
+            if (logic == null || logic.Length == 0) throw new ArgumentException($"Invalid logic array passed to RPNLogicDef for {Name}");
 
-            this.Name = Name;
             this.lm = lm;
             this.logic = logic;
         }
 
-        public OptimizedLogicDef(OptimizedLogicDef def)
+        public RPNLogicDef(RPNLogicDef def) : base(def.Name, def.InfixSource)
         {
-            this.Name = def.Name;
             this.lm = def.lm;
             this.logic = def.logic;
         }
-
-        public string Name { get; }
 
         private readonly int[] logic;
         private readonly LogicManager lm;
 
         private readonly Stack<bool> stack = new();
 
-        public bool CanGet(ProgressionManager pm)
+        public override bool CanGet(ProgressionManager pm)
         {
             try
             {
@@ -51,32 +52,32 @@ namespace RandomizerCore.Logic
                         case (int)LogicOperators.GT:
                             {
                                 int left = logic[++i];
-                                left = left >= 0 ? pm.Get(left) : lm.EvaluateVariable(this, pm, left);
+                                left = left >= 0 ? pm.Get(left) : EvaluateVariable(left, pm);
                                 int right = logic[++i];
-                                right = right >= 0 ? pm.Get(right) : lm.EvaluateVariable(this, pm, right);
+                                right = right >= 0 ? pm.Get(right) : EvaluateVariable(right, pm);
                                 stack.Push(left > right);
                             }
                             break;
                         case (int)LogicOperators.LT:
                             {
                                 int left = logic[++i];
-                                left = left >= 0 ? pm.Get(left) : lm.EvaluateVariable(this, pm, left);
+                                left = left >= 0 ? pm.Get(left) : EvaluateVariable(left, pm);
                                 int right = logic[++i];
-                                right = right >= 0 ? pm.Get(right) : lm.EvaluateVariable(this, pm, right);
+                                right = right >= 0 ? pm.Get(right) : EvaluateVariable(right, pm);
                                 stack.Push(left < right);
                             }
                             break;
                         case (int)LogicOperators.EQ:
                             {
                                 int left = logic[++i];
-                                left = left >= 0 ? pm.Get(left) : lm.EvaluateVariable(this, pm, left);
+                                left = left >= 0 ? pm.Get(left) : EvaluateVariable(left, pm);
                                 int right = logic[++i];
-                                right = right >= 0 ? pm.Get(right) : lm.EvaluateVariable(this, pm, right);
+                                right = right >= 0 ? pm.Get(right) : EvaluateVariable(right, pm);
                                 stack.Push(left == right);
                             }
                             break;
                         default:
-                            stack.Push(logic[i] >= 0 ? pm.Has(logic[i]) : lm.EvaluateVariable(this, pm, logic[i]) > 0);
+                            stack.Push(logic[i] >= 0 ? pm.Has(logic[i]) : EvaluateVariable(logic[i], pm) > 0);
                             break;
                     }
                 }
@@ -95,7 +96,7 @@ namespace RandomizerCore.Logic
             Log($"Error evaluating OptimizedLogicDef {Name}");
             try
             {
-                string infix = Infix;
+                string infix = ToInfix();
                 Log($"Infix logic for {Name}: {infix}");
             }
             catch
@@ -112,10 +113,20 @@ namespace RandomizerCore.Logic
             }
         }
 
+        private int EvaluateVariable(int id, ProgressionManager pm)
+        {
+            return lm.GetVariable(id) switch
+            {
+                LogicInt li => li.GetValue(this, pm),
+                StateVariable sv => sv.GetValue(this, pm, StateUnion.Empty),
+                _ => 0,
+            };
+        }
+
         /// <summary>
         /// Enumerates the terms of the LogicDef, excluding operators and combinators. May contain duplicates.
         /// </summary>
-        public IEnumerable<Term> GetTerms()
+        public override IEnumerable<Term> GetTerms()
         {
             for (int i = 0; i < logic.Length; i++)
             {
@@ -148,7 +159,7 @@ namespace RandomizerCore.Logic
             }
         }
         
-        public IEnumerable<LogicToken> ToTokenSequence()
+        public override IEnumerable<LogicToken> ToTokenSequence()
         {
             for (int i = 0; i < logic.Length; i++)
             {
@@ -191,21 +202,6 @@ namespace RandomizerCore.Logic
             }
         }
 
-        public LogicClauseBuilder ToLogicClauseBuilder()
-        {
-            return new(ToTokenSequence());
-        }
-
-        public LogicClause ToLogicClause()
-        {
-            return new(ToLogicClauseBuilder());
-        }
-
-        public string ToInfix()
-        {
-            return ToLogicClauseBuilder().ToInfix();
-        }
-
         private void GetComparisonStrings(ref int i, out string left, out string right)
         {
             i++;
@@ -214,16 +210,16 @@ namespace RandomizerCore.Logic
             right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
         }
 
-        internal static void Concat(List<int> ts, OptimizedLogicDef o)
+        // cursed hacks for deserialization into ILogicDef property type, where the converter doesn't trigger.
+        [JsonConstructor]
+        protected RPNLogicDef(string Name, string Logic) : this(ConverterFetchOrMake(Name, Logic))
         {
-            ts.AddRange(o.logic);
         }
 
-        // cursed hacks below to make polymorphic deserialization work
-        [JsonConstructor]
-        private OptimizedLogicDef(string Name, string Logic) : this(Json.LogicDefConverter.Instance.LM.FromString(new(Name, Logic)))
+        private static RPNLogicDef ConverterFetchOrMake(string name, string logic)
         {
+            if (LogicDefConverter.Instance.LM.GetLogicDef(name) is RPNLogicDef other && other.InfixSource == logic) return other;
+            return LogicDefConverter.Instance.LM.CreateRPNLogicDef(new(name, logic));
         }
-        [JsonProperty("Logic")] private string Infix { get => ToInfix(); }
     }
 }

@@ -12,5 +12,4 @@
         public readonly string name;
         public readonly string logic;
     }
-
 }

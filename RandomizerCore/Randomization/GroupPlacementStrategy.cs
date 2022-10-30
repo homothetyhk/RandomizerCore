@@ -5,7 +5,11 @@
     /// </summary>
     public abstract class GroupPlacementStrategy
     {
-        public abstract List<RandoPlacement> PlaceGroup(RandomizationGroup group, IEnumerable<Sphere> spheres, State placementState);
-        public abstract List<RandoPlacement> PlaceCoupledGroup(CoupledRandomizationGroup group, IEnumerable<Sphere> spheres, IEnumerable<Sphere> dualSpheres, State placementState);
+        public abstract List<RandoPlacement> PlaceGroup(RandomizationGroup group, Sphere sphere, TempState placementState);
+        public abstract List<RandoPlacement> PlaceCoupledGroup(CoupledRandomizationGroup group, Sphere sphere, Sphere dualSphere, TempState placementState);
+        /// <summary>
+        /// Called before rerandomization, or if the randomizer resets for subsequent attempts.
+        /// </summary>
+        public virtual void Reset() { }
     }
 }

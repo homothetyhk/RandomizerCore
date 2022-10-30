@@ -50,6 +50,21 @@ namespace RandomizerCore.Randomization
             {
                 if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
             }
+            nameCounts.Clear();
+            foreach (IRandoLocation r in group.Locations)
+            {
+                nameCounts.TryGetValue(r.Name, out int value);
+                nameCounts[r.Name] = value + 1;
+            }
+            foreach (RandoPlacement p in placements)
+            {
+                nameCounts.TryGetValue(p.Location.Name, out int value);
+                nameCounts[p.Location.Name] = value - 1;
+            }
+            foreach (KeyValuePair<string, int> kvp in nameCounts)
+            {
+                if (kvp.Value != 0) throw new ValidationException($"Improper location counts found in randomization group {group.Label}. Location {kvp.Key} was accounted for a net {kvp.Value} times");
+            }
         }
 
         protected virtual void ValidateAllLocationsReachable(RandomizationGroup group, ProgressionManager pm, List<RandoPlacement> placements, List<PrePlacedItemUpdateEntry> entries)
@@ -63,7 +78,10 @@ namespace RandomizerCore.Randomization
                     sb.AppendLine($"  {entry.item.Name} at {entry.location.Name}");
                 }
             }
-            if (sb != null) throw new ValidationException(sb.ToString());
+            if (sb != null)
+            {
+                throw new ValidationException(sb.ToString());
+            }
         }
     }
 }

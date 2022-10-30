@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record BranchedItem(string Name, OptimizedLogicDef Logic, LogicItem TrueItem, LogicItem FalseItem) : LogicItem(Name)
+    public sealed record BranchedItem(string Name, LogicDef Logic, LogicItem TrueItem, LogicItem FalseItem) : LogicItem(Name)
     {
         public override void AddTo(ProgressionManager pm)
         {

@@ -20,5 +20,11 @@
         {
             OnPermute?.Invoke(rng, this);
         }
+
+        /// <summary>
+        /// Called on each new attempt of the randomizer.
+        /// </summary>
+        public virtual void OnNewAttempt() { }
+
     }
 }

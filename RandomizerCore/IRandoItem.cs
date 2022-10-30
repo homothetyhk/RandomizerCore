@@ -9,7 +9,7 @@
         /// <summary>
         /// Property managed by the randomizer for internal tracking.
         /// </summary>
-        public State Placed { get; set; }
+        public TempState Placed { get; set; }
         /// <summary>
         /// Property managed by the randomizer. Set to the index of the sphere in which the item is placed.
         /// </summary>
