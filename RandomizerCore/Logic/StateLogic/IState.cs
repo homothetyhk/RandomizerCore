@@ -4,6 +4,5 @@
     {
         bool GetBool(int index);
         int GetInt(int index);
-        bool IsZero { get; }
     }
 }

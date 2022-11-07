@@ -147,7 +147,12 @@ namespace RandomizerCore.Randomization
 
             for (int i = index + 1; i < stages.Length; i++)
             {
-                foreach (RandomizationGroup g in stages[i].groups) pm.Add(g.Items);
+                foreach (RandomizationGroup g in stages[i].groups)
+                {
+                    pm.Add(g.Items);
+                    IndeterminateLocation il = new(lm, g);
+                    foreach (IRandoItem item in g.Items) if (item is ILocationDependentItem ildi) ildi.Place(pm, il);
+                }
             }
 
             SphereBuilder sb = new(stages[index], pm, state);

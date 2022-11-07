@@ -52,11 +52,6 @@ namespace RandomizerCore.Updater
         {
             StateUnion? state = pm.GetState(target);
 
-            if (state is not null && state.Absorbing)
-            {
-                return;
-            }
-
             StateUnion? newState = pm.GetState(source);
 
             if (newState is null || newState.Count == 0 && state is not null) return;

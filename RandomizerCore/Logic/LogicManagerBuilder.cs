@@ -369,10 +369,21 @@ namespace RandomizerCore.Logic
                     }
                     break;
                 case JsonType.StateFields:
-                    foreach (KeyValuePair<string, List<string>> kvp in JsonUtil.Deserialize<Dictionary<string, List<string>>>(jtr) ?? new())
+                    RawStateData rsd = JsonUtil.Deserialize<RawStateData>(jtr);
+                    if (rsd?.Fields != null)
                     {
-                        StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
-                        for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
+                        foreach (KeyValuePair<string, List<CompactStateField>> kvp in rsd.Fields)
+                        {
+                            StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
+                            for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i].Name, fieldType, kvp.Value[i].DefaultValue);
+                        }
+                    }
+                    if (rsd?.Tags != null)
+                    {
+                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Tags)
+                        {
+                            StateManager.DefineOrAppendToTag(kvp.Key, kvp.Value);
+                        }
                     }
                     break;
             }
@@ -466,10 +477,21 @@ namespace RandomizerCore.Logic
                     }
                     break;
                 case JsonType.StateFields:
-                    foreach (KeyValuePair<string, List<string>> kvp in t?.ToObject<Dictionary<string, List<string>>>() ?? new())
+                    RawStateData rsd = t?.ToObject<RawStateData>();
+                    if (rsd?.Fields != null)
                     {
-                        StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
-                        for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
+                        foreach (KeyValuePair<string, List<CompactStateField>> kvp in rsd.Fields)
+                        {
+                            StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
+                            for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i].Name, fieldType, kvp.Value[i].DefaultValue);
+                        }
+                    }
+                    if (rsd?.Tags != null)
+                    {
+                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Tags)
+                        {
+                            StateManager.DefineOrAppendToTag(kvp.Key, kvp.Value);
+                        }
                     }
                     break;
             }

@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic;
+using RandomizerCore.Randomization;
 using RandomizerCore.Updater;
 
 namespace RandomizerCore
@@ -63,7 +64,23 @@ namespace RandomizerCore
         public void Place(ProgressionManager pm, ILogicDef location)
         {
             if (lt.term.Type != TermType.State) return;
-            if (location is LogicTransition lt2)
+            if (location is IndeterminateLocation il)
+            {
+                const string key = "Transition" + nameof(GroupedStateTransmittingHook);
+                GroupedStateTransmittingHook hook;
+                if (!il.Shared.TryGetValue(key, out object obj))
+                {
+                    il.Shared.Add(key, obj = hook = new GroupedStateTransmittingHook() { groupLabel = il.Group.Label });
+                    foreach (IRandoLocation rl in il.Group.Locations)
+                    {
+                        if (rl is RandoTransition rt) hook.AddTarget(rt.lt.term);
+                    }
+                    pm.mu.AddPMHook(hook);
+                }
+                else hook = (GroupedStateTransmittingHook)obj;
+                hook.AddSource(lt.term);
+            }
+            else if (location is LogicTransition lt2)
             {
                 pm.mu.LinkState(lt2.term, this.lt.term);
             }

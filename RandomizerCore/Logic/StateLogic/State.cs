@@ -11,22 +11,10 @@ namespace RandomizerCore.Logic.StateLogic
         private readonly RCBitArray _bools;
         private readonly int[] _ints;
 
-        public State(StateManager sm) : this(sm.Bools.Count, sm.Ints.Count) { }
-
-        public State(int bools, int ints)
-        {
-            _bools = new RCBitArray(bools);
-            _ints = new int[ints];
-            IsZero = true;
-        }
-
         public State(StateBuilder state)
         {
-            IsZero = state.IsZero;
             state.Destruct(out _bools, out _ints);
         }
-
-        public bool IsZero { get; }
 
         public RCBitArray CloneBools() => new(_bools);
         public int[] CloneInts() => (int[])_ints.Clone();
@@ -44,6 +32,36 @@ namespace RandomizerCore.Logic.StateLogic
             for (int i = 0; i < left._ints.Length; i++)
             {
                 if (left._ints[i] > right._ints[i]) return false;
+            }
+            return true;
+        }
+
+        public bool IsComparablyLE(State other)
+        {
+            if (!_bools.IsBitwiseLE(other._bools)) return false;
+            for (int i = 0; i < _ints.Length; i++)
+            {
+                if (_ints[i] > other._ints[i]) return false;
+            }
+            return true;
+        }
+
+        
+        internal static bool CompareBoolsLE(State left, RCBitArray right) => left._bools.IsBitwiseLE(right);
+        internal static bool CompareBoolsGE(State left, RCBitArray right) => right.IsBitwiseLE(left._bools);
+        internal static bool CompareIntsLE(State left, int[] right)
+        {
+            for (int i = 0; i < left._ints.Length; i++)
+            {
+                if (left._ints[i] > right[i]) return false;
+            }
+            return true;
+        }
+        internal static bool CompareIntsGE(State left, int[] right)
+        {
+            for (int i = 0; i < left._ints.Length; i++)
+            {
+                if (left._ints[i] < right[i]) return false;
             }
             return true;
         }

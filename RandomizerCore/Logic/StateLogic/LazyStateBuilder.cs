@@ -39,10 +39,6 @@
         public readonly bool GetBool(int id) => current is null ? orig.GetBool(id) : current.GetBool(id);
         public readonly int GetInt(int id) => current is null ? orig.GetInt(id) : current.GetInt(id);
 
-        /// <summary>
-        /// Returns true if all fields have their default value: false or 0.
-        /// </summary>
-        public readonly bool IsZero { get => current is null ? orig.IsZero : current.IsZero; }
 
         public StateBuilder GetStateBuilder()
         {
@@ -54,6 +50,7 @@
         /// </summary>
         public void SetBool(int id, bool value)
         {
+            if (GetBool(id) == value) return;
             if (current is null) GetStateBuilder();
             current.SetBool(id, value);
         }
@@ -63,6 +60,7 @@
         /// </summary>
         public void SetInt(int id, int value)
         {
+            if (GetInt(id) == value) return;
             if (current is null) GetStateBuilder();
             current.SetInt(id, value);
         }
@@ -74,19 +72,6 @@
         {
             if (current is null) GetStateBuilder();
             current.Increment(id, incr);
-        }
-
-        /// <summary>
-        /// Sets all fields to their default value: false or 0.
-        /// </summary>
-        public void SetAllZero()
-        {
-            if (current is null)
-            {
-                if (orig.IsZero) return;
-                else GetStateBuilder();
-            }
-            current.SetAllZero();
         }
 
         /// <summary>
@@ -135,5 +120,16 @@
         {
             return current is null ? orig : new(current);
         }
+
+        public static bool IsComparablyLE(LazyStateBuilder left, State right)
+        {
+            return left.current is null ? State.IsComparablyLE(left.orig, right) : StateBuilder.IsComparablyLE(left.current, right);
+        }
+
+        public static bool IsComparablyLE(LazyStateBuilder left, StateBuilder right)
+        {
+            return left.current is null ? StateBuilder.IsComparablyLE(left.orig, right) : StateBuilder.IsComparablyLE(left.current, right);
+        }
+
     }
 }

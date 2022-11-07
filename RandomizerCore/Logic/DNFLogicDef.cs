@@ -94,7 +94,7 @@ namespace RandomizerCore.Logic
                 if (input is null) continue;
                 for (int k = 0; k < input.Count; k++)
                 {
-                    if (EvaluateStateChange(logic[j], 0, pm, states, new(input[k]))) return states;
+                    EvaluateStateChange(logic[j], 0, pm, states, new(input[k]));
                 }
                 //Console.WriteLine($"{j}  {pm.lm.StateManager.PrettyPrint(new StateUnion(states))}");
             }
@@ -103,7 +103,7 @@ namespace RandomizerCore.Logic
 
         // Evaluates the effect of the clause from index i onwards on the lsb, and adds the result to the state list.
         // If it produces a zero state, reduces the list to that state and returns true to allow shortcircuiting.
-        private bool EvaluateStateChange(int[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
+        private void EvaluateStateChange(int[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
         {
             for (; i < clause.Length; i++)
             {
@@ -112,33 +112,21 @@ namespace RandomizerCore.Logic
                     switch (lm.GetVariable(clause[i]))
                     {
                         case StateModifyingVariable smv:
-                            if (!smv.ModifyState(this, pm, ref lsb)) return false;
+                            if (!smv.ModifyState(this, pm, ref lsb)) return;
                             break;
                         case StateSplittingVariable ssv:
                             if (ssv.ModifyState(this, pm, lsb) is IEnumerable<LazyStateBuilder> lsbs)
                             {
                                 foreach (var lsb2 in lsbs)
                                 {
-                                    if (EvaluateStateChange(clause, i + 1, pm, states, lsb2)) return true;
+                                    EvaluateStateChange(clause, i + 1, pm, states, lsb2);
                                 }
                             }
-                            return false;
+                            return;
                     }
                 }
             }
-
-            State s = lsb.GetState();
-            if (s.IsZero)
-            {
-                states.Clear();
-                states.Add(s);
-                return true;
-            }
-            else
-            {
-                states.Add(s);
-                return false;
-            }
+            states.Add(lsb.GetState());
         }
 
         private int EvaluateVariable(int id, ProgressionManager pm, StateUnion? state)

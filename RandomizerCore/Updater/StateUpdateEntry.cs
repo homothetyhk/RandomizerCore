@@ -52,11 +52,6 @@ namespace RandomizerCore.Logic
         {
             StateUnion? state = pm.GetState(term);
 
-            if (state is not null && state.Absorbing)
-            {
-                return;
-            }
-
             if (logic.CheckForUpdatedState(pm, state, out StateUnion newState))
             {
                 stateSetter.value = newState;

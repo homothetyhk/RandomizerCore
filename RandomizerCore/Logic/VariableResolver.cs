@@ -27,9 +27,9 @@ namespace RandomizerCore.Logic
             {
                 return Inner.TryMatch(lm, term, out variable);
             }
-            if (term == ZeroStateProvider.Prefix)
+            if (term == StartStateProvider.Prefix)
             {
-                variable = new ZeroStateProvider();
+                variable = new StartStateProvider();
                 return true;
             }
             variable = null;

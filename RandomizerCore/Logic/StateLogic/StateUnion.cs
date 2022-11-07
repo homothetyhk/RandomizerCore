@@ -9,11 +9,6 @@ namespace RandomizerCore.Logic.StateLogic
     {
         private readonly State[] _states;
 
-        /// <summary>
-        /// Does the collection contain the zero state, in which case it absorbs unions.
-        /// </summary>
-        public bool Absorbing { get; }
-
         public static StateUnion Empty { get; } = new();
 
         public StateUnion()
@@ -24,26 +19,17 @@ namespace RandomizerCore.Logic.StateLogic
         public StateUnion(State state)
         {
             _states = new State[] { state };
-            if (state.IsZero) Absorbing = true;
-        }
-
-        public StateUnion(StateUnion states)
-        {
-            _states = (State[])states._states.Clone();
-            Absorbing = states.Absorbing;
         }
 
         public StateUnion(List<State> states)
         {
             Reduce(states);
             _states = states.ToArray();
-            Absorbing = _states.Length == 1 && _states[0].IsZero;
         }
 
         private StateUnion(State[] states)
         {
             _states = states;
-            Absorbing = _states.Length == 1 && _states[0].IsZero;
         }
 
 
@@ -52,16 +38,15 @@ namespace RandomizerCore.Logic.StateLogic
             int j;
             for (j = 0; j < states.Count; j++)
             {
-                bool ge = false;
                 for (int i = 0; i < left.Count; i++)
                 {
                     if (State.IsComparablyLE(left[i], states[j]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge) break;
+                break;
+                continue_outer: continue;
             }
             if (j == states.Count)
             {
@@ -74,22 +59,12 @@ namespace RandomizerCore.Logic.StateLogic
 
         public static StateUnion Union(StateUnion left, IEnumerable<State> lazyRight)
         {
-            if (left.Absorbing)
-            {
-                return new(left);
-            }
-
             List<State> right = lazyRight.ToList();
             Reduce(right);
-            if (right.Count == 1 && right[0].IsZero)
-            {
-                return new(right[0]);
-            }
 
             int start = right.Count - 1; // avoid comparing pairs from the same union as they are added to the list
             for (int i = 0; i < left._states.Length; i++)
             {
-                bool ge = false;
                 for (int j = start; j >= 0; j--)
                 {
                     if (State.IsComparablyLE(left._states[i], right[j]))
@@ -100,14 +75,11 @@ namespace RandomizerCore.Logic.StateLogic
                     }
                     if (State.IsComparablyLE(right[j], left._states[i]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge)
-                {
-                    right.Add(left._states[i]);
-                }
+                right.Add(left._states[i]);
+                continue_outer: continue;
             }
             return new(right.ToArray());
         }
@@ -117,31 +89,19 @@ namespace RandomizerCore.Logic.StateLogic
         /// </summary>
         public static bool TryUnion(StateUnion left, StateUnion right, out StateUnion result)
         {
-            if (left.Absorbing)
-            {
-                result = left;
-                return false;
-            }
-            if (right.Absorbing)
-            {
-                result = right;
-                return true;
-            }
-
             // try to prove that there are no states in right which can be admitted to left
             int j;
             for (j = 0; j < right.Count; j++)
             {
-                bool ge = false;
                 for (int i = 0; i < left.Count; i++)
                 {
                     if (State.IsComparablyLE(left[i], right[j]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge) break;
+                break; // right[j] is not GE any state in left
+                continue_outer: continue;
             }
             if (j == right.Count)
             {
@@ -152,30 +112,28 @@ namespace RandomizerCore.Logic.StateLogic
             List<State> states = new() { right[j] };
             for (j++; j < right.Count; j++)
             {
-                bool ge = false;
                 for (int i = 0; i < left.Count; i++)
                 {
                     if (State.IsComparablyLE(left[i], right[j]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge) states.Add(right[j]);
+                states.Add(right[j]);
+                continue_outer: continue;
             }
             int end = states.Count; // avoid comparing pairs from the same union as they are added to the list
             for (j = 0; j < left.Count; j++)
             {
-                bool ge = false;
                 for (int i = 0; i < end; i++)
                 {
                     if (State.IsComparablyLE(states[i], left[j]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge) states.Add(left[j]);
+                states.Add(left[j]);
+                continue_outer: continue;
             }
 
             result = new(states.ToArray());
@@ -184,48 +142,31 @@ namespace RandomizerCore.Logic.StateLogic
 
         public static StateUnion Union(StateUnion left, StateUnion right)
         {
-            if (left.Absorbing)
-            {
-                return new(left);
-            }
-            if (right.Absorbing)
-            {
-                return new(right);
-            }
-
             List<State> states = new();
             for (int i = 0; i < left._states.Length; i++)
             {
-                bool ge = false;
                 for (int j = 0; j < right._states.Length; j++)
                 {
                     if (State.IsComparablyLE(right._states[j], left._states[i]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge)
-                {
-                    states.Add(left._states[i]);
-                }
+                states.Add(left._states[i]);
+                continue_outer: continue;
             }
             int end = states.Count; // avoid comparing pairs from the same union as they are added to the list
             for (int i = 0; i < right._states.Length; i++)
             {
-                bool ge = false;
                 for (int j = 0; j < end; j++)
                 {
                     if (State.IsComparablyLE(states[j], right._states[i]))
                     {
-                        ge = true;
-                        break;
+                        goto continue_outer;
                     }
                 }
-                if (!ge)
-                {
-                    states.Add(right._states[i]);
-                }
+                states.Add(right._states[i]);
+                continue_outer: continue;
             }
 
             return new(states.ToArray());
@@ -233,17 +174,6 @@ namespace RandomizerCore.Logic.StateLogic
 
         public static void Reduce(List<State> states)
         {
-            for (int i = 0; i < states.Count; i++)
-            {
-                if (states[i].IsZero)
-                {
-                    State zero = states[i];
-                    states.Clear();
-                    states.Add(zero);
-                    return;
-                }
-            }
-
             for (int i = states.Count - 1; i >= 0; i--)
             {
                 for (int j = states.Count - 1; j >= 0; j--)

@@ -8,9 +8,12 @@ namespace RandomizerCore.Logic
     /// </summary>
     public class MainUpdater
     {
+        public event Action OnReset;
+
         readonly TermIndexedCollection<List<UpdateEntry>> entriesByTerm;
         readonly List<UpdateEntry> individualEntries;
-        
+        readonly List<PMHook> pmHooks;
+
         readonly ProgressionManager pm;
         readonly HashSet<int> addEntryHelper;
         readonly HashQueue<int> updates;
@@ -24,6 +27,7 @@ namespace RandomizerCore.Logic
         {
             readonly TermIndexedCollection<int> revertCounts;
             int revertIndividualCount;
+            int revertHookCount;
 
             public RevertPoint(TermCollection terms)
             {
@@ -32,16 +36,24 @@ namespace RandomizerCore.Logic
 
             public void Set(MainUpdater mu)
             {
-                if (mu.individualEntries.Count == revertIndividualCount) return;
+                if (mu.individualEntries.Count == revertIndividualCount && mu.pmHooks.Count == revertHookCount) return;
                 revertIndividualCount = mu.individualEntries.Count;
+                revertHookCount = mu.pmHooks.Count;
                 revertCounts.PopulateFrom(mu.entriesByTerm, l => l.Count);
             }
 
             public void Apply(MainUpdater mu)
             {
-                if (mu.individualEntries.Count == revertIndividualCount) return;
-                mu.entriesByTerm.ZipAction(revertCounts, (i, l) => l.RemoveRange(i, l.Count - i));
-                mu.individualEntries.RemoveRange(revertIndividualCount, mu.individualEntries.Count - revertIndividualCount);
+                if (mu.individualEntries.Count != revertIndividualCount)
+                {
+                    mu.entriesByTerm.ZipAction(revertCounts, (i, l) => l.RemoveRange(i, l.Count - i));
+                    mu.individualEntries.RemoveRange(revertIndividualCount, mu.individualEntries.Count - revertIndividualCount);
+                }
+                if (mu.pmHooks.Count != revertHookCount)
+                {
+                    if (mu.active) for (int i = revertHookCount; i < mu.pmHooks.Count; i++) mu.pmHooks[i].Unhook(mu.pm);
+                    mu.pmHooks.RemoveRange(revertHookCount, mu.pmHooks.Count - revertHookCount);
+                }
             }
 
         }
@@ -53,6 +65,7 @@ namespace RandomizerCore.Logic
             this.pm = pm;
             updates = new HashQueue<int>(lm.Terms.Count);
             addEntryHelper = new HashSet<int>(lm.Terms.Count);
+            pmHooks = new();
             longTermRevertPoint = new(lm.Terms);
             shortTermRevertPoint = new(lm.Terms);
         }
@@ -65,8 +78,8 @@ namespace RandomizerCore.Logic
                 pm.AfterAddRange += EnqueueUpdates;
                 pm.AfterStartTemp += SetShortTermRevertPoint;
                 pm.AfterEndTemp += OnEndTemp;
-                pm.OnRemove += OnRemove;
-                pm.AfterRemove += DoRecalculate;
+                foreach (PMHook hook in pmHooks) hook.Hook(pm);
+
                 active = true;
             }
 
@@ -83,8 +96,7 @@ namespace RandomizerCore.Logic
                 pm.AfterAddRange -= EnqueueUpdates;
                 pm.AfterStartTemp -= SetShortTermRevertPoint;
                 pm.AfterEndTemp -= OnEndTemp;
-                pm.OnRemove -= OnRemove;
-                pm.AfterRemove -= DoRecalculate;
+                foreach (PMHook hook in pmHooks) hook.Unhook(pm);
                 active = false;
             }
         }
@@ -105,15 +117,8 @@ namespace RandomizerCore.Logic
         public void RevertLong()
         {
             Reset();
-            OnBeginRecalculate = null;
-            OnEndRecalculuate = null;
             longTermRevertPoint.Apply(this);
         }
-
-
-        public event Action OnBeginRecalculate;
-        public event Action OnEndRecalculuate;
-        public event Action OnReset;
 
         public void AddEntry(UpdateEntry entry)
         {
@@ -128,6 +133,12 @@ namespace RandomizerCore.Logic
             addEntryHelper.Clear();
 
             if (active) DoUpdateEntry(entry);
+        }
+
+        public void AddPMHook(PMHook hook)
+        {
+            pmHooks.Add(hook);
+            if (active) hook.Hook(pm);
         }
 
         /// <summary>
@@ -211,26 +222,13 @@ namespace RandomizerCore.Logic
             while (updates.TryDequeue(out int term)) DoUpdate(term);
         }
 
-        int i;
-
         public void DoUpdate(int term)
         {
-            i++;
-            if (i > 10000) throw new StackOverflowException();
-            try
+            List<UpdateEntry> l = entriesByTerm[term];
+            for (int i = 0; i < l.Count; i++)
             {
-                List<UpdateEntry> l = entriesByTerm[term];
-                for (int i = 0; i < l.Count; i++)
-                {
-                    DoUpdateEntry(l[i]);
-                }
+                DoUpdateEntry(l[i]);
             }
-            catch (StackOverflowException)
-            {
-                Log(pm.lm.Terms[term].Name);
-                throw;
-            }
-            i--;
         }
 
         public void DoUpdateEntry(UpdateEntry entry)
@@ -265,13 +263,6 @@ namespace RandomizerCore.Logic
                 }
             }
             shortTermRevertPoint.Apply(this);
-        }
-
-        public void DoRecalculate()
-        {
-            OnBeginRecalculate?.Invoke();
-            DoUpdateAll();
-            OnEndRecalculuate?.Invoke();
         }
 
         public void OnEndTemp(bool saved)
@@ -321,8 +312,7 @@ namespace RandomizerCore.Logic
         {
             individualEntries.Clear();
             foreach (List<UpdateEntry> list in entriesByTerm) list.Clear();
-            OnBeginRecalculate = null;
-            OnEndRecalculuate = null;
+            OnReset = null;
         }
 
     }
@@ -335,8 +325,13 @@ namespace RandomizerCore.Logic
         public abstract bool CanGet(ProgressionManager pm);
         public abstract IEnumerable<Term> GetTerms();
         public abstract void OnAdd(ProgressionManager pm);
-        public abstract void OnRemove(ProgressionManager pm);
-
+        public virtual void OnRemove(ProgressionManager pm) { }
         public virtual void Reset() { }
+    }
+
+    public abstract class PMHook
+    {
+        public abstract void Hook(ProgressionManager pm);
+        public abstract void Unhook(ProgressionManager pm);
     }
 }

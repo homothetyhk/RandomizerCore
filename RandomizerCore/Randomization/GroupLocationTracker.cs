@@ -57,19 +57,19 @@ namespace RandomizerCore.Randomization
             return locations;
         }
 
-        public GroupLocationTracker(MainUpdater mu, RandomizationGroup group, Action onFind)
+        public GroupLocationTracker(ProgressionManager pm, RandomizationGroup group, Action onFind)
         {
             coupled = group is CoupledRandomizationGroup;
             InitializeReachable();
 
-            mu.OnBeginRecalculate += OnBeginRecalculate;
-            mu.AddEntries(GetEntries(group.Locations));
+            pm.AfterEndTemp += OnEndTemp;
+            pm.mu.AddEntries(GetEntries(group.Locations));
             this.onFind = onFind;
         }
 
-        private void OnBeginRecalculate()
+        private void OnEndTemp(bool b)
         {
-            ClearReachable();
+            if (!b) ClearReachable();
         }
 
         private IEnumerable<UpdateEntry> GetEntries(IReadOnlyList<IRandoLocation> locations)
@@ -110,7 +110,7 @@ namespace RandomizerCore.Randomization
 
             public override void OnAdd(ProgressionManager pm)
             {
-                if (Location.Reachable == TempState.None && (!Parent.coupled || ((IRandoCouple)Location).Placed == TempState.None))
+                if (Location.Reachable == TempState.None && (!Parent.coupled || ((IRandoCouple)Location).Placed == TempState.None)) // a placed coupled item can no longer have its location used
                 {
                     Parent.reachable.Add(Location);
                     Parent.OnFind();

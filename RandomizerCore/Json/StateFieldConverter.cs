@@ -10,13 +10,12 @@ namespace RandomizerCore.Json
 
         public override StateField? ReadJson(JsonReader reader, Type objectType, StateField? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            RawStateField rsf = serializer.Deserialize<RawStateField>(reader);
-            return SM.FieldLookup[rsf.Name];
+            return SM.FieldLookup[serializer.Deserialize<string>(reader)];
         }
 
         public override void WriteJson(JsonWriter writer, StateField? value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, value.ToRawStateDef());
+            serializer.Serialize(writer, value.Name);
         }
     }
 }

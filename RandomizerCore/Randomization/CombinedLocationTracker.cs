@@ -12,14 +12,14 @@ namespace RandomizerCore.Randomization
         public bool FoundNew { get; private set; }
         private void OnFind() => FoundNew = true;
 
-        public CombinedLocationTracker(MainUpdater mu, RandomizationGroup[] groups)
+        public CombinedLocationTracker(ProgressionManager pm, RandomizationGroup[] groups)
         {
             trackers = new GroupLocationTracker[groups.Length];
             for (int i = 0; i < groups.Length; i++)
             {
-                trackers[i] = new(mu, groups[i], OnFind);
+                trackers[i] = new(pm, groups[i], OnFind);
             }
-            mu.OnBeginRecalculate += () => FoundNew = false;
+            pm.AfterEndTemp += (b) => { if (!b) FoundNew = false; };
         }
 
         public void Collect(out List<IRandoLocation>[] newReachable)

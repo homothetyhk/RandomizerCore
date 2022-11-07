@@ -27,7 +27,7 @@ namespace RandomizerCore.Randomization
             this.groups = stage.groups;
             this.pm = pm;
             this.selector = new(groups);
-            this.rt = new(pm.mu, groups);
+            this.rt = new(pm, groups);
             this.Placements = new List<RandoPlacement>[groups.Length];
             for (int i = 0; i < groups.Length; i++) this.Placements[i] = new();
             this.tempState = tempState;
@@ -39,7 +39,7 @@ namespace RandomizerCore.Randomization
         public void Advance()
         {
             pm.mu.StartUpdating();
-            AddSphereZero();
+            AddItemlessSphere();
             while (!selector.Finished)
             {
                 AddNextSphere();
@@ -50,9 +50,9 @@ namespace RandomizerCore.Randomization
         /// Creates a sphere with the newest reachable locations and no items. Exits if the request was empty.
         /// </summary>
         /// <exception cref="InvalidOperationException">There are no reachable locations, and the request was nonempty.</exception>
-        public void AddSphereZero()
+        public void AddItemlessSphere()
         {
-            if (!rt.FoundNew)
+            if (!rt.FoundNew && Spheres.Count == 0)
             {
                 if (groups.Any(g => g.Items.Any() || g.Locations.Any()))
                 {
@@ -69,7 +69,7 @@ namespace RandomizerCore.Randomization
             {
                 next[i] = new Sphere
                 {
-                    depth = 0,
+                    depth = Spheres.Count,
                     groupIndex = i,
                     final = final,
                     groupLabel = groups[i].Label,
@@ -82,7 +82,7 @@ namespace RandomizerCore.Randomization
             {
                 foreach (IRandoLocation rl in s.Locations)
                 {
-                    rl.Sphere = 0;
+                    rl.Sphere = s.depth;
                 }
             }
 
@@ -114,18 +114,17 @@ namespace RandomizerCore.Randomization
                 };
             }
 
-            int sphere = groups.Length;
             bool finished = selector.Finished;
             foreach (Sphere s in next)
             {
                 foreach (IRandoItem ri in s.Items)
                 {
-                    ri.Sphere = sphere;
+                    ri.Sphere = s.depth;
                     ri.Required = !finished;
                 }
                 foreach (IRandoLocation rl in s.Locations)
                 {
-                    rl.Sphere = sphere;
+                    rl.Sphere = s.depth;
                 }
             }
 
@@ -152,6 +151,10 @@ namespace RandomizerCore.Randomization
                 }
             }
             for (int i = 0; i < placements.Length; i++) Placements[i].AddRange(placements[i]);
+            if (rt.FoundNew) // possible due to ILocationDependentItems
+            {
+                AddItemlessSphere();
+            }
         }
 
         [Conditional("DEBUG")]
@@ -292,7 +295,7 @@ namespace RandomizerCore.Randomization
                 {
                     Place(t, pm); // sets placed to temporary
                     selector.AcceptLast(); // sets placed to permanent
-                    if (!rt.FoundNew) throw new InvalidOperationException("Lost new transitions during decide?!?!");
+                    if (!rt.FoundNew) throw new InvalidOperationException("Lost new transitions during decide?!?! Last accepted was " + selector.GetAcceptedItems().Last().Name);
                     return true;
                 }
             }

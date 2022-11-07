@@ -30,19 +30,6 @@ namespace RandomizerCore.Logic.StateLogic
             _ints = state.CloneInts();
         }
 
-        /// <summary>
-        /// Returns true if all fields have their default value: false or 0.
-        /// </summary>
-        public bool IsZero 
-        {
-            get
-            {
-                if (!_bools.IsAllFalse()) return false;
-                for (int i = 0; i < _ints.Length; i++) if (_ints[i] != 0) return false;
-                return true;
-            } 
-        }
-
         public bool GetBool(int id) => _bools[id];
         public int GetInt(int id) => _ints[id];
 
@@ -55,21 +42,11 @@ namespace RandomizerCore.Logic.StateLogic
         }
 
         /// <summary>
-        /// Sets the specified field. If the operation would result in a negative value, clamps the field to 0.
+        /// Sets the specified field.
         /// </summary>
         public void SetInt(int id, int value)
         {
             _ints[id] = value;
-            if (value < 0) _ints[id] = 0;
-        }
-
-        /// <summary>
-        /// Sets all fields to their default value: false or 0.
-        /// </summary>
-        public void SetAllZero()
-        {
-            _bools.SetAllFalse();
-            for (int i = 0; i < _ints.Length; i++) _ints[i] = 0;
         }
 
         /// <summary>
@@ -92,12 +69,11 @@ namespace RandomizerCore.Logic.StateLogic
         }
         
         /// <summary>
-        /// Increments the specified field. If the operation would result in a negative value, clamps the field to 0.
+        /// Increments the specified field.
         /// </summary>
         public void Increment(int id, int incr)
         {
             _ints[id] += incr;
-            if (_ints[id] < 0) _ints[id] = 0;
         }
 
         /// <summary>
@@ -125,6 +101,35 @@ namespace RandomizerCore.Logic.StateLogic
             ints = _ints;
             _bools = null;
             _ints = null;
+        }
+
+        public static bool IsComparablyLE(StateBuilder left, State right)
+        {
+            if (!State.CompareBoolsGE(right, left._bools)) return false;
+            if (!State.CompareIntsGE(right, left._ints)) return false;
+            return true;
+        }
+
+        public static bool IsComparablyLE(State left, StateBuilder right)
+        {
+            if (!State.CompareBoolsLE(left, right._bools)) return false;
+            if (!State.CompareIntsLE(left, right._ints)) return false;
+            return true;
+        }
+
+        public static bool IsComparablyLE(StateBuilder left, StateBuilder right)
+        {
+            if (!left._bools.IsBitwiseLE(right._bools)) return false;
+            for (int i = 0; i < left._ints.Length; i++)
+            {
+                if (left._ints[i] > right._ints[i]) return false;
+            }
+            return true;
+        }
+
+        public bool IsComparablyLE(State other)
+        {
+            return IsComparablyLE(this, other);
         }
     }
 }

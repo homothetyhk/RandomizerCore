@@ -19,14 +19,6 @@ namespace RandomizerCore.Logic
 
         public event Action<ILogicItem> AfterAddItem;
         public event Action<IEnumerable<ILogicItem>> AfterAddRange;
-        /// <summary>
-        /// Invoked before AfterRemove, after a "RestrictTemp" operation.
-        /// </summary>
-        public event Action OnRemove;
-        /// <summary>
-        /// Invoked after OnRemove, after a "RestrictTemp" operation.
-        /// </summary>
-        public event Action AfterRemove;
         public event Action AfterStartTemp;
         public event Action<bool> AfterEndTemp;
 
@@ -47,8 +39,6 @@ namespace RandomizerCore.Logic
         {
             AfterAddItem = null;
             AfterAddRange = null;
-            OnRemove = null;
-            AfterRemove = null;
             AfterStartTemp = null;
             AfterEndTemp = null;
 
@@ -202,25 +192,16 @@ namespace RandomizerCore.Logic
 
         public void RestrictTempTo(ILogicItem soleItem)
         {
-            if (!Temp) throw new InvalidOperationException("RestrictTempTo called outside of Temp!");
-            ProgressionData.Copy(backup, obtained);
-            soleItem.AddTo(this);
-            OnRemove?.Invoke();
-            AfterRemove?.Invoke();
+            RemoveTempItems();
+            StartTemp();
+            Add(soleItem);
         }
 
         public void RestrictTempTo(IEnumerable<ILogicItem> items)
         {
-            if (!Temp) throw new InvalidOperationException("RestrictTempTo called outside of Temp!");
-            ProgressionData.Copy(backup, obtained);
-
-            foreach (var item in items)
-            {
-                item.AddTo(this);
-            }
-            
-            OnRemove?.Invoke();
-            AfterRemove?.Invoke();
+            RemoveTempItems();
+            StartTemp();
+            Add(items);
         }
 
 
