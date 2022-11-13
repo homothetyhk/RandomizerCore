@@ -50,10 +50,14 @@
                 switch (priorityDepthEffect)
                 {
                     case ItemPriorityDepthEffect.Cliff:
-                        if (itemPriorityDepth < locationDepth) return;
+                        if (itemPriorityDepth < locationDepth)
+                        {
+                            locationPriority += 1f;
+                            return;
+                        }
                         break;
                     case ItemPriorityDepthEffect.Fade:
-                        if (locationDepth > itemPriorityDepth)
+                        if (itemPriorityDepth < locationDepth)
                         {
                             locationDepth = Math.Max(2 * itemPriorityDepth - locationDepth, 0);
                         }

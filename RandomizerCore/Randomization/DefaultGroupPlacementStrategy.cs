@@ -61,18 +61,20 @@ namespace RandomizerCore.Randomization
         {
             _placements.Clear();
 
+            Log();
+            Log($"===Beginning placements for group {group.Label} sphere {sphere.depth}===");
             foreach (IRandoItem ri in sphere.Items)
             {
                 IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
                 _placements.Add(new(ri, rl));
+                Log($"Placed {ri.Name} at {rl.Name}. Location had original priority {rl.Priority}, depth {locationDepth}. Item has depth {ri.Sphere}, priority {ri.Priority}, priority depth {priorityDepth}. Adjusted location priority was {adjustedPriority}.");
             }
 
-            if (sphere.Items.Count > 0)
-            {
-                _meanSphereProgressionPriorities.Add(sphere.Items.Sum(r => r.Priority) / sphere.Items.Count);
-            }
-            else _meanSphereProgressionPriorities.Add(int.MinValue);
-
+            float meanPriority = sphere.Items.Count > 0 ? sphere.Items.Sum(r => r.Priority) / sphere.Items.Count : float.NaN;
+            _meanSphereProgressionPriorities.Add(meanPriority);
+            Log($"===Finished placements for group {group.Label} sphere {sphere.depth}. Mean item priority was {meanPriority}===");
+            Log();
+                
             _locations.Add(new SortedArrayList<IRandoLocation>(sphere.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
 
             return _placements;
@@ -148,11 +150,11 @@ namespace RandomizerCore.Randomization
             return _placements;
         }
 
-        public IRandoLocation SelectNext(Sphere s, List<SortedArrayList<IRandoLocation>> locations, SortedArrayList<float> meanSphereProgressionPriorities, IRandoItem item, out int priorityDepth, out int depth, out float locationPriority)
+        public IRandoLocation SelectNext(Sphere s, List<SortedArrayList<IRandoLocation>> locations, SortedArrayList<float> meanSphereProgressionPriorities, IRandoItem item, out int itemPriorityDepth, out int locationDepth, out float locationPriority)
         {
-            priorityDepth = meanSphereProgressionPriorities.CountLE(item.Priority);
+            itemPriorityDepth = meanSphereProgressionPriorities.CountLE(item.Priority);
 
-            depth = -1;
+            int locationGroupIndex = -1;
             int index = -1;
             locationPriority = float.MaxValue;
 
@@ -165,7 +167,7 @@ namespace RandomizerCore.Randomization
                     IRandoLocation rl = locations[j][k];
                     if (index < 0)
                     {
-                        depth = j;
+                        locationGroupIndex = j;
                         index = k;
                         locationPriority = rl.Priority;
                         constraintSatisfied = CanPlace(item, rl);
@@ -178,17 +180,17 @@ namespace RandomizerCore.Randomization
                     else if (!(constraintSatisfied ^ test)) // both pass or both fail constraint
                     {
                         float priority = rl.Priority;
-                        depthPriorityTransform(item, rl, s.depth, priorityDepth, j, ref priority);
+                        depthPriorityTransform(item: item, location: rl, itemDepth: s.depth, itemPriorityDepth: itemPriorityDepth, locationDepth: rl.Sphere, locationPriority: ref priority);
                         if (priority >= locationPriority) continue;
                         else locationPriority = priority;
                     }
                     else // old fails constraint, new passes
                     {
                         locationPriority = rl.Priority;
-                        depthPriorityTransform(item, rl, s.depth, priorityDepth, j, ref locationPriority);
+                        depthPriorityTransform(item: item, location: rl, itemDepth: s.depth, itemPriorityDepth: itemPriorityDepth, locationDepth: rl.Sphere, locationPriority: ref locationPriority);
                     }
 
-                    depth = j;
+                    locationGroupIndex = j;
                     index = k;
                     constraintSatisfied = test;
 
@@ -197,13 +199,14 @@ namespace RandomizerCore.Randomization
             }
 
             if (index < 0) throw new OutOfLocationsException($"SelectNext failed on group {s.groupLabel}.");
-            IRandoLocation location = locations[depth][index];
+            IRandoLocation location = locations[locationGroupIndex][index];
             if (!constraintSatisfied)
             {
                 InvokeOnConstraintViolated(item, location);
             }
 
-            locations[depth].RemoveAt(index);
+            locations[locationGroupIndex].RemoveAt(index);
+            locationDepth = location.Sphere;
             return location;
         }
 
