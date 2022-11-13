@@ -60,13 +60,13 @@ namespace RandomizerCore.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StateUnion? GetState(int id)
         {
-            return obtained.GetStateCollection(id);
+            return obtained.GetState(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StateUnion? GetState(string name)
         {
-            return obtained.GetStateCollection(lm.GetTerm(name));
+            return obtained.GetState(lm.GetTerm(name));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

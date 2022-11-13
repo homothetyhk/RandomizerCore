@@ -217,37 +217,44 @@ namespace RandomizerCore.Logic
 
         private DNFLogicDef CreateDNFLogicDef(string name, string infix, List<LogicToken> tokens)
         {
-            Expand(tokens);
-            _DNFConverter.Convert(tokens);
-            var res = _DNFConverter.Result;
-            int[][] logic = new int[res.Count][];
-            for (int j = 0; j < logic.Length; j++)
+            try
             {
-                _logicBuilder.Clear();
-                foreach (TermToken tt in res[j])
+                Expand(tokens);
+                _DNFConverter.Convert(tokens);
+                var res = _DNFConverter.Result;
+                int[][] logic = new int[res.Count][];
+                for (int j = 0; j < logic.Length; j++)
                 {
-                    ApplyToken(_logicBuilder, tt);
-                }
-                logic[j] = _logicBuilder.ToArray();
-            }
-            _logicBuilder.Clear();
-
-            int[] sources = new int[logic.Length];
-            for (int j = 0; j < logic.Length; j++)
-            {
-                sources[j] = -1;
-                int[] clause = logic[j];
-                for (int i = 0; i < clause.Length; i++)
-                {
-                    if (clause[i] >= 0 && Terms[clause[i]].Type == TermType.State || clause[i] <= intVariableOffset && GetVariable(clause[i]) is StateProviderVariable)
+                    _logicBuilder.Clear();
+                    foreach (TermToken tt in res[j])
                     {
-                        sources[j] = clause[i];
-                        break;
+                        ApplyToken(_logicBuilder, tt);
                     }
+                    logic[j] = _logicBuilder.ToArray();
                 }
-                // if (sources[j] == -1) Log($"Found conjunction with no source term in {name}: {DNF.ToInfix(res.GetRange(j, 1))}");
+                _logicBuilder.Clear();
+
+                int[] sources = new int[logic.Length];
+                for (int j = 0; j < logic.Length; j++)
+                {
+                    sources[j] = -1;
+                    int[] clause = logic[j];
+                    for (int i = 0; i < clause.Length; i++)
+                    {
+                        if (clause[i] >= 0 && Terms[clause[i]].Type == TermType.State || clause[i] <= intVariableOffset && GetVariable(clause[i]) is StateProviderVariable)
+                        {
+                            sources[j] = clause[i];
+                            break;
+                        }
+                    }
+                    // if (sources[j] == -1) Log($"Found conjunction with no source term in {name}: {DNF.ToInfix(res.GetRange(j, 1))}");
+                }
+                return new(logic, sources, this, name, Infix.ToInfix(tokens));
             }
-            return new(logic, sources, this, name, Infix.ToInfix(tokens));
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Error creating logic def for {name} with logic {infix}.", e);
+            }
         }
 
         private void Expand(List<LogicToken> tokens)

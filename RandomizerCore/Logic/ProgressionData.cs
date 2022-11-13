@@ -42,6 +42,8 @@ namespace RandomizerCore.Logic
                     LargeData[Term.GetIndex(id)] = value;
                     break;
                 case TermType.Byte:
+                    if (value > byte.MaxValue) value = byte.MaxValue;
+                    else if (value < byte.MinValue) value = byte.MinValue;
                     Data[Term.GetIndex(id)] = (byte)value;
                     break;
             }
@@ -50,19 +52,26 @@ namespace RandomizerCore.Logic
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Increment(int id, int value)
         {
+            int index = Term.GetIndex(id);
             switch (Term.GetTermType(id))
             {
                 case TermType.Int:
-                    LargeData[Term.GetIndex(id)] += value;
+                    int intValue = LargeData[index];
+                    if (value > 0 && int.MaxValue - value < intValue) LargeData[index] = int.MaxValue;
+                    else if (value < 0 && int.MinValue - value > intValue) LargeData[index] = int.MinValue;
+                    else LargeData[index] = intValue + value;
                     break;
                 case TermType.Byte:
-                    Data[Term.GetIndex(id)] += (byte)value;
+                    int currentByte = Data[index];
+                    if (value > 0 && byte.MaxValue - value < currentByte) Data[index] = byte.MaxValue;
+                    if (value < 0 && byte.MinValue - value > currentByte) Data[index] = byte.MinValue;
+                    else Data[index] = (byte)(currentByte + value);
                     break;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public StateUnion? GetStateCollection(int id)
+        public StateUnion? GetState(int id)
         {
             return StateData[Term.GetIndex(id)];
         }

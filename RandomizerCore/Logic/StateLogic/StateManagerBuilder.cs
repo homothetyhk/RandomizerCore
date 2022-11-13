@@ -71,7 +71,7 @@ namespace RandomizerCore.Logic.StateLogic
                 if (field is StateBool sb)
                 {
                     if (sb.DefaultValue == defaultValue) return sb;
-                    else throw new InvalidOperationException($"Cannot define StateBool {name} with default {defaultValue}: name already defines field with default {sb.DefaultValue}.");
+                    else typeof(StateBool).GetProperty(nameof(StateBool.DefaultValue)).SetValue(sb, defaultValue);
                 }
                 else throw new InvalidOperationException($"Cannot define StateBool {name}: name already defines state field of type {field.GetType().Name}");
             }
@@ -105,7 +105,7 @@ namespace RandomizerCore.Logic.StateLogic
                 if (field is StateInt si && si.DefaultValue == defaultValue)
                 {
                     if (si.DefaultValue == defaultValue) return si;
-                    else throw new InvalidOperationException($"Cannot define StateInt {name} with default {defaultValue}: name already defines field with default {si.DefaultValue}.");
+                    else typeof(StateInt).GetProperty(nameof(StateInt.DefaultValue)).SetValue(si, defaultValue);
                 }
                 else throw new InvalidOperationException($"Cannot define StateInt {name}: name already defines state field of type {field.GetType().Name}.");
             }

@@ -131,5 +131,19 @@
             return left.current is null ? StateBuilder.IsComparablyLE(left.orig, right) : StateBuilder.IsComparablyLE(left.current, right);
         }
 
+        public static bool IsComparablyLE(State left, LazyStateBuilder right)
+        {
+            return right.current is null ? State.IsComparablyLE(left, right.orig) : StateBuilder.IsComparablyLE(left, right.current);
+        }
+
+        public static bool IsComparablyLE(StateBuilder left, LazyStateBuilder right)
+        {
+            return right.current is null ? StateBuilder.IsComparablyLE(left, right.orig) : StateBuilder.IsComparablyLE(left, right.current);
+        }
+
+        public static bool IsComparablyLE(LazyStateBuilder left, LazyStateBuilder right)
+        {
+            return left.current is null ? IsComparablyLE(left.orig, right) : IsComparablyLE(left.current, right);
+        }
     }
 }

@@ -158,6 +158,45 @@ namespace RandomizerCore.Randomization
         }
 
         [Conditional("DEBUG")]
+        internal void LogSphere()
+        {
+            Log();
+            Log("==================================");
+            int i = Spheres.Count - 1;
+            Log($"SPHERE {i}");
+            Log("Placed:");
+            for (int j = 0; j < groups.Length; j++)
+            {
+                if (Spheres[i][j].Items.Count > 0)
+                {
+                    Log($"  {groups[j].Label}: {string.Join(", ", Spheres[i][j].Items.Select(i => i.Name))}");
+                }
+            }
+            Log("Unlocked:");
+            for (int j = 0; j < groups.Length; j++)
+            {
+                if (Spheres[i][j].Locations.Count > 0)
+                {
+                    Log($"  {groups[j].Label}: {string.Join(", ", Spheres[i][j].Locations.Select(i => i.Name))}");
+                }
+            }
+            Log("Current placements:");
+            for (int j = 0; j < Placements.Length; j++)
+            {
+                Log(groups[j].Label);
+                for (int k = 0; k < Placements[j].Count; k++)
+                {
+                    Log(Placements[j][k].Item.Name + "  at  " + Placements[j][k].Location.Name);
+                }
+            }
+
+            Log("Progression:");
+            Log(pm.Dump());
+            Log("===============================");
+        }
+
+
+        [Conditional("DEBUG")]
         internal void LogSpheres()
         {
             Log();
@@ -254,7 +293,7 @@ namespace RandomizerCore.Randomization
                     {
                         if (unreachable[i].Count != 0)
                         {
-                            throw new UnreachableLocationException(unreachable, groups);
+                            throw new UnreachableLocationException(unreachable, stage, tempState, pm);
                         }
                     }
 
