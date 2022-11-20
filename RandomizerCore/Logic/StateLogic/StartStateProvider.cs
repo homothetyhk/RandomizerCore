@@ -8,6 +8,17 @@
         public override string Name => Prefix;
         public const string Prefix = "$START";
 
+        public static bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
+        {
+            if (term == Prefix)
+            {
+                variable = new StartStateProvider();
+                return true;
+            }
+            variable = default;
+            return false;
+        }
+
         public override StateUnion? GetInputState(object sender, ProgressionManager pm)
         {
             return pm.lm.StateManager.StartStateSingleton;

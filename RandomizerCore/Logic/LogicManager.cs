@@ -120,16 +120,29 @@ namespace RandomizerCore.Logic
 
         public LogicVariable? GetVariable(string name)
         {
-            if (_variableIndices.TryGetValue(name, out int index)) return _variables[intVariableOffset - index];
-            else if (VariableResolver.TryMatch(this, name, out LogicVariable li))
-            {
-                if (li is null) throw new NullReferenceException($"{name} was resolved to a null variable!");
-                index = intVariableOffset - _variables.Count;
-                _variableIndices.Add(name, index);
-                _variables.Add(li);
-                return li;
-            }
+            if (GetVariableID(name) is int id) return GetVariable(id);
             else return null;
+        }
+
+        private int? GetVariableID(string name)
+        {
+            if (_variableIndices.TryGetValue(name, out int index)) return index;
+
+            LogicVariable lv;
+            try
+            {
+                if (!VariableResolver.TryMatch(this, name, out lv)) return null;
+                if (lv is null) throw new NullReferenceException($"Parsed {name} to null LogicVariable!");
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Error parsing {name} to LogicVariable.", e);
+            }
+
+            index = intVariableOffset - _variables.Count;
+            _variableIndices.Add(name, index);
+            _variables.Add(lv);
+            return index;
         }
 
         public LogicItem? GetItem(string name)
@@ -401,17 +414,9 @@ namespace RandomizerCore.Logic
             {
                 logic.Add(t.Id);
             }
-            else if (_variableIndices.TryGetValue(name, out int i))
+            else if (GetVariableID(name) is int variableID)
             {
-                logic.Add(i);
-            }
-            else if (VariableResolver.TryMatch(this, name, out LogicVariable variable))
-            {
-                if (variable is null) throw new NullReferenceException($"{name} was resolved to a null variable!");
-                int index = intVariableOffset - _variables.Count;
-                _variableIndices.Add(name, index);
-                logic.Add(index);
-                _variables.Add(variable);
+                logic.Add(variableID);
             }
             else throw new ArgumentException($"Unknown string {name} found as term.");
         }

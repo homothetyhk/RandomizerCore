@@ -4,9 +4,12 @@ using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
 {
-    public readonly record struct ProgressionData(byte[] Data, int[] LargeData, StateUnion?[] StateData)
+    public record ProgressionData(LogicManager LM, byte[] Data, int[] LargeData, StateUnion?[] StateData)
     {
-        public ProgressionData(IReadOnlyList<int> counts) : this(new byte[counts[0]], new int[counts[1]], new StateUnion[counts[2]]) { }
+        public ProgressionData(LogicManager LM) : this(LM,
+            new byte[LM.Terms.GetTermCount(TermType.Byte)],
+            new int[LM.Terms.GetTermCount(TermType.Int)],
+            new StateUnion[LM.Terms.GetTermCount(TermType.State)]) { }
 
         public static void Clear(ProgressionData pd)
         {
@@ -33,7 +36,6 @@ namespace RandomizerCore.Logic
             };
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetValue(int id, int value)
         {
             switch (Term.GetTermType(id))
@@ -46,10 +48,11 @@ namespace RandomizerCore.Logic
                     else if (value < byte.MinValue) value = byte.MinValue;
                     Data[Term.GetIndex(id)] = (byte)value;
                     break;
+                default:
+                    throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be set to int value.");
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Increment(int id, int value)
         {
             int index = Term.GetIndex(id);
@@ -67,6 +70,8 @@ namespace RandomizerCore.Logic
                     if (value < 0 && byte.MinValue - value > currentByte) Data[index] = byte.MinValue;
                     else Data[index] = (byte)(currentByte + value);
                     break;
+                default:
+                    throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be incremented by int value.");
             }
         }
 
@@ -76,15 +81,15 @@ namespace RandomizerCore.Logic
             return StateData[Term.GetIndex(id)];
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetState(int id, StateUnion state)
         {
+            if (Term.GetTermType(id) != TermType.State) throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be set to state value.");
             StateData[Term.GetIndex(id)] = state;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GiveMinimumState(int id)
         {
+            if (Term.GetTermType(id) != TermType.State) throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be set to state value.");
             StateData[Term.GetIndex(id)] ??= StateUnion.Empty;
         }
 
@@ -113,9 +118,10 @@ namespace RandomizerCore.Logic
             return JsonUtil.Serialize(o);
         }
 
-        public static string Diff(LogicManager lm, ProgressionData left, ProgressionData right)
+        public static string Diff(ProgressionData left, ProgressionData right)
         {
             Dictionary<string, object> o = new();
+            LogicManager lm = left.LM;
 
             IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.Byte);
             for (int i = 0; i < left.Data.Length; i++)
@@ -144,7 +150,7 @@ namespace RandomizerCore.Logic
 
         public ProgressionData DeepClone()
         {
-            return new((byte[])Data.Clone(), (int[])LargeData.Clone(), (StateUnion?[])StateData.Clone());
+            return new(LM, (byte[])Data.Clone(), (int[])LargeData.Clone(), (StateUnion?[])StateData.Clone());
         }
 
     }

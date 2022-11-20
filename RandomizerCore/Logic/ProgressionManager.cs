@@ -29,8 +29,8 @@ namespace RandomizerCore.Logic
             this.ctx = ctx;
             this.mu = new(lm, this);
 
-            obtained = new(lm.Terms.Counts);
-            backup = new(lm.Terms.Counts);
+            obtained = new(lm);
+            backup = new(lm);
 
             Reset();
         }
@@ -158,15 +158,12 @@ namespace RandomizerCore.Logic
 
         public void Add(ILogicItem item)
         {
-            //if (Has(lm.GetTerm("King's_Brand")) && item.Name == "Grub") throw new Exception();
-            //LogDebug("Add item " + item.Name);
             item.AddTo(this);
             AfterAddItem?.Invoke(item);
         }
 
         public void Add(IEnumerable<ILogicItem> items)
         {
-            //LogDebug("Add items " + string.Join(", ", items.Select(i => i.Name)));
             foreach (var item in items)
             {
                 item.AddTo(this);
@@ -213,22 +210,8 @@ namespace RandomizerCore.Logic
         }
 
         public string Dump() => obtained.Dump(lm);
+        public static string Diff(ProgressionManager left, ProgressionManager right) => ProgressionData.Diff(left.obtained, right.obtained);
+        public static string Diff(ProgressionManager left, ProgressionData right) => ProgressionData.Diff(left.obtained, right);
         public ProgressionData GetSnapshot() => obtained.DeepClone();
-        /*
-        /// <summary>
-        /// Converts the ProgressionManager to a JSON-serialized dictionary with keys given by term names and values given by the integer values of the ProgressionManager for each term.
-        /// </summary>
-        public override string ToString()
-        {
-            StringBuilder sb = new();
-            sb.AppendLine("{");
-            for (int i = 0; i < lm.TermCount; i++)
-            {
-                sb.AppendLine($"  \"{lm.GetTerm(i)}\": {obtained[i]},");
-            }
-            sb.AppendLine("}");
-            return sb.ToString();
-        }
-        */
     }
 }
