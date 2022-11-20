@@ -1,6 +1,11 @@
-﻿namespace RandomizerCore.Collections
+﻿using System.Runtime.CompilerServices;
+
+namespace RandomizerCore.Collections
 {
-    public class ReferenceEqualityComparer<T> : IEqualityComparer<T>
+    /// <summary>
+    /// EqualityComparer which checks equality and generates hash codes according to reference equality.
+    /// </summary>
+    public class ReferenceEqualityComparer<T> : IEqualityComparer<T> where T : class
     {
         private ReferenceEqualityComparer() { }
         public static ReferenceEqualityComparer<T> Instance { get; } = new();
@@ -12,7 +17,7 @@
 
         public int GetHashCode(T obj)
         {
-            return obj.GetHashCode();
+            return RuntimeHelpers.GetHashCode(obj);
         }
     }
 }

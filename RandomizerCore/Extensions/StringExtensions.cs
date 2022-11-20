@@ -4,6 +4,9 @@ namespace RandomizerCore.Extensions
 {
     public static class StringExtensions
     {
+        /// <summary>
+        /// Returns a consistent platform-independent hash code for the string.
+        /// </summary>
         public static int GetStableHashCode(this string str)
         {
             unchecked
@@ -23,6 +26,9 @@ namespace RandomizerCore.Extensions
             }
         }
 
+        /// <summary>
+        /// Converts a "camelCase" string to "Camel Case".
+        /// </summary>
         public static string FromCamelCase(this string str)
         {
             StringBuilder uiname = new StringBuilder(str);
@@ -54,11 +60,14 @@ namespace RandomizerCore.Extensions
             return uiname.ToString();
         }
 
+        /// <summary>
+        /// If the string can be parsed to a value of the enum type, ignoring case, returns true and outputs the value. Otherwise, returns false.
+        /// </summary>
         public static bool TryToEnum<T>(this string self, out T val) where T : Enum
         {
             try
             {
-                val = (T)Enum.Parse(typeof(T), self);
+                val = (T)Enum.Parse(typeof(T), self, ignoreCase: true);
                 return true;
             }
             catch

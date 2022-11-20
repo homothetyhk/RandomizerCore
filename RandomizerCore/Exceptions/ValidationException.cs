@@ -1,5 +1,8 @@
 ﻿namespace RandomizerCore.Exceptions
 {
+    /// <summary>
+    /// Exception raised during the validation stage of the randomizer.
+    /// </summary>
     public class ValidationException : Exception
     {
         public ValidationException() { }

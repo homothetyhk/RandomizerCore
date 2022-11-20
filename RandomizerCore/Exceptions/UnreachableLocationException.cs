@@ -4,6 +4,9 @@ using System.Text;
 
 namespace RandomizerCore.Exceptions
 {
+    /// <summary>
+    /// Exception which indicates that a location was unreachable after all items were placed.
+    /// </summary>
     public class UnreachableLocationException : Exception
     {
         public readonly List<IRandoLocation>[] unreachableLocations;

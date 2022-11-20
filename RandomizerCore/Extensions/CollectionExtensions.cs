@@ -1,7 +1,12 @@
-﻿namespace RandomizerCore.Extensions
+﻿using System.Collections.Generic;
+
+namespace RandomizerCore.Extensions
 {
     public static class CollectionExtensions
     {
+        /// <summary>
+        /// Returns the first minimal element of the sequence.
+        /// </summary>
         public static T ArgMin<T>(this IEnumerable<T> ts) where T : IComparable<T>
         {
             IEnumerator<T> e = ts.GetEnumerator();
@@ -18,6 +23,9 @@
             return t;
         }
 
+        /// <summary>
+        /// Returns the first minimal element of the transformed sequence.
+        /// </summary>
         public static T ArgMin<T, U>(this IEnumerable<T> ts, Func<T, U> selector) where U : IComparable<U>
         {
             IEnumerator<T> e = ts.GetEnumerator();
@@ -36,6 +44,9 @@
             return t;
         }
 
+        /// <summary>
+        /// Returns the first maximal element of the sequence.
+        /// </summary>
         public static T ArgMax<T>(this IEnumerable<T> ts) where T : IComparable<T>
         {
             IEnumerator<T> e = ts.GetEnumerator();
@@ -52,6 +63,9 @@
             return t;
         }
 
+        /// <summary>
+        /// Returns the first maximal element of the transformed sequence.
+        /// </summary>
         public static T ArgMax<T, U>(this IEnumerable<T> ts, Func<T, U> selector) where U : IComparable<U>
         {
             IEnumerator<T> e = ts.GetEnumerator();
@@ -70,6 +84,9 @@
             return t;
         }
 
+        /// <summary>
+        /// Returns the index of the first minimal element of the transformed sequence.
+        /// </summary>
         public static int IndexMin<T, U>(this IEnumerable<T> ts, Func<T, U> selector) where U : IComparable<U>
         {
             IEnumerator<T> e = ts.GetEnumerator();
@@ -90,6 +107,9 @@
             return i;
         }
 
+        /// <summary>
+        /// If the stack is nonempty, pops the stack, outputting the result, and returns true. Otherwise, returns false.
+        /// </summary>
         public static bool TryPop<T>(this Stack<T> ts, out T t)
         {
             bool flag = ts.Count > 0;
@@ -97,6 +117,9 @@
             return flag;
         }
 
+        /// <summary>
+        /// If the stack is nonempty, peeks the stack, outputting the result, and returns true. Otherwise, returns false.
+        /// </summary>
         public static bool TryPeek<T>(this Stack<T> ts, out T t)
         {
             bool flag = ts.Count > 0;
@@ -104,6 +127,9 @@
             return flag;
         }
 
+        /// <summary>
+        /// If the queue is nonempty, dequeues an element, outputting the result, and returns true. Otherwise, returns false.
+        /// </summary>
         public static bool TryDequeue<T>(this Queue<T> ts, out T t)
         {
             bool flag = ts.Count > 0;
@@ -111,6 +137,9 @@
             return flag;
         }
 
+        /// <summary>
+        /// If the queue is nonempty, peeks the queue, outputting the result, and returns true. Otherwise, returns false.
+        /// </summary>
         public static bool TryPeek<T>(this Queue<T> ts, out T t)
         {
             bool flag = ts.Count > 0;
@@ -118,11 +147,17 @@
             return flag;
         }
 
+        /// <summary>
+        /// Sorts the list according to the default comparer for its elements, preserving the order of elements which compare equal.
+        /// </summary>
         public static void StableSort<T>(this IList<T> ts) where T : IComparable<T>
         {
             StableSort(ts, (t, u) => t.CompareTo(u));
         }
 
+        /// <summary>
+        /// Sorts the list according to the provided comparer for its elements, preserving the order of elements which compare equal.
+        /// </summary>
         public static void StableSort<T>(this IList<T> ts, IComparer<T> comparer)
         {
             KeyValuePair<int, T>[] keys = new KeyValuePair<int, T>[ts.Count];
@@ -137,6 +172,9 @@
             }
         }
 
+        /// <summary>
+        /// Sorts the list according to the provided comparison for its elements, preserving the order of elements which compare equal.
+        /// </summary>
         public static void StableSort<T>(this IList<T> ts, Comparison<T> comparison)
         {
             KeyValuePair<int, T>[] keys = new KeyValuePair<int, T>[ts.Count];

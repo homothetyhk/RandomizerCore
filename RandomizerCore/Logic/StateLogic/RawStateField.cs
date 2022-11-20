@@ -8,6 +8,9 @@ namespace RandomizerCore.Logic.StateLogic
     [JsonConverter(typeof(CompactStateFieldConverter))]
     public readonly record struct CompactStateField(string Name, object? DefaultValue = null)
     {
+        public CompactStateField(StateBool sb) : this(sb.Name, sb.DefaultValue == true ? true : null) { }
+        public CompactStateField(StateInt si) : this(si.Name, si.DefaultValue != 0 ? si.DefaultValue : null) { }
+
         public class CompactStateFieldConverter : JsonConverter<CompactStateField>
         {
             public override CompactStateField ReadJson(JsonReader reader, Type objectType, CompactStateField existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -40,6 +43,18 @@ namespace RandomizerCore.Logic.StateLogic
     }
     public class RawStateData
     {
+        public RawStateData() { }
+
+        public RawStateData(StateManager sm)
+        {
+            Fields = new()
+            {
+                { StateFieldType.Bool.ToString(), sm.Bools.Select(sb => new CompactStateField(sb)).ToList()  },
+                { StateFieldType.Int.ToString(), sm.Ints.Select(si => new CompactStateField(si)).ToList()  },
+            };
+            Tags = sm.TagLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(sf => sf.Name).ToList());
+        }
+
         public Dictionary<string, List<CompactStateField>> Fields;
         public Dictionary<string, List<string>> Tags;
     }

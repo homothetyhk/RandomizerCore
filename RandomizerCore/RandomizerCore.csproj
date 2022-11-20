@@ -14,17 +14,17 @@
     <Using Remove="System.Net.Http" />
     <Using Remove="System.Threading" />
     <Using Remove="System.Threading.Tasks" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PolySharp" Version="1.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <Using Include="RandomizerCore.LogHelper" Static="true" />
   </ItemGroup>
   <PropertyGroup>
     <WarningsAsErrors>;NU1605</WarningsAsErrors>
     <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).xml" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\$(TargetName)" SkipUnchangedFiles="true" />
   </Target>

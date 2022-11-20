@@ -60,7 +60,7 @@ namespace RandomizerCore.Json
             serializer.Serialize(writer, value.VariableResolver, typeof(VariableResolver));
 
             writer.WritePropertyName(nameof(value.StateManager));
-            serializer.Serialize(writer, value.StateManager.GetFieldDefs());
+            serializer.Serialize(writer, new RawStateData(value.StateManager));
 
             writer.WriteEndObject();
             serializer.Converters.Remove(LogicDefConverter.Instance);
