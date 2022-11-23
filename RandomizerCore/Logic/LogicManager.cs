@@ -87,6 +87,9 @@ namespace RandomizerCore.Logic
             _logicBuilder.TrimExcess();
         }
 
+        /// <summary>
+        /// Fetches the logic def by name. Returns null if not defined.
+        /// </summary>
         public LogicDef? GetLogicDef(string name)
         {
             if (!_logicDefs.TryGetValue(name, out LogicDef def))
@@ -97,7 +100,18 @@ namespace RandomizerCore.Logic
             return def;
         }
 
+        /// <summary>
+        /// Fetches the logic def by name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The logic def is not defined.</exception>
+        public LogicDef GetLogicDefStrict(string name)
+        {
+            return GetLogicDef(name) ?? throw new ArgumentException($"LogicDef {name} is not defined.");
+        }
 
+        /// <summary>
+        /// Fetches the term by name. Returns null if not defined.
+        /// </summary>
         public Term? GetTerm(string item)
         {
             if (Terms.GetTerm(item) is not Term t)
@@ -108,20 +122,48 @@ namespace RandomizerCore.Logic
             return t;
         }
 
+        /// <summary>
+        /// Fetches the term by name. Returns null if not defined.
+        /// </summary>
+        /// <exception cref="ArgumentException">The tern is not defined.</exception>
+        public Term GetTermStrict(string item)
+        {
+            return Terms.GetTerm(item) ?? throw new ArgumentException($"Term {item} is not defined.");
+        }
+
+        /// <summary>
+        /// Fetches the term by its id.
+        /// </summary>
         public Term GetTerm(int id)
         {
             return Terms[id];
         }
 
+        /// <summary>
+        /// Fetches the variable by its id.
+        /// </summary>
         public LogicVariable GetVariable(int id)
         {
             return _variables[intVariableOffset - id];
         }
 
+        /// <summary>
+        /// Fetches the variable by name. If the variable has not yet been instantiated, caches it and gives it an id. Returns null if the name cannot be resolved to a variable.
+        /// </summary>
         public LogicVariable? GetVariable(string name)
         {
             if (GetVariableID(name) is int id) return GetVariable(id);
             else return null;
+        }
+
+        /// <summary>
+        /// Fetches the variable by name. If the variable has not yet been instantiated, caches it and gives it an id.
+        /// </summary>
+        /// <exception cref="ArgumentException">The name cannot be resolved to a variable.</exception>
+        public LogicVariable GetVariableStrict(string name)
+        {
+            if (GetVariableID(name) is int id) return GetVariable(id);
+            throw new ArgumentException($"Unable to resolve {name} to LogicVariable.");
         }
 
         private int? GetVariableID(string name)
@@ -145,6 +187,9 @@ namespace RandomizerCore.Logic
             return index;
         }
 
+        /// <summary>
+        /// Fetches the logic item by name. Returns null if not defined.
+        /// </summary>
         public LogicItem? GetItem(string name)
         {
             if (!_items.TryGetValue(name, out LogicItem item))
@@ -155,6 +200,18 @@ namespace RandomizerCore.Logic
             return item;
         }
 
+        /// <summary>
+        /// Fetches the logic item by name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The logic item is not defined.</exception>
+        public LogicItem GetItemStrict(string name)
+        {
+            return GetItem(name) ?? throw new ArgumentException($"LogicItem {name} is not defined.");
+        }
+
+        /// <summary>
+        /// Fetches the logic transition by name. Returns null if not defined.
+        /// </summary>
         public LogicTransition? GetTransition(string name)
         {
             if (!_transitions.TryGetValue(name, out LogicTransition transition))
@@ -163,6 +220,15 @@ namespace RandomizerCore.Logic
             }
 
             return transition;
+        }
+
+        /// <summary>
+        /// Fetches the logic transition by name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The logic transition is not defined.</exception>
+        public LogicTransition GetTransitionStrict(string name)
+        {
+            return GetTransition(name) ?? throw new ArgumentException($"LogicTransition {name} is not defined.");
         }
 
         public LogicDef FromString(RawLogicDef def)

@@ -65,16 +65,40 @@ namespace RandomizerCore.Logic.StateLogic
             Empty = StateUnion.Empty;
         }
 
+        /// <summary>
+        /// Fetches the state bool by name. Returns null if not defined.
+        /// </summary>
         public StateBool? GetBool(string name)
         {
             FieldLookup.TryGetValue(name, out StateField sf);
             return sf as StateBool;
         }
 
+        /// <summary>
+        /// Fetches the state bool by name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The state bool is not defined.</exception>
+        public StateBool GetBoolStrict(string name)
+        {
+            return GetBool(name) ?? throw new ArgumentException($"StateBool {name} is not defined.");
+        }
+
+        /// <summary>
+        /// Fetches the state int by name. Returns null if not defined.
+        /// </summary>
         public StateInt? GetInt(string name)
         {
             FieldLookup.TryGetValue(name, out StateField sf);
             return sf as StateInt;
+        }
+
+        /// <summary>
+        /// Fetches the state int by name.
+        /// </summary>
+        /// <exception cref="ArgumentException">The state int is not defined.</exception>
+        public StateInt GetIntStrict(string name)
+        {
+            return GetInt(name) ?? throw new ArgumentException($"StateInt {name} is not defined.");
         }
 
         public IEnumerable<StateField> GetListByTag(string tag)

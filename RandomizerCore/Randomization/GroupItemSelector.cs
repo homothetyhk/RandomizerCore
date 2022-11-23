@@ -55,6 +55,14 @@ namespace RandomizerCore.Randomization
             _cap += amount;
         }
 
+        public void IncrementCap(ICollection<IRandoItem> items)
+        {
+            int amount = -items.Count;
+            if (_cap + amount < 0) throw new OutOfLocationsException($"Tried to set cap for items of group {label} to negative value:\n" +
+                $"Cap {_cap} was incremented by {amount}.\nNew items were: {string.Join(", ", items.Select(i => i.Name))}");
+            _cap += amount;
+        }
+
         /// <summary>
         /// Detects coupled items which must be discarded.
         /// <br/>An element of a coupled group has item and location behavior. If it becomes reachable before it is placed, it is slated into the locations of a sphere of the dual group, and can no longer be placed.
@@ -170,7 +178,7 @@ namespace RandomizerCore.Randomization
                 unusedItems.Push(item);
             }
             if (unusedItems.Count == 0) Finished = true;
-            IncrementCap(-newItems.Count);
+            IncrementCap(newItems);
         }
 
         /// <summary>
@@ -191,7 +199,7 @@ namespace RandomizerCore.Randomization
 
             foreach (IRandoItem t in remainingItems) t.Placed = TempState.Permanent;
             Finished = true;
-            IncrementCap(-remainingItems.Count);
+            IncrementCap(remainingItems);
         }
 
         /// <summary>
