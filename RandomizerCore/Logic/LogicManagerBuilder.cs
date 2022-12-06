@@ -76,7 +76,7 @@ namespace RandomizerCore.Logic
         /// </summary>
         public Term GetOrAddTerm(string value)
         {
-            return Terms.GetOrAddTerm(value, TermType.Byte);
+            return Terms.GetOrAddTerm(value, TermType.SignedByte);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace RandomizerCore.Logic
         {
             if (!IsTerm(def.name))
             {
-                GetOrAddTerm(def.name, def.stateless ? TermType.Byte : TermType.State);
+                GetOrAddTerm(def.name, def.stateless ? TermType.SignedByte : TermType.State);
             }
             try
             {

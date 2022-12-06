@@ -4,7 +4,7 @@ namespace RandomizerCore.Logic
 {
     public enum TermType
     {
-        Byte,
+        SignedByte,
         Int,
         State
     }

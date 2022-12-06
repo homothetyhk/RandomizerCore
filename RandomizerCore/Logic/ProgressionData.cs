@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
 {
-    public record ProgressionData(LogicManager LM, byte[] Data, int[] LargeData, StateUnion?[] StateData)
+    public record ProgressionData(LogicManager LM, sbyte[] Data, int[] LargeData, StateUnion?[] StateData)
     {
         public ProgressionData(LogicManager LM) : this(LM,
-            new byte[LM.Terms.GetTermCount(TermType.Byte)],
+            new sbyte[LM.Terms.GetTermCount(TermType.SignedByte)],
             new int[LM.Terms.GetTermCount(TermType.Int)],
             new StateUnion[LM.Terms.GetTermCount(TermType.State)]) { }
 
@@ -43,10 +43,10 @@ namespace RandomizerCore.Logic
                 case TermType.Int:
                     LargeData[Term.GetIndex(id)] = value;
                     break;
-                case TermType.Byte:
-                    if (value > byte.MaxValue) value = byte.MaxValue;
-                    else if (value < byte.MinValue) value = byte.MinValue;
-                    Data[Term.GetIndex(id)] = (byte)value;
+                case TermType.SignedByte:
+                    if (value > sbyte.MaxValue) value = sbyte.MaxValue;
+                    else if (value < sbyte.MinValue) value = sbyte.MinValue;
+                    Data[Term.GetIndex(id)] = (sbyte)value;
                     break;
                 default:
                     throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be set to int value.");
@@ -64,11 +64,11 @@ namespace RandomizerCore.Logic
                     else if (value < 0 && int.MinValue - value > intValue) LargeData[index] = int.MinValue;
                     else LargeData[index] = intValue + value;
                     break;
-                case TermType.Byte:
+                case TermType.SignedByte:
                     int currentByte = Data[index];
-                    if (value > 0 && byte.MaxValue - value < currentByte) Data[index] = byte.MaxValue;
-                    if (value < 0 && byte.MinValue - value > currentByte) Data[index] = byte.MinValue;
-                    else Data[index] = (byte)(currentByte + value);
+                    if (value > 0 && sbyte.MaxValue - value < currentByte) Data[index] = sbyte.MaxValue;
+                    if (value < 0 && sbyte.MinValue - value > currentByte) Data[index] = sbyte.MinValue;
+                    else Data[index] = (sbyte)(currentByte + value);
                     break;
                 default:
                     throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be incremented by int value.");
@@ -97,10 +97,10 @@ namespace RandomizerCore.Logic
         {
             Dictionary<string, object> o = new();
 
-            IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.Byte);
+            IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.SignedByte);
             for (int i = 0; i < Data.Length; i++)
             {
-                if (Data[i] > 0) o.Add(termList[i].Name, (int)Data[i]);
+                if (Data[i] != 0) o.Add(termList[i].Name, (int)Data[i]);
             }
 
             termList = lm.Terms.GetTermList(TermType.Int);
@@ -123,7 +123,7 @@ namespace RandomizerCore.Logic
             Dictionary<string, object> o = new();
             LogicManager lm = left.LM;
 
-            IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.Byte);
+            IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.SignedByte);
             for (int i = 0; i < left.Data.Length; i++)
             {
                 int diff = right.Data[i] - left.Data[i];
@@ -150,7 +150,7 @@ namespace RandomizerCore.Logic
 
         public ProgressionData DeepClone()
         {
-            return new(LM, (byte[])Data.Clone(), (int[])LargeData.Clone(), (StateUnion?[])StateData.Clone());
+            return new(LM, (sbyte[])Data.Clone(), (int[])LargeData.Clone(), (StateUnion?[])StateData.Clone());
         }
 
     }
