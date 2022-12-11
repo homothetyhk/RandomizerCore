@@ -28,7 +28,6 @@ namespace RandomizerCore.Logic
                 return true;
             }
             if (StartStateProvider.TryMatch(lm, term, out variable)) return true;
-            if (StateModifierConjunction.TryMatch(lm, term, out variable)) return true;
 
             #pragma warning disable CS0618 // Type or member is obsolete
             if (TryMatch(lm, term, out LogicInt @int))

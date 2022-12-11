@@ -12,37 +12,70 @@ namespace RandomizerCore.Logic
     /// </summary>
     public class DNFLogicDef : StateLogicDef
     {
-        private readonly int[][] logic;
-        private readonly int[] clauseStateProviders;
+        private readonly Clause[] clauses;
         private readonly LogicManager lm;
 
-        public DNFLogicDef(int[][] logic, int[] clauseStateProviders, LogicManager lm, string name, string infixSource) : base(name, infixSource)
+        internal struct Clause
         {
-            this.logic = logic;
-            this.clauseStateProviders = clauseStateProviders;
+            public int[] logic;
+            public StateModifier[] stateModifiers;
+            public int stateProvider;
+        }
+
+        internal DNFLogicDef(Clause[] clauses, LogicManager lm, string name, string infixSource) : base(name, infixSource)
+        {
+            this.clauses = clauses;
             this.lm = lm;
         }
 
         public DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)
         {
-            this.logic = other.logic;
-            this.clauseStateProviders = other.clauseStateProviders;
+            this.clauses = other.clauses;
             this.lm = other.lm;
         }
 
         public override bool CanGet(ProgressionManager pm)
         {
-            for (int j = 0; j < logic.Length; j++)
+            for (int j = 0; j < clauses.Length; j++)
             {
-                if (EvaluateClause(pm, j)) return true;
+                if (EvaluateClause(j, pm)) return true;
             }
             return false;
         }
 
-        private bool EvaluateClause(ProgressionManager pm, int j)
+        private bool EvaluateClause(int j, ProgressionManager pm)
         {
-            int[] clause = logic[j];
-            StateUnion? state = GetClauseInputState(pm, j);
+            StateUnion? state = GetClauseInputState(j, pm);
+            return EvaluateClauseLogic(j, pm, state) && EvaluateStateDiscard(j, pm, state);
+        }
+
+        public override List<State> EvaluateState(ProgressionManager pm)
+        {
+            List<State> states = new();
+            for (int j = 0; j < clauses.Length; j++)
+            {
+                StateUnion? input = GetClauseInputState(j, pm);
+                if (input is null || !EvaluateClauseLogic(j, pm, input)) continue;
+                StateModifier[] clause = clauses[j].stateModifiers;
+                if (clause.Length == 0)
+                {
+                    for (int i = 0; i < input.Count; i++) states.Add(input[i]);
+                }
+                else
+                {
+                    for (int k = 0; k < input.Count; k++)
+                    {
+                        EvaluateStateChangeRec(clause, 0, pm, states, new(input[k]));
+                    }
+                    EmptyEvaluateStateChangeRec(clause, 0, pm, states);
+                }
+            }
+            return states;
+        }
+
+        private bool EvaluateClauseLogic(int j, ProgressionManager pm, StateUnion? state)
+        {
+            int[] clause = clauses[j].logic;
 
             for (int i = 0; i < clause.Length; i++)
             {
@@ -78,55 +111,85 @@ namespace RandomizerCore.Logic
             return true;
         }
 
-        public override List<State> EvaluateState(ProgressionManager pm)
+        private bool EvaluateStateDiscard(int j, ProgressionManager pm, StateUnion? state)
         {
-            List<State> states = new();
-            for (int j = 0; j < logic.Length; j++)
+            StateModifier[] clause = clauses[j].stateModifiers;
+            if (clause.Length == 0)
             {
-                //Console.WriteLine($"{j}  " + DNF.ToInfix(ConvertClause(logic[j])));
+                return true;
             }
-
-
-            for (int j = 0; j < logic.Length; j++)
+            if (state is null)
             {
-                if (!EvaluateClause(pm, j)) continue;
-                StateUnion? input = GetClauseInputState(pm, j);
-                if (input is null) continue;
-                for (int k = 0; k < input.Count; k++)
-                {
-                    EvaluateStateChange(logic[j], 0, pm, states, new(input[k]));
-                }
-                //Console.WriteLine($"{j}  {pm.lm.StateManager.PrettyPrint(new StateUnion(states))}");
+                return false;
             }
-            return states;
+            for (int i = 0; i < state.Count; i++)
+            {
+                if (EvaluateStateDiscardRec(clause, 0, pm, new LazyStateBuilder(state[i]))) return true;
+            }
+            return EmptyEvaluateStateDiscardRec(clause, 0, pm);
         }
 
-        // Evaluates the effect of the clause from index i onwards on the lsb, and adds the result to the state list.
-        // If it produces a zero state, reduces the list to that state and returns true to allow shortcircuiting.
-        private void EvaluateStateChange(int[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
+        private bool EvaluateStateDiscardRec(StateModifier[] clause, int i, ProgressionManager pm, LazyStateBuilder lsb)
         {
-            for (; i < clause.Length; i++)
+            if (i == clause.Length)
             {
-                if (clause[i] < -99)
+                return true;
+            }
+
+            foreach (LazyStateBuilder lsb2 in clause[i].ModifyState(this, pm, lsb))
+            {
+                if (EvaluateStateDiscardRec(clause, i + 1, pm, lsb2)) return true;
+            }
+            return false;
+        }
+
+        private bool EmptyEvaluateStateDiscardRec(StateModifier[] clause, int i, ProgressionManager pm)
+        {
+            if (i == clause.Length)
+            {
+                return true;
+            }
+
+            if (clause[i].ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
+            {
+                foreach (LazyStateBuilder lsb2 in lsbs)
                 {
-                    switch (lm.GetVariable(clause[i]))
-                    {
-                        case StateModifyingVariable smv:
-                            if (!smv.ModifyState(this, pm, ref lsb)) return;
-                            break;
-                        case StateSplittingVariable ssv:
-                            if (ssv.ModifyState(this, pm, lsb) is IEnumerable<LazyStateBuilder> lsbs)
-                            {
-                                foreach (var lsb2 in lsbs)
-                                {
-                                    EvaluateStateChange(clause, i + 1, pm, states, lsb2);
-                                }
-                            }
-                            return;
-                    }
+                    if (EvaluateStateDiscardRec(clause, i + 1, pm, lsb2)) return true;
+                }
+                if (EmptyEvaluateStateDiscardRec(clause, i + 1, pm)) return true;
+            }
+            return false;
+        }
+
+        private void EvaluateStateChangeRec(StateModifier[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
+        {
+            if (i == clause.Length)
+            {
+                states.Add(lsb.GetState());
+                return;
+            }
+
+            foreach (LazyStateBuilder lsb2 in clause[i].ModifyState(this, pm, lsb))
+            {
+                EvaluateStateChangeRec(clause, i + 1, pm, states, lsb2);
+            }
+        }
+
+        private void EmptyEvaluateStateChangeRec(StateModifier[] clause, int i, ProgressionManager pm, List<State> states)
+        {
+            if (i == clause.Length)
+            {
+                return;
+            }
+
+            if (clause[i].ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
+            {
+                foreach (LazyStateBuilder lsb2 in lsbs)
+                {
+                    EvaluateStateChangeRec(clause, i, pm, states, lsb2);
                 }
             }
-            states.Add(lsb.GetState());
+            EmptyEvaluateStateChangeRec(clause, i + 1, pm, states);
         }
 
         private int EvaluateVariable(int id, ProgressionManager pm, StateUnion? state)
@@ -139,15 +202,15 @@ namespace RandomizerCore.Logic
             };
         }
 
-        private StateUnion? GetClauseInputState(ProgressionManager pm, int j)
+        private StateUnion? GetClauseInputState(int j, ProgressionManager pm)
         {
-            int inputID = clauseStateProviders[j];
+            int inputID = clauses[j].stateProvider;
             switch (inputID)
             {
                 case >= 0:
                     return pm.GetState(inputID);
-                case < -99:
-                    if (lm.GetVariable(inputID) is StateProviderVariable spv) return spv.GetInputState(this, pm);
+                case <= LogicManager.intVariableOffset:
+                    if (lm.GetVariable(inputID) is StateProvider spv) return spv.GetInputState(this, pm);
                     break;
             }
             return null;
@@ -155,9 +218,9 @@ namespace RandomizerCore.Logic
 
         public List<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
         {
-            for (int j = 0; j < logic.Length; j++)
+            for (int j = 0; j < clauses.Length; j++)
             {
-                if (EvaluateClause(pm, j)) return ConvertClause(logic[j]);
+                if (EvaluateClause(j, pm)) return ConvertClause(j);
             }
             return null;
         }
@@ -165,9 +228,9 @@ namespace RandomizerCore.Logic
         public List<List<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
         {
             List<List<TermToken>> successes = new();
-            for (int j = 0; j < logic.Length; j++)
+            for (int j = 0; j < clauses.Length; j++)
             {
-                if (EvaluateClause(pm, j)) successes.Add(ConvertClause(logic[j]));
+                if (EvaluateClause(j, pm)) successes.Add(ConvertClause(j));
             }
             return successes;
         }
@@ -202,29 +265,42 @@ namespace RandomizerCore.Logic
             }
         }
 
-        private List<TermToken> ConvertClause(int[] clause)
+        private TermToken ConvertToken(StateModifier sm)
+        {
+            return lm.LP.GetTermToken(sm.Name);
+        }
+
+        private List<TermToken> ConvertClause(int j)
         {
             List<TermToken> result = new();
-            for (int i = 0; i < clause.Length; i++)
+
+            Clause c = clauses[j];
+            for (int i = 0; i < c.logic.Length; i++)
             {
-                result.Add(ConvertToken(clause, ref i));
+                result.Add(ConvertToken(c.logic, ref i));
             }
+            for (int i = 0; i < c.stateModifiers.Length; i++)
+            {
+                result.Add(ConvertToken(c.stateModifiers[i]));
+            }
+
             return result;
         }
 
         public override IEnumerable<LogicToken> ToTokenSequence()
         {
-            return RPN.OperateOver(logic.Select(c => RPN.OperateOver(ConvertClause(c), OperatorToken.AND)), OperatorToken.OR);
+            return RPN.OperateOver(Enumerable.Range(0, clauses.Length).Select(j => RPN.OperateOver(ConvertClause(j), OperatorToken.AND)), OperatorToken.OR);
         }
 
         public override IEnumerable<Term> GetTerms()
         {
-            for (int j = 0; j < logic.Length; j++)
+            for (int j = 0; j < clauses.Length; j++)
             {
-                int[] clause = logic[j];
-                for (int i = 0; i < clause.Length; i++)
+                Clause c = clauses[j];
+                int[] logic = c.logic;
+                for (int i = 0; i < logic.Length; i++)
                 {
-                    switch (clause[i])
+                    switch (logic[i])
                     {
                         case (int)LogicOperators.NONE:
                         case (int)LogicOperators.ANY:
@@ -233,21 +309,26 @@ namespace RandomizerCore.Logic
                         case (int)LogicOperators.LT:
                         case (int)LogicOperators.EQ:
                             {
-                                int left = clause[++i];
+                                int left = logic[++i];
                                 if (left >= 0) yield return lm.GetTerm(left);
                                 else foreach (Term t in lm.GetVariable(left).GetTerms()) yield return t;
-                                int right = clause[++i];
+                                int right = logic[++i];
                                 if (right >= 0) yield return lm.GetTerm(right);
                                 else foreach (Term t in lm.GetVariable(right).GetTerms()) yield return t;
                             }
                             break;
                         default:
                             {
-                                if (clause[i] >= 0) yield return lm.GetTerm(clause[i]);
-                                else foreach (Term t in lm.GetVariable(clause[i]).GetTerms()) yield return t;
+                                if (logic[i] >= 0) yield return lm.GetTerm(logic[i]);
+                                else foreach (Term t in lm.GetVariable(logic[i]).GetTerms()) yield return t;
                             }
                             break;
                     }
+                }
+                StateModifier[] sms = c.stateModifiers;
+                for (int i = 0; i < sms.Length; i++)
+                {
+                    foreach (Term t in sms[i].GetTerms()) yield return t;
                 }
             }
         }

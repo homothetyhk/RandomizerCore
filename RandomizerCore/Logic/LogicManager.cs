@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RandomizerCore.Extensions;
 using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
@@ -301,34 +302,30 @@ namespace RandomizerCore.Logic
                 Expand(tokens);
                 _DNFConverter.Convert(tokens);
                 var res = _DNFConverter.Result;
-                int[][] logic = new int[res.Count][];
-                for (int j = 0; j < logic.Length; j++)
+                DNFLogicDef.Clause[] clauses = new DNFLogicDef.Clause[res.Count];
+                for (int j = 0; j < clauses.Length; j++)
                 {
                     _logicBuilder.Clear();
                     foreach (TermToken tt in res[j])
                     {
                         ApplyToken(_logicBuilder, tt);
                     }
-                    logic[j] = _logicBuilder.ToArray();
-                }
-                _logicBuilder.Clear();
-
-                int[] sources = new int[logic.Length];
-                for (int j = 0; j < logic.Length; j++)
-                {
-                    sources[j] = -1;
-                    int[] clause = logic[j];
-                    for (int i = 0; i < clause.Length; i++)
+                    int[] logic = _logicBuilder.Where(i => i > intVariableOffset || GetVariable(i) is not StateModifier).ToArray();
+                    StateModifier[] sms = _logicBuilder.Where(i => i <= intVariableOffset && GetVariable(i) is StateModifier).Select(i => (StateModifier)GetVariable(i)).ToArray();
+                    int source = -1;
+                    for (int i = 0; i < logic.Length; i++)
                     {
-                        if (clause[i] >= 0 && Terms[clause[i]].Type == TermType.State || clause[i] <= intVariableOffset && GetVariable(clause[i]) is StateProviderVariable)
+                        if (logic[i] >= 0 && Terms[logic[i]].Type == TermType.State || logic[i] <= intVariableOffset && GetVariable(logic[i]) is StateProvider)
                         {
-                            sources[j] = clause[i];
+                            source = logic[i];
                             break;
                         }
                     }
-                    // if (sources[j] == -1) Log($"Found conjunction with no source term in {name}: {DNF.ToInfix(res.GetRange(j, 1))}");
+                    clauses[j] = new() { logic = logic, stateModifiers = sms, stateProvider = source, };
                 }
-                return new(logic, sources, this, name, Infix.ToInfix(tokens));
+                clauses.StableSort((c1, c2) => c1.stateModifiers.Length - c2.stateModifiers.Length);
+                _logicBuilder.Clear();
+                return new(clauses, this, name, Infix.ToInfix(tokens));
             }
             catch (Exception e)
             {

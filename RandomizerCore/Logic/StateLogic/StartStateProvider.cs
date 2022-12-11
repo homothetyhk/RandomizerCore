@@ -1,9 +1,9 @@
 ﻿namespace RandomizerCore.Logic.StateLogic
 {
     /// <summary>
-    /// A <see cref="StateProviderVariable"/> which provides the start state.
+    /// A <see cref="StateProvider"/> which provides the start state.
     /// </summary>
-    public sealed class StartStateProvider : StateProviderVariable
+    public sealed class StartStateProvider : StateProvider
     {
         public override string Name => Prefix;
         public const string Prefix = "$START";
@@ -19,7 +19,7 @@
             return false;
         }
 
-        public override StateUnion? GetInputState(object sender, ProgressionManager pm)
+        public override StateUnion? GetInputState(object? sender, ProgressionManager pm)
         {
             return pm.lm.StateManager.StartStateSingleton;
         }

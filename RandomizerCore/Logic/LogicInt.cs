@@ -5,7 +5,7 @@
     /// </summary>
     public abstract class LogicInt : LogicVariable
     {
-        public abstract int GetValue(object sender, ProgressionManager pm);
+        public abstract int GetValue(object? sender, ProgressionManager pm);
     }
 
     /// <summary>
@@ -18,7 +18,7 @@
         public readonly int value;
 
         public override string Name => value.ToString();
-        public override int GetValue(object sender, ProgressionManager pm) => value;
+        public override int GetValue(object? sender, ProgressionManager pm) => value;
         public override IEnumerable<Term> GetTerms() => Enumerable.Empty<Term>();
     }
 }

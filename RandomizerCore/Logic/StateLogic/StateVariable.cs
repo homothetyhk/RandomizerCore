@@ -5,6 +5,6 @@
     /// </summary>
     public abstract class StateVariable : LogicVariable
     {
-        public abstract int GetValue(object sender, ProgressionManager pm, StateUnion? localState);
+        public abstract int GetValue(object? sender, ProgressionManager pm, StateUnion? localState);
     }
 }
