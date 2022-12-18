@@ -46,9 +46,10 @@ namespace RandomizerCore.Randomization
                 nameCounts.TryGetValue(p.Item.Name, out int value);
                 nameCounts[p.Item.Name] = value - 1;
             }
-            foreach (KeyValuePair<string, int> kvp in nameCounts)
+            if (nameCounts.Any(kvp => kvp.Value != 0))
             {
-                if (kvp.Value != 0) throw new ValidationException($"Improper item counts found in randomization group {group.Label}. Item {kvp.Key} was accounted for a net {kvp.Value} times");
+                throw new ValidationException($"Improper item counts found in plcaements for randomization group {group.Label}: " +
+                    $"nonzero net counts (requested minus placed) are {string.Join(", ", nameCounts.Where(kvp => kvp.Value != 0).Select(kvp => (kvp.Key, kvp.Value)))}");
             }
             nameCounts.Clear();
             foreach (IRandoLocation r in group.Locations)
@@ -61,9 +62,10 @@ namespace RandomizerCore.Randomization
                 nameCounts.TryGetValue(p.Location.Name, out int value);
                 nameCounts[p.Location.Name] = value - 1;
             }
-            foreach (KeyValuePair<string, int> kvp in nameCounts)
+            if (nameCounts.Any(kvp => kvp.Value != 0))
             {
-                if (kvp.Value != 0) throw new ValidationException($"Improper location counts found in randomization group {group.Label}. Location {kvp.Key} was accounted for a net {kvp.Value} times");
+                throw new ValidationException($"Improper location counts found in plcaements for randomization group {group.Label}: " +
+                    $"nonzero net counts (requested minus placed) are {string.Join(", ", nameCounts.Where(kvp => kvp.Value != 0).Select(kvp => (kvp.Key, kvp.Value)))}");
             }
         }
 

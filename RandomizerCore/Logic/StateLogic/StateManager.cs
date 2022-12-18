@@ -5,7 +5,11 @@ namespace RandomizerCore.Logic.StateLogic
 {
     public record StateBool(int Id, string Name) : StateField(Id, Name)
     {
-        public bool DefaultValue { get; init; }
+        public bool GetDefaultValue(StateManager sm)
+        {
+            if (sm.TryGetProperty(Name, DefaultValuePropertyName, out object? defaultValue) && defaultValue is bool b) return b;
+            return false;
+        }
         public override StateFieldType GetFieldType()
         {
             return StateFieldType.Bool;
@@ -13,7 +17,12 @@ namespace RandomizerCore.Logic.StateLogic
     }
     public record StateInt(int Id, string Name) : StateField(Id, Name)
     {
-        public int DefaultValue { get; init; }
+        public int GetDefaultValue(StateManager sm)
+        {
+            if (sm.TryGetProperty(Name, DefaultValuePropertyName, out object? defaultValue) && defaultValue is int i) return i;
+            return 0;
+        }
+
         public override StateFieldType GetFieldType()
         {
             return StateFieldType.Int;
@@ -21,7 +30,7 @@ namespace RandomizerCore.Logic.StateLogic
     }
     public abstract record StateField(int Id, string Name)
     {
-        public RawStateField ToRawStateDef() => new(Name, GetFieldType());
+        public const string DefaultValuePropertyName = "DefaultValue";
         public abstract StateFieldType GetFieldType();
         public static implicit operator int(StateField sf) => sf.Id;
     }
@@ -37,10 +46,14 @@ namespace RandomizerCore.Logic.StateLogic
     /// </summary>
     public class StateManager
     {
-        public readonly ReadOnlyCollection<StateBool> Bools;
-        public readonly ReadOnlyCollection<StateInt> Ints;
-        public readonly ReadOnlyDictionary<string, StateField> FieldLookup;
-        public readonly ReadOnlyDictionary<string, ReadOnlyCollection<StateField>> TagLookup;
+        public ReadOnlyCollection<StateBool> Bools { get; }
+        public ReadOnlyCollection<StateInt> Ints { get; }
+        public ReadOnlyDictionary<string, StateField> FieldLookup { get; }
+        public ReadOnlyDictionary<string, ReadOnlyCollection<StateField>> TagLookup { get; }
+        public ReadOnlyDictionary<string, ReadOnlyDictionary<string, object?>> FieldProperties { get; }
+        public ReadOnlyDictionary<string, State> NamedStates { get; }
+        public ReadOnlyDictionary<string, StateUnion> NamedStateUnions { get; }
+            
         private readonly StateBool[] _bools;
         private readonly StateInt[] _ints;
         private readonly Dictionary<string, StateField> _fieldLookup;
@@ -54,12 +67,15 @@ namespace RandomizerCore.Logic.StateLogic
         public StateManager(StateManagerBuilder builder)
         {
             _bools = builder.Bools.ToArray();
-            _ints = builder.Ints.ToArray();
-            _fieldLookup = new(builder.FieldLookup);
-            TagLookup = builder.GetImmutableTagList();
             Bools = new(_bools);
+            _ints = builder.Ints.ToArray();
             Ints = new(_ints);
+            _fieldLookup = new(builder.FieldLookup);
             FieldLookup = new(_fieldLookup);
+            TagLookup = new(builder.EnumerateTagLists().ToDictionary(p => p.tag, p => new ReadOnlyCollection<StateField>(p.Item2.ToArray())));
+            FieldProperties = new(builder.EnumeratePropertyLists().ToDictionary(p => p.Item1, p => new ReadOnlyDictionary<string, object?>(p.Item2.ToDictionary(q => q.Item1, q => q.Item2))));
+            NamedStates = new(builder.EnumerateNamedStates().ToDictionary(p => p.Item1, p => p.Item2.ToState(this)));
+            NamedStateUnions = new(builder.EnumerateNamedStateUnions().ToDictionary(p => p.Item1, p => new StateUnion(p.Item2.Select(s => s.ToState(this)).ToList())));
             StartState = CreateDefault();
             StartStateSingleton = new(StartState);
             Empty = StateUnion.Empty;
@@ -107,6 +123,34 @@ namespace RandomizerCore.Logic.StateLogic
             return value ?? Enumerable.Empty<StateField>();
         }
 
+        public bool TryGetProperty(string fieldName, string propertyName, out object? value)
+        {
+            if (FieldProperties.TryGetValue(fieldName, out ReadOnlyDictionary<string, object?> properties)
+                && properties.TryGetValue(propertyName, out value)) return true;
+            value = null;
+            return false;
+        }
+
+        public State? GetNamedState(string name)
+        {
+            return NamedStates[name];
+        }
+
+        public State GetNamedStateStrict(string name)
+        {
+            return GetNamedState(name) ?? throw new ArgumentException($"Named state {name} is not defined.");
+        }
+
+        public StateUnion? GetNamedStateUnion(string name)
+        {
+            return NamedStateUnions[name];
+        }
+
+        public StateUnion GetNamedStateUnionStrict(string name)
+        {
+            return GetNamedStateUnion(name) ?? throw new ArgumentException($"Named state union {name} is not defined.");
+        }
+
         public string PrettyPrint(State state)
         {
             _printer.Clear();
@@ -140,8 +184,21 @@ namespace RandomizerCore.Logic.StateLogic
         private State CreateDefault()
         {
             StateBuilder sb = new(this);
-            for (int i = 0; i < _bools.Length; i++) if (_bools[i].DefaultValue) sb.SetBool(i, true);
-            for (int i = 0; i < _ints.Length; i++) if (_ints[i].DefaultValue != 0) sb.SetInt(i, _ints[i].DefaultValue);
+            for (int i = 0; i < _bools.Length; i++)
+            {
+                if (Bools[i].GetDefaultValue(this))
+                {
+                    sb.SetBool(i, true);
+                }
+            }
+            for (int i = 0; i < _ints.Length; i++)
+            {
+                int j = Ints[i].GetDefaultValue(this);
+                if (j != 0)
+                {
+                    sb.SetInt(i, Ints[i].GetDefaultValue(this));
+                }
+            }
             return new(sb);
         }
 
