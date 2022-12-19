@@ -370,21 +370,7 @@ namespace RandomizerCore.Logic
                     break;
                 case JsonType.StateFields:
                     RawStateData rsd = JsonUtil.Deserialize<RawStateData>(jtr);
-                    if (rsd?.Fields != null)
-                    {
-                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Fields)
-                        {
-                            StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
-                            for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
-                        }
-                    }
-                    if (rsd?.Tags != null)
-                    {
-                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Tags)
-                        {
-                            StateManager.DefineOrAppendToTag(kvp.Key, kvp.Value);
-                        }
-                    }
+                    StateManager.AppendRawStateData(rsd);
                     break;
             }
         }
@@ -478,21 +464,7 @@ namespace RandomizerCore.Logic
                     break;
                 case JsonType.StateFields:
                     RawStateData rsd = t?.ToObject<RawStateData>();
-                    if (rsd?.Fields != null)
-                    {
-                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Fields)
-                        {
-                            StateFieldType fieldType = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
-                            for (int i = 0; i < kvp.Value.Count; i++) StateManager.GetOrAddField(kvp.Value[i], fieldType);
-                        }
-                    }
-                    if (rsd?.Tags != null)
-                    {
-                        foreach (KeyValuePair<string, List<string>> kvp in rsd.Tags)
-                        {
-                            StateManager.DefineOrAppendToTag(kvp.Key, kvp.Value);
-                        }
-                    }
+                    StateManager.AppendRawStateData(rsd);
                     break;
             }
         }

@@ -14,7 +14,6 @@ namespace RandomizerCore.Logic.StateLogic
         private readonly List<StateInt> _ints;
         private readonly Dictionary<string, StateField> _fieldLookup;
 
-        private readonly Dictionary<string, HashSet<StateField>> _tagLookup;
         private readonly Dictionary<string, Dictionary<string, object?>> _properties;
         private readonly Dictionary<string, PreState> _namedStates;
         private readonly Dictionary<string, List<PreState>> _namedStateUnions;
@@ -26,7 +25,6 @@ namespace RandomizerCore.Logic.StateLogic
             _ints = new();
             _fieldLookup = new();
             
-            _tagLookup = new();
             _properties = new();
             _namedStates = new();
             _namedStateUnions = new();
@@ -39,12 +37,17 @@ namespace RandomizerCore.Logic.StateLogic
         public StateManagerBuilder(StateManager sm)
         {
             _bools = new(sm.Bools);
-            _ints = new(sm.Ints);
-            _fieldLookup = new(sm.FieldLookup);
-            _tagLookup = sm.TagLookup.ToDictionary(kvp => kvp.Key, kvp => new HashSet<StateField>(kvp.Value));
             Bools = new(_bools);
+
+            _ints = new(sm.Ints);
             Ints = new(_ints);
+
+            _fieldLookup = new(sm.FieldLookup);
             FieldLookup = new(_fieldLookup);
+
+            _properties = sm.FieldProperties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToDictionary(p => p.Key, p => p.Value));
+            _namedStates = sm.NamedStates.ToDictionary(kvp => kvp.Key, kvp => new PreState(kvp.Value, sm));
+            _namedStateUnions = sm.NamedStateUnions.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(s => new PreState(s, sm)).ToList());
         }
 
         public StateManagerBuilder(StateManagerBuilder smb)
@@ -52,10 +55,13 @@ namespace RandomizerCore.Logic.StateLogic
             _bools = new(smb.Bools);
             _ints = new(smb.Ints);
             _fieldLookup = new(smb.FieldLookup);
-            _tagLookup = smb._tagLookup.ToDictionary(kvp => kvp.Key, kvp => new HashSet<StateField>(kvp.Value));
             Bools = new(_bools);
             Ints = new(_ints);
             FieldLookup = new(_fieldLookup);
+
+            _properties = smb._properties.ToDictionary(kvp => kvp.Key, kvp => new Dictionary<string, object?>(kvp.Value));
+            _namedStates = smb._namedStates.ToDictionary(kvp => kvp.Key, kvp => new PreState(kvp.Value));
+            _namedStateUnions = smb._namedStateUnions.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(s => new PreState(s)).ToList());
         }
 
         public StateBool GetOrAddBool(string name)
@@ -98,59 +104,6 @@ namespace RandomizerCore.Logic.StateLogic
             };
         }
 
-        public void DefineOrAppendToTag(string name, string fieldName)
-        {
-            if (!_tagLookup.TryGetValue(name, out HashSet<StateField> tagList))
-            {
-                _tagLookup.Add(name, tagList = new());
-            }
-            tagList.Add(FieldLookup[fieldName]);
-        }
-
-        public void DefineOrAppendToTag(string name, IEnumerable<string> fieldNames)
-        {
-            if (!_tagLookup.TryGetValue(name, out HashSet<StateField> tagList))
-            {
-                _tagLookup.Add(name, tagList = new());
-            }
-            tagList.UnionWith(fieldNames.Select(f => FieldLookup[f]));
-        }
-
-        public void DefineOrAppendToTag(string name, StateField field)
-        {
-            if (!_tagLookup.TryGetValue(name, out HashSet<StateField> tagList))
-            {
-                _tagLookup.Add(name, tagList = new());
-            }
-            tagList.Add(field);
-        }
-
-        public void DefineOrAppendToTag(string name, IEnumerable<StateField> fields)
-        {
-            if (!_tagLookup.TryGetValue(name, out HashSet<StateField> tagList))
-            {
-                _tagLookup.Add(name, tagList = new());
-            }
-            tagList.UnionWith(fields);
-        }
-
-        public bool TryGetTaggedFields(string name, out IEnumerable<StateField> taggedFields)
-        {
-            if (_tagLookup.TryGetValue(name, out HashSet<StateField> fieldSet))
-            {
-                taggedFields = fieldSet;
-                return true;
-            }
-
-            taggedFields = null;
-            return false;
-        }
-
-        public IEnumerable<(string tag, IEnumerable<StateField>)> EnumerateTagLists()
-        {
-            return _tagLookup.Select(kvp => (kvp.Key, (IEnumerable<StateField>)kvp.Value));
-        }
-
         public bool TryGetProperty(string fieldName, string propertyName, out object? propertyValue)
         {
             if(_properties.TryGetValue(fieldName, out Dictionary<string, object?> propertyLookup) && propertyLookup.TryGetValue(propertyName, out propertyValue))
@@ -161,7 +114,11 @@ namespace RandomizerCore.Logic.StateLogic
             return false;
         }
 
-        public void SetProperty(string fieldName, string propertyName, object? propertyValue)
+        /// <summary>
+        /// Sets the field's property to the specified value.
+        /// <br/>Data on the StateManager is expected to be immutable. The generic constraints are to encourage only using primitive types and enums as property values through this overload.
+        /// </summary>
+        public void SetProperty<T>(string fieldName, string propertyName, T propertyValue) where T : struct, IConvertible 
         {
             if (!_properties.TryGetValue(fieldName, out Dictionary<string, object?> propertyLookup))
             {
@@ -169,6 +126,27 @@ namespace RandomizerCore.Logic.StateLogic
             }
 
             propertyLookup[propertyName] = propertyValue;
+        }
+
+        /// <summary>
+        /// Sets the field's property to the specified value.
+        /// </summary>
+        public void SetProperty(string fieldName, string propertyName, string propertyValue)
+        {
+            if (!_properties.TryGetValue(fieldName, out Dictionary<string, object?> propertyLookup))
+            {
+                _properties.Add(fieldName, propertyLookup = new());
+            }
+
+            propertyLookup[propertyName] = propertyValue;
+        }
+
+        public void RemoveProperty(string fieldName, string propertyName)
+        {
+            if (_properties.TryGetValue(fieldName, out Dictionary<string, object?> propertyLookup))
+            {
+                propertyLookup.Remove(propertyName);
+            }
         }
 
         public IEnumerable<(string, IEnumerable<(string, object?)>)> EnumeratePropertyLists()
@@ -205,5 +183,45 @@ namespace RandomizerCore.Logic.StateLogic
         {
             return _namedStateUnions.Select(kvp => (kvp.Key, kvp.Value));
         }
+
+        public void AppendRawStateData(RawStateData? rsd)
+        {
+            if (rsd is null) return;
+
+            if (rsd.Fields is not null)
+            {
+                foreach (var kvp in rsd.Fields)
+                {
+                    StateFieldType type = (StateFieldType)Enum.Parse(typeof(StateFieldType), kvp.Key, true);
+                    foreach (string s in kvp.Value) GetOrAddField(s, type);
+                }
+            }
+
+            if (rsd.Properties is not null)
+            {
+                foreach (var kvp in rsd.Properties)
+                {
+                    if (!_properties.TryGetValue(kvp.Key, out Dictionary<string, object?> propertyLookup))
+                    {
+                        _properties.Add(kvp.Key, propertyLookup = new());
+                    }
+                    foreach (var kvp2 in kvp.Value)
+                    {
+                        propertyLookup[kvp2.Key] = kvp2.Value;
+                    }
+                }
+            }
+
+            if (rsd.NamedStates is not null)
+            {
+                foreach (var kvp in rsd.NamedStates) _namedStates[kvp.Key] = new(kvp.Value);
+            }
+
+            if (rsd.NamedStateUnions is not null)
+            {
+                foreach (var kvp in rsd.NamedStateUnions) _namedStateUnions[kvp.Key] = new(kvp.Value.Select(s => new PreState(s)));
+            }
+        }
+
     }
 }

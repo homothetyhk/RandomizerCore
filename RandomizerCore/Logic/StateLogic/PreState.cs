@@ -28,6 +28,11 @@
                 }
             }
         }
+        public PreState(PreState other)
+        {
+            ModifiedBoolFields = new(other.ModifiedBoolFields);
+            ModifiedIntFields = new(other.ModifiedIntFields);
+        }
 
 
         public bool GetBool(string fieldName) => ModifiedBoolFields.TryGetValue(fieldName, out bool value) ? value : false;
