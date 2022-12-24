@@ -138,27 +138,21 @@ namespace RandomizerCore.Logic
             return obtained.GetValue(id) >= threshold;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Gt(int id, int threshold)
-        {
-            return obtained.GetValue(id) > threshold;
-        }
+        /// <summary>
+        /// Returns true if the value at the index is greater than or equal to the threshold.
+        /// </summary>
+        public bool Has(TermValue tv) => Has(tv.Term, tv.Value);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Lt(int id, int threshold)
-        {
-            return obtained.GetValue(id) < threshold;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Eq(int id, int threshold)
-        {
-            return obtained.GetValue(id) == threshold;
-        }
 
         public void Add(ILogicItem item)
         {
             item.AddTo(this);
+            AfterAddItem?.Invoke(item);
+        }
+
+        public void AddLocationDependentEffect(ILocationDependentItem item, ILogicDef loc)
+        {
+            item.Place(this, loc);
             AfterAddItem?.Invoke(item);
         }
 

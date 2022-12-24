@@ -2,8 +2,9 @@
 
 namespace RandomizerCore
 {
-    // There is special behavior for IRandoLocations which implement additional interfaces.
-    // An IRandoLocation which is an ILogicItem receives waypoint-like treatment in some update entries: when CanGet returns true, it may be added to the pm.
+    /// <summary>
+    /// Interface for locations to be managed by the randomizer.
+    /// </summary>
     public interface IRandoLocation : ILogicDef
     {
         /// <summary>

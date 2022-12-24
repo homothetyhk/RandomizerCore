@@ -11,7 +11,7 @@
             threshold = amount;
         }
 
-        public override bool CanGet(ProgressionManager pm) => pm.Has(term.Id, threshold);
+        public override bool CanGet(ProgressionManager pm) => pm.Has(term, threshold);
         public override IEnumerable<Term> GetTerms()
         {
             yield return term;

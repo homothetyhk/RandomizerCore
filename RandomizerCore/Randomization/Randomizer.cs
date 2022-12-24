@@ -56,7 +56,6 @@ namespace RandomizerCore.Randomization
                 catch (UnreachableLocationException e)
                 {
                     rm.SendError(e);
-                    LogDebug(e.GetVerboseMessage());
                     Reset();
                 }
             }
@@ -151,7 +150,7 @@ namespace RandomizerCore.Randomization
                 {
                     pm.Add(g.Items);
                     IndeterminateLocation il = new(lm, g);
-                    foreach (IRandoItem item in g.Items) if (item is ILocationDependentItem ildi) ildi.Place(pm, il);
+                    foreach (IRandoItem item in g.Items) if (item is ILocationDependentItem ildi) pm.AddLocationDependentEffect(ildi, il);
                 }
             }
 

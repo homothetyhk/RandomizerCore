@@ -115,7 +115,7 @@ namespace RandomizerCore.Randomization
                     Parent.reachable.Add(Location);
                     Parent.OnFind();
                     Location.Reachable = TempState.Temporary;
-                    if (Location is ILogicItem i) pm.Add(i);
+                    if (Location is ILocationWaypoint ilw) pm.Add(ilw.GetReachableEffect());
                 }
             }
 

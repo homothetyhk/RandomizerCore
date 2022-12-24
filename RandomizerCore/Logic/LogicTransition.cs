@@ -3,7 +3,7 @@ using RandomizerCore.Logic.StateLogic;
 
 namespace RandomizerCore.Logic
 {
-    public class LogicTransition : ILogicItem, ILogicDef, ILocationDependentItem
+    public class LogicTransition : ILogicItem, ILogicDef, ILocationDependentItem, ILocationWaypoint
     {
         [JsonConstructor]
         public LogicTransition(StateLogicDef logic, Term term)
@@ -49,6 +49,11 @@ namespace RandomizerCore.Logic
             {
                 pm.mu.LinkState(rt.lt.term, term);
             }
+        }
+
+        public ILogicItem GetReachableEffect()
+        {
+            return this;
         }
     }
 }

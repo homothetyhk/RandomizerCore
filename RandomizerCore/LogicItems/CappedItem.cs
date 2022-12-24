@@ -6,11 +6,11 @@ namespace RandomizerCore.LogicItems
     {
         public override void AddTo(ProgressionManager pm)
         {
-            if (!pm.Has(Cap.Term.Id, Cap.Value))
+            if (!pm.Has(Cap))
             {
                 for (int i = 0; i < Effects.Length; i++)
                 {
-                    pm.Incr(Effects[i].Term.Id, Effects[i].Value);
+                    pm.Incr(Effects[i]);
                 }
             }
         }

@@ -8,14 +8,14 @@ namespace RandomizerCore.LogicItems
         {
             for (int i = 0; i < Effects.Length; i++)
             {
-                pm.Incr(Effects[i].Term.Id, Effects[i].Value);
+                pm.Incr(Effects[i]);
             }
         }
         public void RemoveFrom(ProgressionManager pm)
         {
             for (int i = 0; i < Effects.Length; i++)
             {
-                pm.Incr(Effects[i].Term.Id, -Effects[i].Value);
+                pm.Incr(Effects[i].Term, -Effects[i].Value);
             }
         }
 

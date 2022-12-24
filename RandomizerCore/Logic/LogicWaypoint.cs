@@ -18,10 +18,10 @@ namespace RandomizerCore.Logic
             switch (term.Type)
             {
                 case TermType.State:
-                    if (pm.GetState(term.Id) is null) pm.SetState(term.Id, new(logic.EvaluateState(pm)));
+                    if (pm.GetState(term) is null) pm.SetState(term, new(logic.EvaluateState(pm)));
                     break;
                 default:
-                    pm.Set(term.Id, 1);
+                    pm.Set(term, 1);
                     break;
             }
         }

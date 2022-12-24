@@ -6,12 +6,12 @@ namespace RandomizerCore.LogicItems
     {
         public override void AddTo(ProgressionManager pm)
         {
-            pm.Incr(Effect.Term.Id, Effect.Value);
+            pm.Incr(Effect);
         }
 
         public void RemoveFrom(ProgressionManager pm)
         {
-            pm.Incr(Effect.Term.Id, -Effect.Value);
+            pm.Incr(Effect.Term, -Effect.Value);
         }
 
         public override IEnumerable<Term> GetAffectedTerms()

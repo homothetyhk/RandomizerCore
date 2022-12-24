@@ -40,11 +40,26 @@ namespace RandomizerCore.Logic
             this.Id = Id | GetTypeMask(Type);
             this.Name = Name ?? throw new ArgumentNullException(nameof(Name));
             this.Type = Type;
+            this.Index = GetIndex(Id);
         }
 
+        /// <summary>
+        /// A unique int identifier for the term. The index and type of the term can be recovered from the id using static methods on Term.
+        /// </summary>
         public readonly int Id;
+        /// <summary>
+        /// The name of the term.
+        /// </summary>
         public readonly string Name;
+        /// <summary>
+        /// The type of the term.
+        /// </summary>
         public readonly TermType Type;
+        /// <summary>
+        /// The index of the term, among terms of its type. Terms of different type may share the same index.
+        /// </summary>
+        public readonly int Index;
+
         public override string ToString() => Name;
 
         public static implicit operator int(Term term)

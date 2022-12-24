@@ -26,13 +26,13 @@
         public override void OnAdd(ProgressionManager pm)
         {
             pm.Add(item);
-            if (location is ILogicItem li)
+            if (location is ILocationWaypoint ilw)
             {
-                pm.Add(li);
+                pm.Add(ilw.GetReachableEffect());
             }
-            if (item is ILocationDependentItem ildri)
+            if (item is ILocationDependentItem ildi)
             {
-                ildri.Place(pm, location);
+                pm.AddLocationDependentEffect(ildi, location);
             }
         }
 

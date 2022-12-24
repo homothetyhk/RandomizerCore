@@ -21,14 +21,14 @@
 
         public void SendError(Exception e)
         {
-            OnError?.Invoke(e);
             SendEvent(RandoEventType.Error, e?.ToString());
+            OnError?.Invoke(e);
         }
 
         public void SendEvent(RandoEventType type, string message = null)
         {
-            if (type == RandoEventType.NewAttempt) OnNewAttempt?.Invoke();
             OnSendEvent?.Invoke(type, message);
+            if (type == RandoEventType.NewAttempt) OnNewAttempt?.Invoke();
         }
 
         public void SendMessage(string message) => SendEvent(RandoEventType.Info, message);

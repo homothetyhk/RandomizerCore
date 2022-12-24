@@ -1,5 +1,8 @@
 ﻿namespace RandomizerCore
 {
+    /// <summary>
+    /// Interface for items to be managed by the randomizer.
+    /// </summary>
     public interface IRandoItem : ILogicItem
     {
         /// <summary>

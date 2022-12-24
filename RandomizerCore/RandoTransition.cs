@@ -11,7 +11,7 @@ namespace RandomizerCore
         OneWayOut
     }
 
-    public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple, ILocationDependentItem
+    public class RandoTransition : IRandoItem, IRandoLocation, IRandoCouple, ILocationDependentItem, ILocationWaypoint
     {
         public readonly LogicTransition lt;
 
@@ -89,6 +89,8 @@ namespace RandomizerCore
                 pm.mu.LinkState(rt.lt.term, this.lt.term);
             }
         }
+
+        public ILogicItem GetReachableEffect() => this;
     }
 
 }

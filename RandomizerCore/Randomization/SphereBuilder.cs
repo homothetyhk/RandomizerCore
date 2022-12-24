@@ -145,7 +145,7 @@ namespace RandomizerCore.Randomization
                         (IRandoItem ri, IRandoLocation rl) = placements[i][j];
                         if (ri is ILocationDependentItem ildi)
                         {
-                            ildi.Place(pm, rl);
+                            pm.AddLocationDependentEffect(ildi, rl);
                         }
                     }
                 }
@@ -298,7 +298,15 @@ namespace RandomizerCore.Randomization
                     }
 
                     // Nothing found by audit, so this is the last step, and we output all remaining items, unlocking no locations
-                    selector.Finish(out placed);
+                    try
+                    {
+                        selector.Finish(out placed);
+                    }
+                    catch (OutOfLocationsException oole)
+                    {
+                        throw new OutOfLocationsException("Ran out of locations on final step", oole);
+                    }
+                    
                     pm.SaveTempItems();
                     return;
                 }
@@ -314,7 +322,15 @@ namespace RandomizerCore.Randomization
                 if (!rt.FoundNew) throw new InvalidOperationException("Decide deleted necessary transition?!?!");
             }
 
-            selector.FinishAccepting(out placed);
+            try
+            {
+                selector.FinishAccepting(out placed);
+            }
+            catch (OutOfLocationsException oole)
+            {
+                throw new OutOfLocationsException($"Used too many locations to unlock {string.Join(", ", rt.FindNonreachableLocations().SelectMany(l => l.Select(rl => rl.Name)))}" , oole);
+            }
+
             pm.SaveTempItems();
             return;
 
