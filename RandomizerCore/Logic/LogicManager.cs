@@ -237,6 +237,50 @@ namespace RandomizerCore.Logic
             return CreateDNFLogicDef(def);
         }
 
+        /// <summary>
+        /// Parses infix logic which should take progression data and a single state as input.
+        /// </summary>
+        public SingleStateLogic CreateSingleStateLogic(RawLogicDef def)
+        {
+            return CreateSingleStateLogic(def.name, new LogicClause(def.logic));
+        }
+
+        public SingleStateLogic CreateSingleStateLogic(string name, LogicClause c)
+        {
+            List<int> logic = new();
+            try
+            {
+                for (int i = 0; i < c.Count; i++)
+                {
+                    ApplyToken(logic, c[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Error in processing logic for {name}.", e);
+            }
+
+            for (int i = 0; i < logic.Count; i++) // SSRPNL is read backwards, so comparison ops should be after their args
+            {
+                switch (logic[i])
+                {
+                    case (int)LogicOperators.GT:
+                    case (int)LogicOperators.LT:
+                    case (int)LogicOperators.EQ:
+                        {
+                            int op = logic[i];
+                            logic[i] = logic[i + 1];
+                            logic[i + 1] = logic[i + 2];
+                            logic[i + 2] = op;
+                            i += 2;
+                        }
+                        break;
+                }
+            }
+
+            return new SingleStateRPNLogic(name, logic.ToArray(), this, c.ToInfix());
+        }
+
         public RPNLogicDef CreateRPNLogicDef(RawLogicDef def)
         {
             return Process(def);
