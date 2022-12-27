@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
 {
-
-
     public class ProgressionManager
     {
         private readonly ProgressionData obtained;
@@ -143,19 +141,37 @@ namespace RandomizerCore.Logic
         /// </summary>
         public bool Has(TermValue tv) => Has(tv.Term, tv.Value);
 
-
+        /// <summary>
+        /// Applies the effect of the item, then invokes AfterAddItem.
+        /// </summary>
         public void Add(ILogicItem item)
         {
             item.AddTo(this);
             AfterAddItem?.Invoke(item);
         }
 
+        /// <summary>
+        /// Applies the effect of the item, and any location-dependent effects, then invokes AfterAddItem.
+        /// </summary>
+        public void Add(ILogicItem item, ILogicDef loc)
+        {
+            item.AddTo(this);
+            if (item is ILocationDependentItem ildi) ildi.Place(this, loc);
+            AfterAddItem?.Invoke(item);
+        }
+
+        /// <summary>
+        /// Applies only the location-dependent effects of the item, then invokes AfterAddItem.
+        /// </summary>
         public void AddLocationDependentEffect(ILocationDependentItem item, ILogicDef loc)
         {
             item.Place(this, loc);
             AfterAddItem?.Invoke(item);
         }
 
+        /// <summary>
+        /// Applies the effects of all items in the sequence, then invokes AfterAddRange.
+        /// </summary>
         public void Add(IEnumerable<ILogicItem> items)
         {
             foreach (var item in items)

@@ -14,7 +14,7 @@ namespace RandomizerCore.Json
             JObject lm = JObject.Load(reader);
             lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>(serializer);
             lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>(serializer);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.StateFields, lm[nameof(StateManager)]);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.StateData, lm[nameof(StateManager)]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]);

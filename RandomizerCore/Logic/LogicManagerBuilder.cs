@@ -283,7 +283,7 @@ namespace RandomizerCore.Logic
             MacroEdit,
             LogicSubst,
             ItemTemplates,
-            StateFields,
+            StateData,
         }
 
         public void DeserializeJson(JsonType type, string s)
@@ -368,7 +368,7 @@ namespace RandomizerCore.Logic
                         AddTemplateItem(template);
                     }
                     break;
-                case JsonType.StateFields:
+                case JsonType.StateData:
                     RawStateData rsd = JsonUtil.Deserialize<RawStateData>(jtr);
                     StateManager.AppendRawStateData(rsd);
                     break;
@@ -462,7 +462,7 @@ namespace RandomizerCore.Logic
                         AddTemplateItem(template);
                     }
                     break;
-                case JsonType.StateFields:
+                case JsonType.StateData:
                     RawStateData rsd = t?.ToObject<RawStateData>();
                     StateManager.AppendRawStateData(rsd);
                     break;
