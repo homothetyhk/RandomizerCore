@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
 {
@@ -27,8 +28,19 @@ namespace RandomizerCore.Logic
                 variable = new ConstantInt(value);
                 return true;
             }
-            if (StartStateProvider.TryMatch(lm, term, out variable)) return true;
-            if (StateAccessVariable.TryMatch(lm, term, out variable)) return true;
+            switch (term)
+            {
+                case "TRUE":
+                case "ANY":
+                    variable = new ConstantBool(term, true);
+                    return true;
+                case "FALSE":
+                case "NONE":
+                    variable = new ConstantBool(term, false);
+                    return true;
+            }
+            if (DefaultStateProvider.TryMatch(lm, term, out variable)) return true;
+            if (StateFieldAccessor.TryMatch(lm, term, out variable)) return true;
 
             #pragma warning disable CS0618 // Type or member is obsolete
             if (TryMatch(lm, term, out LogicInt @int))

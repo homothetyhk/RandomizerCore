@@ -21,4 +21,19 @@
         public override int GetValue(object? sender, ProgressionManager pm) => value;
         public override IEnumerable<Term> GetTerms() => Enumerable.Empty<Term>();
     }
+
+    internal sealed class ConstantBool : LogicInt
+    {
+        public override string Name { get; }
+        public readonly bool value;
+
+        public ConstantBool(string name, bool value)
+        {
+            Name = name;
+            this.value = value;
+        }
+
+        public override int GetValue(object? sender, ProgressionManager pm) => value ? TRUE : FALSE;
+        public override IEnumerable<Term> GetTerms() => Enumerable.Empty<Term>();
+    }
 }

@@ -18,7 +18,7 @@ namespace RandomizerCore.Logic
         internal struct Clause
         {
             public int[] logic;
-            public StateModifier[] stateModifiers;
+            public int[] stateLogic;
             public int stateProvider;
         }
 
@@ -56,7 +56,7 @@ namespace RandomizerCore.Logic
             {
                 StateUnion? input = GetClauseInputState(j, pm);
                 if (input is null || !EvaluateClauseLogic(j, pm, input)) continue;
-                StateModifier[] clause = clauses[j].stateModifiers;
+                int[] clause = clauses[j].stateLogic;
                 if (clause.Length == 0)
                 {
                     for (int i = 0; i < input.Count; i++) states.Add(input[i]);
@@ -113,7 +113,7 @@ namespace RandomizerCore.Logic
 
         private bool EvaluateStateDiscard(int j, ProgressionManager pm, StateUnion? state)
         {
-            StateModifier[] clause = clauses[j].stateModifiers;
+            int[] clause = clauses[j].stateLogic;
             if (clause.Length == 0)
             {
                 return true;
@@ -129,28 +129,50 @@ namespace RandomizerCore.Logic
             return EmptyEvaluateStateDiscardRec(clause, 0, pm);
         }
 
-        private bool EvaluateStateDiscardRec(StateModifier[] clause, int i, ProgressionManager pm, LazyStateBuilder lsb)
+        private bool EvaluateStateDiscardRec(int[] clause, int i, ProgressionManager pm, LazyStateBuilder lsb)
         {
             if (i == clause.Length)
             {
                 return true;
             }
 
-            foreach (LazyStateBuilder lsb2 in clause[i].ModifyState(this, pm, lsb))
+            int id = clause[i];
+            if (id < -99)
             {
-                if (EvaluateStateDiscardRec(clause, i + 1, pm, lsb2)) return true;
+                foreach (LazyStateBuilder lsb2 in ((StateModifier)lm.GetVariable(id)).ModifyState(this, pm, lsb))
+                {
+                    if (EvaluateStateDiscardRec(clause, i + 1, pm, lsb2)) return true;
+                }
             }
+            else
+            {
+                LogicOperators op = (LogicOperators)id;
+                int left = EvaluateStateVariable(clause[i + 1], pm, lsb);
+                int right = EvaluateStateVariable(clause[i + 1], pm, lsb);
+                if (op switch
+                {
+                    LogicOperators.GT => left > right,
+                    LogicOperators.LT => left < right,
+                    LogicOperators.EQ => left == right,
+                    _ => false
+                })
+                {
+                    if (EvaluateStateDiscardRec(clause, i + 3, pm, lsb)) return true;
+                }
+            }
+            
             return false;
         }
 
-        private bool EmptyEvaluateStateDiscardRec(StateModifier[] clause, int i, ProgressionManager pm)
+        private bool EmptyEvaluateStateDiscardRec(int[] clause, int i, ProgressionManager pm)
         {
             if (i == clause.Length)
             {
                 return true;
             }
 
-            if (clause[i].ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
+            int id = clause[i];
+            if (id < -99 && ((StateModifier)lm.GetVariable(id)).ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
             {
                 foreach (LazyStateBuilder lsb2 in lsbs)
                 {
@@ -158,10 +180,11 @@ namespace RandomizerCore.Logic
                 }
                 if (EmptyEvaluateStateDiscardRec(clause, i + 1, pm)) return true;
             }
+
             return false;
         }
 
-        private void EvaluateStateChangeRec(StateModifier[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
+        private void EvaluateStateChangeRec(int[] clause, int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
         {
             if (i == clause.Length)
             {
@@ -169,20 +192,41 @@ namespace RandomizerCore.Logic
                 return;
             }
 
-            foreach (LazyStateBuilder lsb2 in clause[i].ModifyState(this, pm, lsb))
+            int id = clause[i];
+            if (id < -99)
             {
-                EvaluateStateChangeRec(clause, i + 1, pm, states, lsb2);
+                foreach (LazyStateBuilder lsb2 in  ((StateModifier)lm.GetVariable(id)).ModifyState(this, pm, lsb))
+                {
+                    EvaluateStateChangeRec(clause, i + 1, pm, states, lsb2);
+                }
             }
+            else
+            {
+                LogicOperators op = (LogicOperators)id;
+                int left = EvaluateStateVariable(id + 1, pm, lsb);
+                int right = EvaluateStateVariable(id + 2, pm, lsb);
+                if (op switch
+                {
+                    LogicOperators.GT => left > right,
+                    LogicOperators.LT => left < right,
+                    LogicOperators.EQ => left == right,
+                    _ => false
+                })
+                {
+                    EvaluateStateChangeRec(clause, i + 3, pm, states, lsb);
+                }
+            }   
         }
 
-        private void EmptyEvaluateStateChangeRec(StateModifier[] clause, int i, ProgressionManager pm, List<State> states)
+        private void EmptyEvaluateStateChangeRec(int[] clause, int i, ProgressionManager pm, List<State> states)
         {
             if (i == clause.Length)
             {
                 return;
             }
 
-            if (clause[i].ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
+            int id = clause[i];
+            if (((StateModifier)lm.GetVariable(id)).ProvideState(this, pm) is IEnumerable<LazyStateBuilder> lsbs)
             {
                 foreach (LazyStateBuilder lsb2 in lsbs)
                 {
@@ -197,7 +241,18 @@ namespace RandomizerCore.Logic
             return lm.GetVariable(id) switch
             {
                 LogicInt li => li.GetValue(this, pm),
-                StateVariable sv => sv.GetValue(this, pm, state),
+                _ => 0,
+            };
+        }
+
+        private int EvaluateStateVariable(int id, ProgressionManager pm, LazyStateBuilder state)
+        {
+            if (id >= 0) return pm.Get(id);
+
+            return lm.GetVariable(id) switch
+            {
+                LogicInt li => li.GetValue(this, pm),
+                StateAccessVariable sav => sav.GetValue(this, pm, state),
                 _ => 0,
             };
         }
@@ -279,9 +334,9 @@ namespace RandomizerCore.Logic
             {
                 result.Add(ConvertToken(c.logic, ref i));
             }
-            for (int i = 0; i < c.stateModifiers.Length; i++)
+            for (int i = 0; i < c.stateLogic.Length; i++)
             {
-                result.Add(ConvertToken(c.stateModifiers[i]));
+                result.Add(ConvertToken(c.logic, ref i));
             }
 
             return result;
@@ -325,10 +380,33 @@ namespace RandomizerCore.Logic
                             break;
                     }
                 }
-                StateModifier[] sms = c.stateModifiers;
-                for (int i = 0; i < sms.Length; i++)
+                logic = c.stateLogic;
+                for (int i = 0; i < logic.Length; i++)
                 {
-                    foreach (Term t in sms[i].GetTerms()) yield return t;
+                    switch (logic[i])
+                    {
+                        case (int)LogicOperators.NONE:
+                        case (int)LogicOperators.ANY:
+                            continue;
+                        case (int)LogicOperators.GT:
+                        case (int)LogicOperators.LT:
+                        case (int)LogicOperators.EQ:
+                            {
+                                int left = logic[++i];
+                                if (left >= 0) yield return lm.GetTerm(left);
+                                else foreach (Term t in lm.GetVariable(left).GetTerms()) yield return t;
+                                int right = logic[++i];
+                                if (right >= 0) yield return lm.GetTerm(right);
+                                else foreach (Term t in lm.GetVariable(right).GetTerms()) yield return t;
+                            }
+                            break;
+                        default:
+                            {
+                                if (logic[i] >= 0) yield return lm.GetTerm(logic[i]);
+                                else foreach (Term t in lm.GetVariable(logic[i]).GetTerms()) yield return t;
+                            }
+                            break;
+                    }
                 }
             }
         }

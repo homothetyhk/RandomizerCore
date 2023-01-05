@@ -59,8 +59,8 @@ namespace RandomizerCore.Logic.StateLogic
 
         private readonly Dictionary<string, object> _printer = new();
 
-        public readonly State StartState;
-        public readonly StateUnion StartStateSingleton;
+        public readonly State DefaultState;
+        public readonly StateUnion DefaultStateSingleton;
         public readonly StateUnion Empty;
 
         public StateManager(StateManagerBuilder builder)
@@ -74,8 +74,8 @@ namespace RandomizerCore.Logic.StateLogic
             FieldProperties = new(builder.EnumeratePropertyLists().ToDictionary(p => p.Item1, p => new ReadOnlyDictionary<string, object?>(p.Item2.ToDictionary(q => q.Item1, q => q.Item2))));
             NamedStates = new(builder.EnumerateNamedStates().ToDictionary(p => p.Item1, p => p.Item2.ToState(this)));
             NamedStateUnions = new(builder.EnumerateNamedStateUnions().ToDictionary(p => p.Item1, p => new StateUnion(p.Item2.Select(s => s.ToState(this)).ToList())));
-            StartState = CreateDefault();
-            StartStateSingleton = new(StartState);
+            DefaultState = CreateDefault();
+            DefaultStateSingleton = new(DefaultState);
             Empty = StateUnion.Empty;
         }
 
@@ -135,7 +135,7 @@ namespace RandomizerCore.Logic.StateLogic
 
         public State? GetNamedState(string name)
         {
-            return NamedStates[name];
+            return NamedStates.TryGetValue(name, out State s) ? s : null;
         }
 
         public State GetNamedStateStrict(string name)
@@ -145,7 +145,7 @@ namespace RandomizerCore.Logic.StateLogic
 
         public StateUnion? GetNamedStateUnion(string name)
         {
-            return NamedStateUnions[name];
+            return NamedStateUnions.TryGetValue(name, out StateUnion s) ? s : null;
         }
 
         public StateUnion GetNamedStateUnionStrict(string name)

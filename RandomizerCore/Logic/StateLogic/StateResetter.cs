@@ -36,13 +36,31 @@
             properties = ps.ToArray();
         }
 
-
-        public override IEnumerable<LazyStateBuilder> ModifyState(object? sender, ProgressionManager pm, LazyStateBuilder state)
+        /// <summary>
+        /// For a StateResetter, returns the empty sequence, unless overridden by a derived class.
+        /// </summary>
+        public override IEnumerable<LazyStateBuilder>? ProvideState(object? sender, ProgressionManager pm)
         {
-            yield return OptIn ? ResetOptIn(pm, state) : ResetOptOut(pm, state);
+            return Enumerable.Empty<LazyStateBuilder>();
         }
 
-        public LazyStateBuilder ResetOptOut(ProgressionManager pm, LazyStateBuilder orig)
+        /// <summary>
+        /// For a StateResetter, returns a singleton containing the result of ResetSingle, unless overridden by a derived class.
+        /// </summary>
+        public override IEnumerable<LazyStateBuilder> ModifyState(object? sender, ProgressionManager pm, LazyStateBuilder state)
+        {
+            yield return ResetSingle(pm, state);
+        }
+
+        /// <summary>
+        /// Applies the result of resetting the state towards the ResetState, accounting for the OptIn and conditional reset properties for this resetter.
+        /// </summary>
+        protected LazyStateBuilder ResetSingle(ProgressionManager pm, LazyStateBuilder state)
+        {
+            return OptIn ? ResetOptIn(pm, state) : ResetOptOut(pm, state);
+        }
+
+        private LazyStateBuilder ResetOptOut(ProgressionManager pm, LazyStateBuilder orig)
         {
             LazyStateBuilder lsb = new(ResetState);
 
@@ -64,7 +82,7 @@
             return lsb;
         }
 
-        public LazyStateBuilder ResetOptIn(ProgressionManager pm, LazyStateBuilder orig)
+        private LazyStateBuilder ResetOptIn(ProgressionManager pm, LazyStateBuilder orig)
         {
             State s = orig.GetState();
             LazyStateBuilder lsb = new(s);

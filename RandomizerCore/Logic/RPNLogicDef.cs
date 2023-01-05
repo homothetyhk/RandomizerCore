@@ -118,7 +118,6 @@ namespace RandomizerCore.Logic
             return lm.GetVariable(id) switch
             {
                 LogicInt li => li.GetValue(this, pm),
-                StateVariable sv => sv.GetValue(this, pm, StateUnion.Empty),
                 _ => 0,
             };
         }

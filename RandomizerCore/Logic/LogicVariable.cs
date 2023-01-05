@@ -4,7 +4,7 @@ namespace RandomizerCore.Logic
 {
     /// <summary>
     /// Terms in logic which require external computation. Cast to a derived class to evaluate.
-    /// Main subclasses are currently <see cref="LogicInt"/> and <see cref="StateVariable"/>.
+    /// Main subclasses are currently <see cref="LogicInt"/> and <see cref="StateModifier"/>.
     /// </summary>
     public abstract class LogicVariable
     {

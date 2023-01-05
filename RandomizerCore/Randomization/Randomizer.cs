@@ -101,7 +101,6 @@ namespace RandomizerCore.Randomization
 
         private void InitializeUpdater(MainUpdater mu)
         {
-            mu.Clear();
             mu.AddWaypoints(lm.Waypoints);
             mu.AddTransitions(lm.TransitionLookup.Values);
             mu.AddPlacements(ctx.EnumerateExistingPlacements());

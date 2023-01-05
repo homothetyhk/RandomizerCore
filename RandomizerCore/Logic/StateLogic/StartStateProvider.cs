@@ -3,16 +3,16 @@
     /// <summary>
     /// A <see cref="StateProvider"/> which provides the start state.
     /// </summary>
-    public sealed class StartStateProvider : StateProvider
+    public sealed class DefaultStateProvider : StateProvider
     {
         public override string Name => Prefix;
-        public const string Prefix = "$START";
+        public const string Prefix = "$DEFAULTSTATE";
 
         public static bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
         {
             if (term == Prefix)
             {
-                variable = new StartStateProvider();
+                variable = new DefaultStateProvider();
                 return true;
             }
             variable = default;
@@ -21,7 +21,7 @@
 
         public override StateUnion? GetInputState(object? sender, ProgressionManager pm)
         {
-            return pm.lm.StateManager.StartStateSingleton;
+            return pm.lm.StateManager.DefaultStateSingleton;
         }
 
         public override IEnumerable<Term> GetTerms()

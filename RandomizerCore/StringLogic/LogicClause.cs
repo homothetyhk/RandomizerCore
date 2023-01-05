@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace RandomizerCore.StringLogic
 {
@@ -32,7 +33,7 @@ namespace RandomizerCore.StringLogic
     /// <summary>
     /// An immutable representation of a boolean circuit, consisting of tokens in RPN order.
     /// </summary>
-    public class LogicClause
+    public class LogicClause : IReadOnlyList<LogicToken>
     {
         public readonly ReadOnlyCollection<LogicToken> Tokens;
 
@@ -141,6 +142,11 @@ namespace RandomizerCore.StringLogic
         public IEnumerator<LogicToken> GetEnumerator()
         {
             return ((IEnumerable<LogicToken>)Tokens).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

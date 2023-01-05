@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
+﻿using System.Collections.ObjectModel;
 
 namespace RandomizerCore.StringLogic
 {
@@ -55,6 +53,8 @@ namespace RandomizerCore.StringLogic
             Arguments = lcb.Arguments;
         }
 
+        public LogicClauseBuilder(string infix) : this(Infix.Tokenize(infix)) { }
+
         public void OrWith(IEnumerable<LogicToken> ts)
         {
             Append(ts);
@@ -82,6 +82,8 @@ namespace RandomizerCore.StringLogic
             Append(OperatorToken.OR);
         }
 
+        public void OrWith(string infix) => OrWith(Infix.Tokenize(infix));
+
         public void AndWith(IEnumerable<LogicToken> ts)
         {
             Append(ts);
@@ -108,6 +110,54 @@ namespace RandomizerCore.StringLogic
             Append(lcb);
             Append(OperatorToken.AND);
         }
+
+        public void AndWith(string infix) => AndWith(Infix.Tokenize(infix));
+
+        public void AndWithLeft(TermToken t)
+        {
+            if (!Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+            _tokens.Insert(0, t);
+            _tokens.Add(OperatorToken.AND);
+        }
+
+        public void AndWithLeft(LogicClause c)
+        {
+            if (!Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+             _tokens.InsertRange(0, c);
+            _tokens.Add(OperatorToken.AND);
+        }
+
+        public void AndWithLeft(LogicClauseBuilder lcb)
+        {
+            if (!Complete || !lcb.Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+            _tokens.InsertRange(0, lcb._tokens);
+            _tokens.Add(OperatorToken.AND);
+        }
+
+        public void AndWithLeft(string infix) => AndWithLeft(new LogicClauseBuilder(infix));
+
+        public void OrWithLeft(TermToken t)
+        {
+            if (!Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+            _tokens.Insert(0, t);
+            _tokens.Add(OperatorToken.OR);
+        }
+
+        public void OrWithLeft(LogicClause c)
+        {
+            if (!Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+            _tokens.InsertRange(0, c);
+            _tokens.Add(OperatorToken.OR);
+        }
+
+        public void OrWithLeft(LogicClauseBuilder lcb)
+        {
+            if (!Complete || !lcb.Complete) throw new InvalidOperationException("Prepend operations require a complete expression.");
+            _tokens.InsertRange(0, lcb._tokens);
+            _tokens.Add(OperatorToken.OR);
+        }
+
+        public void OrWithLeft(string infix) => OrWithLeft(new LogicClauseBuilder(infix));
 
         public void Append(LogicToken lt)
         {
@@ -154,6 +204,8 @@ namespace RandomizerCore.StringLogic
             _tokens.AddRange(lcb._tokens);
             Arguments += lcb.Arguments;
         }
+
+        public void Append(string infix) => Append(Infix.Tokenize(infix));
 
         /// <summary>
         /// Reduces ConstTokens from the expression.
