@@ -82,6 +82,8 @@ namespace RandomizerCore.Randomization
             }
             if (sb != null)
             {
+                sb.AppendLine();
+                sb.AppendLine(pm.Dump());
                 throw new ValidationException(sb.ToString());
             }
         }

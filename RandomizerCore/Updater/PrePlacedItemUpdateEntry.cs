@@ -36,14 +36,9 @@
             }
         }
 
-        public override void OnRemove(ProgressionManager pm)
-        {
-            return; // the pm handles removal via restriction
-        }
-
         public override string ToString()
         {
-            return $"PPMUE: {item.Name} at {location.Name}";
+            return $"PPMUE: {item.Name} at {location.Name}, state: {state}";
         }
 
     }

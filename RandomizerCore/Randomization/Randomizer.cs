@@ -23,6 +23,7 @@ namespace RandomizerCore.Randomization
             this.rng = rng;
             stagedPlacements = new();
             pm = new(lm, ctx);
+            InitializeUpdater(pm.mu);
             foreach (RandomizationStage stage in stages)
             {
                 foreach (RandomizationGroup group in stage.groups)
@@ -42,7 +43,6 @@ namespace RandomizerCore.Randomization
                     rm.SendEvent(RandoEventType.NewAttempt);
                     InitializeStages();
                     PermuteAll();
-                    InitializeUpdater(pm.mu);
                     for (int i = 0; i < stages.Length - 1; i++) RandomizeForward(i, TempState.Temporary);
                     Randomize(stages.Length - 1, TempState.Permanent);
                     for (int i = stages.Length - 2; i >= 0; i--) Rerandomize(i, TempState.Permanent);
@@ -138,6 +138,7 @@ namespace RandomizerCore.Randomization
         // Finishes by adding a new entry to the stagedPlacements list.
         private void RandomizeForward(int index, TempState state)
         {
+            rm.SendBeginStage(stages[index].label, index, state);
             for (int i = 0; i < stagedPlacements.Count; i++)
             {
                 foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) pm.mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
@@ -166,6 +167,7 @@ namespace RandomizerCore.Randomization
         // Finishes by adding a new entry to the stagedPlacements list.
         private void Randomize(int index, TempState state)
         {
+            rm.SendBeginStage(stages[index].label, index, state);
             for (int i = 0; i < stagedPlacements.Count; i++)
             {
                 foreach (List<RandoPlacement> m in stagedPlacements[i]) foreach (RandoPlacement n in m) pm.mu.AddEntry(new PrePlacedItemUpdateEntry(n.Item, n.Location));
@@ -184,6 +186,7 @@ namespace RandomizerCore.Randomization
         // Finishes by overwriting the entry with the given index in stagedPlacements.
         private void Rerandomize(int index, TempState state)
         {
+            rm.SendBeginStage(stages[index].label, index, state);
             ResetStage(stages[index]);
             for (int i = 0; i < stagedPlacements.Count; i++)
             {

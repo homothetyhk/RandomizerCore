@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.Logic
 {
-    public class StateUpdateEntry : UpdateEntry
+    public class StateUpdateEntry : UpdateEntryBase
     {
         public StateUpdateEntry(Term term, StateLogicDef logic)
         {
@@ -37,32 +37,38 @@ namespace RandomizerCore.Logic
         public readonly StateLogicDef logic;
         public readonly Term term;
         public readonly StateSetter stateSetter;
-
-        public override bool CanGet(ProgressionManager pm)
-        {
-            return logic.CanGet(pm);
-        }
+        private readonly List<State> stateAccumulator = new();
 
         public override IEnumerable<Term> GetTerms()
         {
             return logic.GetTerms();
         }
 
-        public override void OnAdd(ProgressionManager pm)
+        public override void Update(ProgressionManager pm, int updateTerm)
         {
             StateUnion? state = pm.GetState(term);
-
-            if (logic.CheckForUpdatedState(pm, state, out StateUnion newState))
+            stateAccumulator.Clear();
+            if (logic.CheckForUpdatedState(pm, state, stateAccumulator, updateTerm, out StateUnion newState))
             {
                 stateSetter.value = newState;
                 pm.Add(stateSetter);
             }
         }
 
-        public override void OnRemove(ProgressionManager pm)
+        public override void Update(ProgressionManager pm)
         {
+            StateUnion? state = pm.GetState(term);
+            stateAccumulator.Clear();
+            if (logic.CheckForUpdatedState(pm, state, stateAccumulator, out StateUnion newState))
+            {
+                stateSetter.value = newState;
+                pm.Add(stateSetter);
+            }
+            else if (state is null && logic.CanGet(pm))
+            {
+                stateSetter.value = pm.lm.StateManager.Empty;
+                pm.Add(stateSetter);
+            }
         }
-
-        public override bool alwaysUpdate => true;
     }
 }

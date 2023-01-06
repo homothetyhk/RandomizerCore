@@ -3,7 +3,7 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore.Updater
 {
-    public class StateTransmittingUpdateEntry : UpdateEntry
+    public class StateTransmittingUpdateEntry : UpdateEntryBase
     {
         public StateTransmittingUpdateEntry(Term source, Term target)
         {
@@ -38,20 +38,15 @@ namespace RandomizerCore.Updater
         public readonly Term target;
         public readonly StateSetter stateSetter;
 
-        public override bool CanGet(ProgressionManager pm)
-        {
-            return true;
-        }
 
         public override IEnumerable<Term> GetTerms()
         {
             yield return source;
         }
 
-        public override void OnAdd(ProgressionManager pm)
+        public override void Update(ProgressionManager pm)
         {
             StateUnion? state = pm.GetState(target);
-
             StateUnion? newState = pm.GetState(source);
 
             if (newState is null || newState.Count == 0 && state is not null) return;
@@ -67,10 +62,9 @@ namespace RandomizerCore.Updater
             }
         }
 
-        public override void OnRemove(ProgressionManager pm)
+        public override void Update(ProgressionManager pm, int updateTerm)
         {
+            Update(pm);
         }
-
-        public override bool alwaysUpdate => true;
     }
 }

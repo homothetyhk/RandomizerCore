@@ -2,16 +2,18 @@
 {
     /// <summary>
     /// Struct wrapper for a <see cref="State"/> or <see cref="StateBuilder"/>, which delays creating a <see cref="StateBuilder"/> until a mutating operation is requested.
+    /// Note that this is a mutable struct. Pass it by ref to or return it from methods which perform mutating operations to ensure the effects of those operations are not lost.
     /// </summary>
     public struct LazyStateBuilder : IState
     {
+        private IState state;
+
         /// <summary>
         /// Wraps the State as a LazyStateBuilder, which delays creating a StateBuilder until a mutating operation is requested.
         /// </summary>
         public LazyStateBuilder(State orig)
         {
-            this.orig = orig;
-            current = null;
+            this.state = orig;
         }
 
         /// <summary>
@@ -19,8 +21,7 @@
         /// </summary>
         public LazyStateBuilder(StateBuilder current)
         {
-            this.orig = null;
-            this.current = new(current);
+            this.state = new StateBuilder(current);
         }
 
         /// <summary>
@@ -28,21 +29,18 @@
         /// </summary>
         public LazyStateBuilder(LazyStateBuilder other)
         {
-            this.orig = other.orig;
-            if (other.current is not null) this.current = new(other.current);
-            else this.current = null;
+            this.state = other.state is StateBuilder sb ? new StateBuilder(sb) : other.state;
         }
 
-        private readonly State orig;
-        private StateBuilder current;
+        public readonly bool GetBool(int id) => state.GetBool(id);
+        public readonly int GetInt(int id) => state.GetInt(id);
 
-        public readonly bool GetBool(int id) => current is null ? orig.GetBool(id) : current.GetBool(id);
-        public readonly int GetInt(int id) => current is null ? orig.GetInt(id) : current.GetInt(id);
-
-
-        public StateBuilder GetStateBuilder()
+        private StateBuilder Builder
         {
-            return current ??= new(orig);
+            get
+            {
+                return state as StateBuilder ?? (StateBuilder)(state = new StateBuilder((State)state));
+            }
         }
 
         /// <summary>
@@ -51,8 +49,7 @@
         public void SetBool(int id, bool value)
         {
             if (GetBool(id) == value) return;
-            if (current is null) GetStateBuilder();
-            current.SetBool(id, value);
+            Builder.SetBool(id, value);
         }
 
         /// <summary>
@@ -61,8 +58,7 @@
         public void SetInt(int id, int value)
         {
             if (GetInt(id) == value) return;
-            if (current is null) GetStateBuilder();
-            current.SetInt(id, value);
+            Builder.SetInt(id, value);
         }
 
         /// <summary>
@@ -70,8 +66,7 @@
         /// </summary>
         public void Increment(int id, int incr)
         {
-            if (current is null) GetStateBuilder();
-            current.Increment(id, incr);
+            Builder.Increment(id, incr);
         }
 
         /// <summary>
@@ -79,12 +74,9 @@
         /// </summary>
         public bool TrySetBoolTrue(int id)
         {
-            if (current is null)
-            {
-                if (orig.GetBool(id)) return false;
-                GetStateBuilder();
-            }
-            return current.TrySetBoolTrue(id);
+            if (GetBool(id)) return false;
+            Builder.SetBool(id, true);
+            return true;
         }
 
         /// <summary>
@@ -92,12 +84,10 @@
         /// </summary>
         public bool TryIncrement(int id, int incr, int maxValue)
         {
-            if (current is null)
-            {
-                if (orig.GetInt(id) > maxValue - incr) return false;
-                GetStateBuilder();
-            }
-            return current.TryIncrement(id, incr, maxValue);
+            int amt = GetInt(id);
+            if (amt > maxValue - incr) return false;
+            Builder.SetInt(id, amt + incr);
+            return true;
         }
 
         /// <summary>
@@ -105,45 +95,43 @@
         /// </summary>
         public bool TrySetIntToValue(int id, int value)
         {
-            if (current is null)
-            {
-                if (orig.GetInt(id) > value) return false;
-                GetStateBuilder();
-            }
-            return current.TrySetIntToValue(id, value);
+            if (GetInt(id) > value) return false;
+            SetInt(id, value);
+            return true;
         }
 
         /// <summary>
         /// If the instance wraps a <see cref="StateBuilder"/>, creates a <see cref="State"/> from the builder. If the instance wraps a <see cref="State"/>, returns that state.
+        /// Since creating a State from a StateBulder is destructive, this method should also be considered destructive, and the LazyStateBuilder should not be subsequently accessed.
         /// </summary>
         public readonly State GetState()
         {
-            return current is null ? orig : new(current);
+            return state is State s ? s : new State((StateBuilder)state);
         }
 
         public static bool IsComparablyLE(LazyStateBuilder left, State right)
         {
-            return left.current is null ? State.IsComparablyLE(left.orig, right) : StateBuilder.IsComparablyLE(left.current, right);
+            return left.state is State s ? State.IsComparablyLE(s, right) : StateBuilder.IsComparablyLE((StateBuilder)left.state, right);
         }
 
         public static bool IsComparablyLE(LazyStateBuilder left, StateBuilder right)
         {
-            return left.current is null ? StateBuilder.IsComparablyLE(left.orig, right) : StateBuilder.IsComparablyLE(left.current, right);
+            return left.state is State s ? StateBuilder.IsComparablyLE(s, right) : StateBuilder.IsComparablyLE((StateBuilder)left.state, right);
         }
 
         public static bool IsComparablyLE(State left, LazyStateBuilder right)
         {
-            return right.current is null ? State.IsComparablyLE(left, right.orig) : StateBuilder.IsComparablyLE(left, right.current);
+            return right.state is State s ? State.IsComparablyLE(left, s) : StateBuilder.IsComparablyLE(left, (StateBuilder)right.state);
         }
 
         public static bool IsComparablyLE(StateBuilder left, LazyStateBuilder right)
         {
-            return right.current is null ? StateBuilder.IsComparablyLE(left, right.orig) : StateBuilder.IsComparablyLE(left, right.current);
+            return right.state is State s ? StateBuilder.IsComparablyLE(left, s) : StateBuilder.IsComparablyLE(left, (StateBuilder)right.state);
         }
 
         public static bool IsComparablyLE(LazyStateBuilder left, LazyStateBuilder right)
         {
-            return left.current is null ? IsComparablyLE(left.orig, right) : IsComparablyLE(left.current, right);
+            return left.state is State s ? IsComparablyLE(s, right) : IsComparablyLE((StateBuilder)left.state, right);
         }
     }
 }

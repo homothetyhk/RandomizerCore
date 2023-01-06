@@ -18,8 +18,7 @@ namespace RandomizerCore.Logic
             switch (term.Type)
             {
                 case TermType.State:
-                    if (pm.GetState(term) is null) pm.SetState(term, new(logic.EvaluateState(pm)));
-                    break;
+                    break; // handled by StateUpdateEntry in the MainUpdater
                 default:
                     pm.Set(term, 1);
                     break;

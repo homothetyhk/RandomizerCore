@@ -10,8 +10,8 @@ namespace RandomizerCore.Logic
     {
         public event Action OnReset;
 
-        readonly TermIndexedCollection<List<UpdateEntry>> entriesByTerm;
-        readonly List<UpdateEntry> individualEntries;
+        readonly TermIndexedCollection<List<UpdateEntryBase>> entriesByTerm;
+        readonly List<UpdateEntryBase> individualEntries;
         readonly List<PMHook> pmHooks;
 
         readonly ProgressionManager pm;
@@ -60,8 +60,8 @@ namespace RandomizerCore.Logic
 
         public MainUpdater(LogicManager lm, ProgressionManager pm)
         {
-            entriesByTerm = TermIndexedCollection<List<UpdateEntry>>.CreatePopulated<List<UpdateEntry>>(lm.Terms);
-            individualEntries = new List<UpdateEntry>(2000);
+            entriesByTerm = TermIndexedCollection<List<UpdateEntryBase>>.CreatePopulated<List<UpdateEntryBase>>(lm.Terms);
+            individualEntries = new List<UpdateEntryBase>(2000);
             this.pm = pm;
             updates = new HashQueue<int>(lm.Terms.Count);
             addEntryHelper = new HashSet<int>(lm.Terms.Count);
@@ -120,7 +120,7 @@ namespace RandomizerCore.Logic
             longTermRevertPoint.Apply(this);
         }
 
-        public void AddEntry(UpdateEntry entry)
+        public void AddEntry(UpdateEntryBase entry)
         {
             foreach (Term term in entry.GetTerms())
             {
@@ -132,7 +132,7 @@ namespace RandomizerCore.Logic
             individualEntries.Add(entry);
             addEntryHelper.Clear();
 
-            if (active) DoUpdateEntry(entry);
+            if (active) entry.Update(pm);
         }
 
         public void AddPMHook(PMHook hook)
@@ -224,23 +224,10 @@ namespace RandomizerCore.Logic
 
         public void DoUpdate(int term)
         {
-            List<UpdateEntry> l = entriesByTerm[term];
+            List<UpdateEntryBase> l = entriesByTerm[term];
             for (int i = 0; i < l.Count; i++)
             {
-                DoUpdateEntry(l[i]);
-            }
-        }
-
-        public void DoUpdateEntry(UpdateEntry entry)
-        {
-            if (entry.state == TempState.None && entry.CanGet(pm))
-            {
-                entry.state = pm.Temp ? TempState.Temporary : TempState.Permanent;
-                entry.OnAdd(pm);
-            }
-            else if (entry.alwaysUpdate && entry.CanGet(pm))
-            {
-                entry.OnAdd(pm);
+                l[i].Update(pm, term);
             }
         }
 
@@ -248,47 +235,14 @@ namespace RandomizerCore.Logic
         {
             for (int i = 0; i < individualEntries.Count; i++)
             {
-                DoUpdateEntry(individualEntries[i]);
+                individualEntries[i].Update(pm);
             }
-        }
-
-        public void OnRemove()
-        {
-            foreach (var entry in individualEntries)
-            {
-                if (entry.state == TempState.Temporary)
-                {
-                    entry.state = TempState.None;
-                    entry.OnRemove(pm);
-                }
-            }
-            shortTermRevertPoint.Apply(this);
         }
 
         public void OnEndTemp(bool saved)
         {
-            if (!saved)
-            {
-                foreach (var entry in individualEntries)
-                {
-                    if (entry.state == TempState.Temporary)
-                    {
-                        entry.state = TempState.None;
-                        entry.OnRemove(pm);
-                    }
-                }
-                shortTermRevertPoint.Apply(this);
-            }
-            else
-            {
-                foreach (var entry in individualEntries)
-                {
-                    if (entry.state == TempState.Temporary)
-                    {
-                        entry.state = TempState.Permanent;
-                    }
-                }
-            }
+            foreach (var e in individualEntries) e.OnEndTemp(pm, saved);
+            if (!saved) shortTermRevertPoint.Apply(this);
         }
 
         /// <summary>
@@ -298,10 +252,9 @@ namespace RandomizerCore.Logic
         {
             StopUpdating();
             OnReset?.Invoke();
-            foreach (UpdateEntry entry in individualEntries)
+            foreach (UpdateEntryBase entry in individualEntries)
             {
                 entry.Reset();
-                entry.state = TempState.None;
             }
         }
 
@@ -311,22 +264,74 @@ namespace RandomizerCore.Logic
         public void Clear()
         {
             individualEntries.Clear();
-            foreach (List<UpdateEntry> list in entriesByTerm) list.Clear();
+            foreach (List<UpdateEntryBase> list in entriesByTerm) list.Clear();
             OnReset = null;
         }
 
     }
 
-    public abstract class UpdateEntry
+    public abstract class UpdateEntryBase
+    {
+        public abstract IEnumerable<Term> GetTerms();
+
+        public abstract void Update(ProgressionManager pm, int updateTerm);
+        public abstract void Update(ProgressionManager pm);
+        public virtual void Reset() { }
+        public virtual void OnEndTemp(ProgressionManager pm, bool saved) { }
+    }
+
+    public abstract class UpdateEntry : UpdateEntryBase
     {
         public bool obtained => state != TempState.None;
         public TempState state;
         public virtual bool alwaysUpdate => false;
+        public override void Update(ProgressionManager pm)
+        {
+            if (!obtained && CanGet(pm))
+            {
+                state = pm.Temp ? TempState.Temporary : TempState.Permanent;
+                OnAdd(pm);
+            }
+            else if (alwaysUpdate && CanGet(pm))
+            {
+                OnAdd(pm);
+            }
+        }
+        public override void Update(ProgressionManager pm, int updateTerm)
+        {
+            if (!obtained && CanGet(pm))
+            {
+                state = pm.Temp ? TempState.Temporary : TempState.Permanent;
+                OnAdd(pm);
+            }
+            else if (alwaysUpdate && CanGet(pm))
+            {
+                OnAdd(pm);
+            }
+        }
         public abstract bool CanGet(ProgressionManager pm);
-        public abstract IEnumerable<Term> GetTerms();
         public abstract void OnAdd(ProgressionManager pm);
+        public override void Reset()
+        {
+            state = TempState.None;
+        }
+        public override void OnEndTemp(ProgressionManager pm, bool saved)
+        {
+            if (state == TempState.Temporary)
+            {
+                if (!saved)
+                {
+                    state = TempState.None;
+                    OnRemove(pm);
+                }
+                else
+                {
+                    state = TempState.Permanent;
+                }
+            }
+        }
+
         public virtual void OnRemove(ProgressionManager pm) { }
-        public virtual void Reset() { }
     }
 
     public abstract class PMHook

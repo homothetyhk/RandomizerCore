@@ -411,7 +411,7 @@ namespace RandomizerCore.Logic
                             break;
                         }
                     }
-                    clauses[j] = new() { logic = logic.ToArray(), stateLogic = stateLogic.ToArray(), stateProvider = source, };
+                    clauses[j] = new(logic.ToArray(), stateLogic.ToArray(), source);
                 }
                 clauses.StableSort((c1, c2) => c1.stateLogic.Length - c2.stateLogic.Length);
                 _logicBuilder.Clear();
