@@ -42,16 +42,16 @@ namespace RandomizerCore.Json
             serializer.Serialize(writer, value.Variables);
 
             writer.WritePropertyName("Logic");
-            serializer.Serialize(writer, value.LogicLookup.Values.Select(l => new RawLogicDef(l.Name, l.ToInfix())));
+            serializer.Serialize(writer, value.LogicLookup.Values.Select(l => new RawLogicDef(l.Name, l.InfixSource)));
 
             writer.WritePropertyName("Items");
             serializer.Serialize(writer, value.ItemLookup.Values);
 
             writer.WritePropertyName("Transitions");
-            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => new RawLogicDef(t.Name, t.logic.ToInfix())));
+            serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => new RawLogicDef(t.Name, t.logic.InfixSource)));
 
             writer.WritePropertyName("Waypoints");
-            serializer.Serialize(writer, value.Waypoints.Select(w => new RawWaypointDef(w.Name, w.logic.ToInfix(), stateless: value.GetTerm(w.Name).Type != TermType.State)));
+            serializer.Serialize(writer, value.Waypoints.Select(w => new RawWaypointDef(w.Name, w.logic.InfixSource, stateless: value.GetTerm(w.Name).Type != TermType.State)));
 
             writer.WritePropertyName(nameof(value.LP));
             serializer.Serialize(writer, value.LP, typeof(LogicProcessor));

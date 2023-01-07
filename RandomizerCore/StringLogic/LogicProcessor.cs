@@ -1,4 +1,7 @@
-﻿namespace RandomizerCore.StringLogic
+﻿using Newtonsoft.Json;
+using System.Collections.ObjectModel;
+
+namespace RandomizerCore.StringLogic
 {
     public class LogicProcessor : ITokenSource, IMacroSource
     {
@@ -15,10 +18,23 @@
         private readonly Dictionary<string, LogicToken> tokenPool;
         private readonly Dictionary<string, LogicClause> macros;
 
+        [JsonIgnore] public readonly ReadOnlyDictionary<string, LogicToken> TokenPool;
+        [JsonIgnore] public readonly ReadOnlyDictionary<string, LogicClause> Macros;
+        [JsonProperty("macros")] private Dictionary<string, string> __macros => Macros?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToInfix());
+
         public LogicProcessor() 
         {
             tokenPool = new();
             macros = new();
+
+            TokenPool = new(tokenPool);
+            Macros = new(macros);
+        }
+
+        [JsonConstructor]
+        public LogicProcessor(Dictionary<string, string> macros) : this()
+        {
+            SetMacro(macros);
         }
 
         public LogicProcessor(LogicProcessor source)

@@ -21,7 +21,7 @@ namespace RandomizerCore.Logic
             public readonly int[] logic;
             public readonly int[] stateLogic;
             public readonly int stateProvider;
-            private StateLogicDef? parent;
+            private DNFLogicDef? parent;
 
             public Clause(int[] logic, int[] stateLogic, int stateProvider)
             {
@@ -30,7 +30,7 @@ namespace RandomizerCore.Logic
                 this.stateProvider = stateProvider;
             }
 
-            internal void SetParent(StateLogicDef parent) => this.parent = parent;
+            internal void SetParent(DNFLogicDef parent) => this.parent = parent;
 
             public bool EvaluateLogic(ProgressionManager pm)
             {
@@ -148,7 +148,7 @@ namespace RandomizerCore.Logic
 
                 return false;
             }
-
+            
             private bool EmptyEvaluateStateDiscardRec(int i, ProgressionManager pm)
             {
                 if (i == stateLogic.Length)
@@ -220,8 +220,6 @@ namespace RandomizerCore.Logic
                 }
                 return EmptyEvaluateStateChangeRec(i + 1, pm, states);
             }
-
-
 
             private int EvaluateStateVariable(int id, ProgressionManager pm, LazyStateBuilder state)
             {
@@ -307,6 +305,50 @@ namespace RandomizerCore.Logic
                     }
                 }
             }
+
+            private static TermToken ConvertToken(LogicManager lm, int[] arr, ref int i)
+            {
+                int id = arr[i];
+                switch (id)
+                {
+                    case >= 0:
+                        return lm.LP.GetTermToken(lm.Terms[id].Name);
+                    case (int)LogicOperators.ANY:
+                        return ConstToken.True;
+                    case (int)LogicOperators.NONE:
+                        return ConstToken.False;
+                    case (int)LogicOperators.AND:
+                        throw new NotSupportedException();
+                    case (int)LogicOperators.EQ or (int)LogicOperators.LT or (int)LogicOperators.GT:
+                        LogicOperators op = (LogicOperators)id;
+                        id = arr[++i];
+                        string left = id >= 0 ? lm.GetTerm(id).Name : lm.GetVariable(id).Name;
+                        id = arr[++i];
+                        string right = id >= 0 ? lm.GetTerm(id).Name : lm.GetVariable(id).Name;
+                        return op switch
+                        {
+                            LogicOperators.EQ => lm.LP.GetComparisonToken(ComparisonType.EQ, left, right),
+                            LogicOperators.LT => lm.LP.GetComparisonToken(ComparisonType.LT, left, right),
+                            _ => lm.LP.GetComparisonToken(ComparisonType.GT, left, right),
+                        };
+                    default:
+                        return lm.LP.GetTermToken(lm.GetVariable(id).Name);
+                }
+            }
+
+            public IEnumerable<TermToken> ToTermTokenSequence(LogicManager lm)
+            {
+                for (int i = 0; i < logic.Length; i++)
+                {
+                    yield return ConvertToken(lm, logic, ref i);
+                }
+                for (int i = 0; i < stateLogic.Length; i++)
+                {
+                    yield return ConvertToken(lm, stateLogic, ref i);
+                }
+            }
+
+            public IEnumerable<LogicToken> ToTokenSequence(LogicManager lm) => RPN.OperateOver(ToTermTokenSequence(lm), OperatorToken.AND);
         }
 
         internal DNFLogicDef(Clause[] clauses, LogicManager lm, string name, string infixSource) : base(name, infixSource)
@@ -389,75 +431,26 @@ namespace RandomizerCore.Logic
             else return StateUnion.TryUnion(current, newStates, out result);
         }
 
-        public List<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
+        public IEnumerable<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
         {
             for (int j = 0; j < clauses.Length; j++)
             {
-                if (clauses[j].EvaluateClause(pm)) return ConvertClause(j);
+                if (clauses[j].EvaluateClause(pm)) return clauses[j].ToTermTokenSequence(lm);
             }
             return null;
         }
 
-        public List<List<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
+        public IEnumerable<IEnumerable<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
         {
-            List<List<TermToken>> successes = new();
             for (int j = 0; j < clauses.Length; j++)
             {
-                if (clauses[j].EvaluateClause(pm)) successes.Add(ConvertClause(j));
+                if (clauses[j].EvaluateClause(pm)) yield return clauses[j].ToTermTokenSequence(lm);
             }
-            return successes;
-        }
-
-        private TermToken ConvertToken(int[] clause, ref int i)
-        {
-            int id = clause[i];
-            switch (id)
-            {
-                case >= 0:
-                    return lm.LP.GetTermToken(lm.Terms[id].Name);
-                case (int)LogicOperators.ANY:
-                    return ConstToken.True;
-                case (int)LogicOperators.NONE:
-                    return ConstToken.False;
-                case (int)LogicOperators.AND:
-                    throw new NotSupportedException();
-                case (int)LogicOperators.EQ or (int)LogicOperators.LT or (int)LogicOperators.GT:
-                    LogicOperators op = (LogicOperators)id;
-                    id = clause[++i];
-                    string left = id >= 0 ? lm.GetTerm(id).Name : lm.GetVariable(id).Name;
-                    id = clause[++i];
-                    string right = id >= 0 ? lm.GetTerm(id).Name : lm.GetVariable(id).Name;
-                    return op switch
-                    {
-                        LogicOperators.EQ => lm.LP.GetComparisonToken(ComparisonType.EQ, left, right),
-                        LogicOperators.LT => lm.LP.GetComparisonToken(ComparisonType.LT, left, right),
-                        _ => lm.LP.GetComparisonToken(ComparisonType.GT, left, right),
-                    };
-                default:
-                    return lm.LP.GetTermToken(lm.GetVariable(id).Name);
-            }
-        }
-
-        private List<TermToken> ConvertClause(int j)
-        {
-            List<TermToken> result = new();
-
-            Clause c = clauses[j];
-            for (int i = 0; i < c.logic.Length; i++)
-            {
-                result.Add(ConvertToken(c.logic, ref i));
-            }
-            for (int i = 0; i < c.stateLogic.Length; i++)
-            {
-                result.Add(ConvertToken(c.logic, ref i));
-            }
-
-            return result;
         }
 
         public override IEnumerable<LogicToken> ToTokenSequence()
         {
-            return RPN.OperateOver(Enumerable.Range(0, clauses.Length).Select(j => RPN.OperateOver(ConvertClause(j), OperatorToken.AND)), OperatorToken.OR);
+            return RPN.OperateOver(Enumerable.Range(0, clauses.Length).Select(j => clauses[j].ToTokenSequence(lm)), OperatorToken.OR);
         }
 
         public override IEnumerable<Term> GetTerms()
