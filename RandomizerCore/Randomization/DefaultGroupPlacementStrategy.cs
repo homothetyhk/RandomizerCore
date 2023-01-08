@@ -61,15 +61,20 @@ namespace RandomizerCore.Randomization
         {
             _placements.Clear();
 
+            LogDebug("");
+            LogDebug($"===Beginning placements for group {group.Label} sphere {sphere.depth}===");
             foreach (IRandoItem ri in sphere.Items)
             {
                 IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
                 _placements.Add(new(ri, rl));
+                LogDebug($"Placed {ri.Name} at {rl.Name}. Location had original priority {rl.Priority}, depth {locationDepth}. Item has depth {ri.Sphere}, priority {ri.Priority}, priority depth {priorityDepth}. Adjusted location priority was {adjustedPriority}.");
             }
 
             float meanPriority = sphere.Items.Count > 0 ? sphere.Items.Sum(r => r.Priority) / sphere.Items.Count : float.NaN;
             _meanSphereProgressionPriorities.Add(meanPriority);
-                
+            LogDebug($"===Finished placements for group {group.Label} sphere {sphere.depth}. Mean item priority was {meanPriority}===");
+            LogDebug("");
+
             _locations.Add(new SortedArrayList<IRandoLocation>(sphere.Locations, ComparerUtil.LocationComparer, ComparerUtil.LocationEqualityComparer));
 
             return _placements;

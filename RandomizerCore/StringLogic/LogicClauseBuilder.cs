@@ -53,7 +53,7 @@ namespace RandomizerCore.StringLogic
             Arguments = lcb.Arguments;
         }
 
-        public LogicClauseBuilder(string infix) : this(Infix.Tokenize(infix)) { }
+        public LogicClauseBuilder(string infix, ITokenSource tokenSource) : this(Infix.Tokenize(infix, tokenSource)) { }
 
         public void OrWith(IEnumerable<LogicToken> ts)
         {
@@ -82,7 +82,7 @@ namespace RandomizerCore.StringLogic
             Append(OperatorToken.OR);
         }
 
-        public void OrWith(string infix) => OrWith(Infix.Tokenize(infix));
+        public void OrWith(string infix, ITokenSource tokenSource) => OrWith(Infix.Tokenize(infix, tokenSource));
 
         public void AndWith(IEnumerable<LogicToken> ts)
         {
@@ -111,7 +111,7 @@ namespace RandomizerCore.StringLogic
             Append(OperatorToken.AND);
         }
 
-        public void AndWith(string infix) => AndWith(Infix.Tokenize(infix));
+        public void AndWith(string infix, ITokenSource tokenSource) => AndWith(Infix.Tokenize(infix, tokenSource));
 
         public void AndWithLeft(TermToken t)
         {
@@ -134,7 +134,7 @@ namespace RandomizerCore.StringLogic
             _tokens.Add(OperatorToken.AND);
         }
 
-        public void AndWithLeft(string infix) => AndWithLeft(new LogicClauseBuilder(infix));
+        public void AndWithLeft(string infix, ITokenSource? tokenSource = null) => AndWithLeft(new LogicClauseBuilder(infix, tokenSource));
 
         public void OrWithLeft(TermToken t)
         {
@@ -157,7 +157,7 @@ namespace RandomizerCore.StringLogic
             _tokens.Add(OperatorToken.OR);
         }
 
-        public void OrWithLeft(string infix) => OrWithLeft(new LogicClauseBuilder(infix));
+        public void OrWithLeft(string infix, ITokenSource tokenSource = null) => OrWithLeft(new LogicClauseBuilder(infix, tokenSource));
 
         public void Append(LogicToken lt)
         {

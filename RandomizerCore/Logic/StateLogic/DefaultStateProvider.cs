@@ -1,7 +1,7 @@
 ﻿namespace RandomizerCore.Logic.StateLogic
 {
     /// <summary>
-    /// A <see cref="StateProvider"/> which provides the start state.
+    /// A <see cref="StateProvider"/> which provides the default state.
     /// </summary>
     public sealed class DefaultStateProvider : StateProvider
     {

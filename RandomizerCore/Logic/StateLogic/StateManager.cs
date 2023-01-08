@@ -153,7 +153,7 @@ namespace RandomizerCore.Logic.StateLogic
             return GetNamedStateUnion(name) ?? throw new ArgumentException($"Named state union {name} is not defined.");
         }
 
-        public string PrettyPrint(State state)
+        public string PrettyPrint<T>(T state) where T : IState
         {
             _printer.Clear();
             for (int i = 0; i < Bools.Count; i++)

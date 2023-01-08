@@ -53,7 +53,7 @@
         }
 
         /// <summary>
-        /// Sets the specified field. If the operation would result in a negative value, clamps the field to 0.
+        /// Sets the specified field.
         /// </summary>
         public void SetInt(int id, int value)
         {
@@ -62,7 +62,7 @@
         }
 
         /// <summary>
-        /// Increments the specified field. If the operation would result in a negative value, clamps the field to 0.
+        /// Increments the specified field.
         /// </summary>
         public void Increment(int id, int incr)
         {
@@ -102,11 +102,16 @@
 
         /// <summary>
         /// If the instance wraps a <see cref="StateBuilder"/>, creates a <see cref="State"/> from the builder. If the instance wraps a <see cref="State"/>, returns that state.
-        /// Since creating a State from a StateBulder is destructive, this method should also be considered destructive, and the LazyStateBuilder should not be subsequently accessed.
         /// </summary>
-        public readonly State GetState()
+        public State GetState()
         {
-            return state is State s ? s : new State((StateBuilder)state);
+            if (state is State s) return s;
+            else
+            {
+                s = new State(Builder);
+                state = s;
+                return s;
+            }
         }
 
         public static bool IsComparablyLE(LazyStateBuilder left, State right)

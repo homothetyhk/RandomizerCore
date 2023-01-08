@@ -23,6 +23,11 @@ namespace RandomizerCore.Logic
         /// </summary>
         public virtual bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
         {
+            if (Inner is not null)
+            {
+                return Inner.TryMatch(lm, term, out variable);
+            }
+
             if (int.TryParse(term, out int value))
             {
                 variable = new ConstantInt(value);
@@ -49,11 +54,6 @@ namespace RandomizerCore.Logic
                 return true;
             }
             #pragma warning restore CS0618 // Type or member is obsolete
-
-            if (Inner != null)
-            {
-                return Inner.TryMatch(lm, term, out variable);
-            }
 
             variable = null;
             return false;
