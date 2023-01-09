@@ -319,7 +319,7 @@ namespace RandomizerCore.Randomization
                     selector.RejectAllRemaining();
                     break;
                 }
-                if (!rt.FoundNew) throw new InvalidOperationException("Decide deleted necessary transition?!?!");
+                if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations after progression test.", selector, pm);
             }
 
             try
@@ -350,7 +350,7 @@ namespace RandomizerCore.Randomization
                 {
                     Place(t, pm); // sets placed to temporary
                     selector.AcceptLast(); // sets placed to permanent
-                    if (!rt.FoundNew) throw new InvalidOperationException("Lost new transitions during decide?!?! Last accepted was " + selector.GetAcceptedItems().Last().Name);
+                    if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations during progression test success branch.", selector, pm);
                     return true;
                 }
             }
@@ -387,7 +387,7 @@ namespace RandomizerCore.Randomization
                 else
                 {
                     pm.Add(selector.GetProposedItems());
-                    if (!rt.FoundNew) throw new InvalidOperationException("Lost new transitions during IsFinalItem?!?!");
+                    if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations during shortcircuit test.", selector, pm);
                     return false;
                 }
             }
