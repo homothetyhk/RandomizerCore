@@ -22,6 +22,7 @@ namespace RandomizerCore.Logic
             public readonly int[] stateLogic;
             public readonly int stateProvider;
             private DNFLogicDef? parent;
+            private LogicManager lm => parent.lm;
 
             public Clause(int[] logic, int[] stateLogic, int stateProvider)
             {
@@ -89,7 +90,7 @@ namespace RandomizerCore.Logic
 
             private int EvaluateVariable(int id, ProgressionManager pm)
             {
-                return pm.lm.GetVariable(id) switch
+                return lm.GetVariable(id) switch
                 {
                     LogicInt li => li.GetValue(parent, pm),
                     _ => 0,
@@ -124,7 +125,7 @@ namespace RandomizerCore.Logic
                 int id = stateLogic[i];
                 if (id < -99)
                 {
-                    foreach (LazyStateBuilder lsb2 in ((StateModifier)pm.lm.GetVariable(id)).ModifyState(parent, pm, lsb))
+                    foreach (LazyStateBuilder lsb2 in ((StateModifier)lm.GetVariable(id)).ModifyState(parent, pm, lsb))
                     {
                         if (EvaluateStateDiscardRec(i + 1, pm, lsb2)) return true;
                     }
@@ -157,7 +158,7 @@ namespace RandomizerCore.Logic
                 }
 
                 int id = stateLogic[i];
-                if (id < -99 && ((StateModifier)pm.lm.GetVariable(id)).ProvideState(parent, pm) is IEnumerable<LazyStateBuilder> lsbs)
+                if (id < -99 && ((StateModifier)lm.GetVariable(id)).ProvideState(parent, pm) is IEnumerable<LazyStateBuilder> lsbs)
                 {
                     foreach (LazyStateBuilder lsb2 in lsbs)
                     {
@@ -180,7 +181,7 @@ namespace RandomizerCore.Logic
                 int id = stateLogic[i];
                 if (id < -99)
                 {
-                    foreach (LazyStateBuilder lsb2 in ((StateModifier)pm.lm.GetVariable(id)).ModifyState(parent, pm, lsb))
+                    foreach (LazyStateBuilder lsb2 in ((StateModifier)lm.GetVariable(id)).ModifyState(parent, pm, lsb))
                     {
                         EvaluateStateChangeRec(i + 1, pm, states, lsb2);
                     }
@@ -211,21 +212,22 @@ namespace RandomizerCore.Logic
                 }
 
                 int id = stateLogic[i];
-                if (((StateModifier)pm.lm.GetVariable(id)).ProvideState(null, pm) is IEnumerable<LazyStateBuilder> lsbs)
+                if (((StateModifier)lm.GetVariable(id)).ProvideState(null, pm) is IEnumerable<LazyStateBuilder> lsbs)
                 {
                     foreach (LazyStateBuilder lsb2 in lsbs)
                     {
                         EvaluateStateChangeRec(i, pm, states, lsb2);
                     }
+                    return EmptyEvaluateStateChangeRec(i + 1, pm, states);
                 }
-                return EmptyEvaluateStateChangeRec(i + 1, pm, states);
+                return false;
             }
 
             private int EvaluateStateVariable(int id, ProgressionManager pm, LazyStateBuilder state)
             {
                 if (id >= 0) return pm.Get(id);
 
-                return pm.lm.GetVariable(id) switch
+                return lm.GetVariable(id) switch
                 {
                     LogicInt li => li.GetValue(parent, pm),
                     StateAccessVariable sav => sav.GetValue(parent, pm, state),
@@ -240,7 +242,7 @@ namespace RandomizerCore.Logic
                     case >= 0:
                         return pm.GetState(stateProvider);
                     case <= LogicManager.intVariableOffset:
-                        if (pm.lm.GetVariable(stateProvider) is StateProvider spv) return spv.GetInputState(parent, pm);
+                        if (lm.GetVariable(stateProvider) is StateProvider spv) return spv.GetInputState(parent, pm);
                         break;
                 }
                 return null;
@@ -248,7 +250,7 @@ namespace RandomizerCore.Logic
 
             public bool EvaluateClause(ProgressionManager pm) => EvaluateLogic(pm) && EvaluateStateDiscard(pm);
 
-            public IEnumerable<Term> GetTerms(LogicManager lm)
+            public IEnumerable<Term> GetTerms()
             {
                 for (int i = 0; i < logic.Length; i++)
                 {
@@ -336,7 +338,7 @@ namespace RandomizerCore.Logic
                 }
             }
 
-            public IEnumerable<TermToken> ToTermTokenSequence(LogicManager lm)
+            public IEnumerable<TermToken> ToTermTokenSequence()
             {
                 for (int i = 0; i < logic.Length; i++)
                 {
@@ -348,7 +350,7 @@ namespace RandomizerCore.Logic
                 }
             }
 
-            public IEnumerable<LogicToken> ToTokenSequence(LogicManager lm) => RPN.OperateOver(ToTermTokenSequence(lm), OperatorToken.AND);
+            public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequence(), OperatorToken.AND);
         }
 
         internal DNFLogicDef(Clause[] clauses, LogicManager lm, string name, string infixSource) : base(name, infixSource)
@@ -390,7 +392,7 @@ namespace RandomizerCore.Logic
             termClauseLookup = new();
             foreach (Clause c in clauses)
             {
-                foreach (Term t in c.GetTerms(lm))
+                foreach (Term t in c.GetTerms())
                 {
                     if (!termClauseLookup.TryGetValue(t, out List<Clause> cs))
                     {
@@ -435,7 +437,7 @@ namespace RandomizerCore.Logic
         {
             for (int j = 0; j < clauses.Length; j++)
             {
-                if (clauses[j].EvaluateClause(pm)) return clauses[j].ToTermTokenSequence(lm);
+                if (clauses[j].EvaluateClause(pm)) return clauses[j].ToTermTokenSequence();
             }
             return null;
         }
@@ -444,18 +446,18 @@ namespace RandomizerCore.Logic
         {
             for (int j = 0; j < clauses.Length; j++)
             {
-                if (clauses[j].EvaluateClause(pm)) yield return clauses[j].ToTermTokenSequence(lm);
+                if (clauses[j].EvaluateClause(pm)) yield return clauses[j].ToTermTokenSequence();
             }
         }
 
         public override IEnumerable<LogicToken> ToTokenSequence()
         {
-            return RPN.OperateOver(Enumerable.Range(0, clauses.Length).Select(j => clauses[j].ToTokenSequence(lm)), OperatorToken.OR);
+            return RPN.OperateOver(Enumerable.Range(0, clauses.Length).Select(j => clauses[j].ToTokenSequence()), OperatorToken.OR);
         }
 
         public override IEnumerable<Term> GetTerms()
         {
-            return clauses.SelectMany(c => c.GetTerms(lm));
+            return clauses.SelectMany(c => c.GetTerms());
         }
 
         // cursed hacks for deserialization into ILogicDef property type, where the converter doesn't trigger.
