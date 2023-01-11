@@ -8,24 +8,30 @@ namespace RandomizerCore.Json
 {
     public class LMConverter : JsonConverter<LogicManager>
     {
-        public override LogicManager ReadJson(JsonReader reader, Type objectType, LogicManager existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override LogicManager ReadJson(JsonReader reader, Type objectType, LogicManager? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             LogicManagerBuilder lmb = new();
             JObject lm = JObject.Load(reader);
-            lmb.LP = lm[nameof(LogicManager.LP)].ToObject<LogicProcessor>(serializer);
-            lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)].ToObject<VariableResolver>(serializer);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.StateData, lm[nameof(StateManager)]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Locations, lm["Logic"]);
-            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Items, lm["Items"]);
+            lmb.LP = lm[nameof(LogicManager.LP)]!.ToObject<LogicProcessor>(serializer)!;
+            lmb.VariableResolver = lm[nameof(LogicManager.VariableResolver)]!.ToObject<VariableResolver>(serializer)!;
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.StateData, lm[nameof(StateManager)]!);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Terms, lm["Terms"]!);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Waypoints, lm["Waypoints"]!);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]!);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Locations, lm["Logic"]!);
+            lmb.DeserializeJson(LogicManagerBuilder.JsonType.Items, lm["Items"]!);
 
             return new(lmb);
         }
 
-        public override void WriteJson(JsonWriter writer, LogicManager value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, LogicManager? value, JsonSerializer serializer)
         {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
             writer.WriteStartObject();
 
             TermConverter tc = new() { LM = value };
@@ -51,7 +57,7 @@ namespace RandomizerCore.Json
             serializer.Serialize(writer, value.TransitionLookup.Values.Select(t => new RawLogicDef(t.Name, t.logic.InfixSource)));
 
             writer.WritePropertyName("Waypoints");
-            serializer.Serialize(writer, value.Waypoints.Select(w => new RawWaypointDef(w.Name, w.logic.InfixSource, stateless: value.GetTerm(w.Name).Type != TermType.State)));
+            serializer.Serialize(writer, value.Waypoints.Select(w => new RawWaypointDef(w.Name, w.logic.InfixSource, stateless: value.GetTermStrict(w.Name).Type != TermType.State)));
 
             writer.WritePropertyName(nameof(value.LP));
             serializer.Serialize(writer, value.LP, typeof(LogicProcessor));

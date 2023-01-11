@@ -15,10 +15,10 @@ namespace RandomizerCore.Logic
 
         public bool Temp { get; private set; }
 
-        public event Action<ILogicItem> AfterAddItem;
-        public event Action<IEnumerable<ILogicItem>> AfterAddRange;
-        public event Action AfterStartTemp;
-        public event Action<bool> AfterEndTemp;
+        public event Action<ILogicItem>? AfterAddItem;
+        public event Action<IEnumerable<ILogicItem>>? AfterAddRange;
+        public event Action? AfterStartTemp;
+        public event Action<bool>? AfterEndTemp;
 
 
         public ProgressionManager(LogicManager lm, RandoContext? ctx)
@@ -61,14 +61,13 @@ namespace RandomizerCore.Logic
             return obtained.GetState(id);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StateUnion? GetState(string name)
         {
-            return obtained.GetState(lm.GetTerm(name));
+            return obtained.GetState(lm.GetTermStrict(name));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetState(int id, StateUnion state)
+        public void SetState(int id, StateUnion? state)
         {
             obtained.SetState(id, state);
         }
@@ -93,7 +92,7 @@ namespace RandomizerCore.Logic
 
         public void Set(string term, int value)
         {
-            obtained.SetValue(lm.GetTerm(term).Id, value);
+            obtained.SetValue(lm.GetTermStrict(term).Id, value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,12 +109,12 @@ namespace RandomizerCore.Logic
 
         public int Get(string id)
         {
-            return obtained.GetValue(lm.GetTerm(id).Id);
+            return obtained.GetValue(lm.GetTermStrict(id).Id);
         }
 
         public void Incr(string id, int incr)
         {
-            obtained.Increment(lm.GetTerm(id).Id, incr);
+            obtained.Increment(lm.GetTermStrict(id).Id, incr);
         }
 
         /// <summary>

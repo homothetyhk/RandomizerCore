@@ -3,6 +3,7 @@ using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RandomizerCore.Logic
 {
@@ -14,7 +15,7 @@ namespace RandomizerCore.Logic
     {
         private readonly Clause[] clauses;
         private readonly LogicManager lm;
-        private Dictionary<int, List<Clause>> termClauseLookup;
+        private Dictionary<int, List<Clause>>? termClauseLookup;
 
         internal class Clause
         {
@@ -401,12 +402,12 @@ namespace RandomizerCore.Logic
             }
         }
 
-        public override bool CheckForUpdatedState(ProgressionManager pm, StateUnion current, List<State> newStates, int modifiedTerm, out StateUnion result)
+        public override bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> newStates, int modifiedTerm, [MaybeNullWhen(false)] out StateUnion result)
         {
             if (termClauseLookup is null) CreateTermClauseLookup();
 
             bool succeedOnEmpty = false;
-            foreach (Clause c in termClauseLookup[modifiedTerm])
+            foreach (Clause c in termClauseLookup![modifiedTerm])
             {
                 succeedOnEmpty |= c.EvaluateStateChange(pm, newStates);
             }
@@ -466,7 +467,7 @@ namespace RandomizerCore.Logic
 
         private static DNFLogicDef ConverterFetchOrMake(string name, string logic)
         {
-            if (LogicDefConverter.Instance.LM.GetLogicDef(name) is DNFLogicDef other && other.InfixSource == logic) return other;
+            if (LogicDefConverter.Instance.LM!.GetLogicDef(name) is DNFLogicDef other && other.InfixSource == logic) return other;
             return LogicDefConverter.Instance.LM.CreateDNFLogicDef(new(name, logic));
         }
     }

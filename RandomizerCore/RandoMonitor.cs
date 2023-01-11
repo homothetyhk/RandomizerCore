@@ -16,16 +16,16 @@
     /// </summary>
     public class RandoMonitor
     {
-        public event Action<RandoEventType, string> OnSendEvent;
-        public event Action OnNewAttempt;
-        public event Action<Exception> OnError;
+        public event Action<RandoEventType, string?>? OnSendEvent;
+        public event Action? OnNewAttempt;
+        public event Action<Exception>? OnError;
 
         public (int StageIndex, TempState State)? Stage { get; private set; }
         public (int StageIndex, TempState State)? PreviousStage { get; private set; }
 
         public void SendError(Exception e)
         {
-            SendEvent(RandoEventType.Error, e?.ToString());
+            SendEvent(RandoEventType.Error, e.ToString());
             OnError?.Invoke(e);
         }
 
@@ -36,7 +36,7 @@
             SendEvent(RandoEventType.BeginStage, $"{stageLabel} ({state})");
         }
 
-        public void SendEvent(RandoEventType type, string message = null)
+        public void SendEvent(RandoEventType type, string? message = null)
         {
             OnSendEvent?.Invoke(type, message);
             if (type == RandoEventType.NewAttempt)

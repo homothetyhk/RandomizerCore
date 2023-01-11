@@ -46,99 +46,39 @@ namespace RandomizerCore.Json
             return js;
         }
 
-        public static T Deserialize<T>(JsonTextReader jtr) where T : class
+        public static T? Deserialize<T>(JsonTextReader jtr) where T : class
         {
-            try
-            {
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                throw;
-            }
+            return _js.Deserialize<T>(jtr);
         }
 
-        public static T DeserializeFrom<T>(string path) where T : class
+        public static T? DeserializeFrom<T>(string path) where T : class
         {
-            try
-            {
-                if (!File.Exists(path))
-                {
-                    Log("File not found: " + path);
-                    return null;
-                }
-                using StreamReader sr = File.OpenText(path);
-                using JsonTextReader jtr = new(sr);
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                throw;
-            }
+            using StreamReader sr = File.OpenText(path);
+            using JsonTextReader jtr = new(sr);
+            return _js.Deserialize<T>(jtr);
         }
 
-        public static T DeserializeFrom<T>(Assembly a, HashSet<string> resourcePaths, string resourcePath) where T : class
+        public static T? DeserializeFrom<T>(Assembly a, string resourcePath) where T : class
         {
-            try
-            {
-                if (!resourcePaths.Contains(resourcePath))
-                {
-                    Log("Resource not found: " + resourcePath);
-                    return null;
-                }
-                using Stream s = a.GetManifestResourceStream(resourcePath);
-                using StreamReader sr = new(s);
-                using JsonTextReader jtr = new(sr);
-                return _js.Deserialize<T>(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                throw;
-            }
+            using Stream s = a.GetManifestResourceStream(resourcePath);
+            using StreamReader sr = new(s);
+            using JsonTextReader jtr = new(sr);
+            return _js.Deserialize<T>(jtr);
         }
 
-        public static JArray DeserializeArray(Assembly a, HashSet<string> resourcePaths, string resourcePath)
+        public static JArray DeserializeArray(Assembly a, string resourcePath)
         {
-            try
-            {
-                if (!resourcePaths.Contains(resourcePath))
-                {
-                    Log("Resource not found: " + resourcePath);
-                    return null;
-                }
-                using Stream s = a.GetManifestResourceStream(resourcePath);
-                using StreamReader sr = new(s);
-                using JsonTextReader jtr = new(sr);
-                return JArray.Load(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                throw;
-            }
+            using Stream s = a.GetManifestResourceStream(resourcePath);
+            using StreamReader sr = new(s);
+            using JsonTextReader jtr = new(sr);
+            return JArray.Load(jtr);
         }
 
         public static JArray DeserializeArray(string path)
         {
-            try
-            {
-                if (!File.Exists(path))
-                {
-                    Log("File not found: " + path);
-                    return null;
-                }
-                using StreamReader sr = File.OpenText(path);
-                using JsonTextReader jtr = new(sr);
-                return JArray.Load(jtr);
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                throw;
-            }
+            using StreamReader sr = File.OpenText(path);
+            using JsonTextReader jtr = new(sr);
+            return JArray.Load(jtr);
         }
 
         public static string Serialize(object o, Type? type = null)

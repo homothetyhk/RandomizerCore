@@ -15,6 +15,12 @@ namespace RandomizerCore.Updater
 
         string ILogicItem.Name => nameof(GroupedStateTransmittingHook);
 
+        public GroupedStateTransmittingHook(string groupLabel)
+        {
+            this.groupLabel = groupLabel;
+            this.pm = null!;
+        }
+
         public void Add(Term source, Term target)
         {
             sourceLookup.Add(source);
@@ -131,8 +137,8 @@ namespace RandomizerCore.Updater
             foreach (Term t in targets)
             {
                 StateUnion? orig = pm.GetState(t);
-                if (orig is null) pm.SetState(t, current);
-                else pm.SetState(t, StateUnion.Union(orig, current));
+                if (orig is null) pm.SetState(t, current!);
+                else pm.SetState(t, StateUnion.Union(orig, current!));
             }
         }
 

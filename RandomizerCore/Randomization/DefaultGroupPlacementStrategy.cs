@@ -41,7 +41,7 @@ namespace RandomizerCore.Randomization
         /// Event for when no reachable locations satisfy the constraint for item.
         /// <br/>Raise OutOfLocationsException to trigger rerandomization. Raise other exceptions to halt randomization.
         /// </summary>
-        public event Action<IRandoItem, IRandoLocation> OnConstraintViolated;
+        public event Action<IRandoItem, IRandoLocation>? OnConstraintViolated;
         protected void InvokeOnConstraintViolated(IRandoItem item, IRandoLocation location)
         {
             OnConstraintViolated?.Invoke(item, location);
@@ -121,7 +121,7 @@ namespace RandomizerCore.Randomization
                 if (!selfDual)
                 {
                     SortedArrayList<IRandoItem> remainingItems = new(_dualLocations.SelectMany(l => l.Cast<IRandoItem>()), ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
-                    while (remainingItems.TryExtractMin(out IRandoItem ri))
+                    while (remainingItems.TryExtractMin(out IRandoItem? ri))
                     {
                         IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
                         _placements.Add(new(ri, rl));
@@ -134,7 +134,7 @@ namespace RandomizerCore.Randomization
                 {
                     Dictionary<IRandoCouple, int> locDepthLookup = _locations.SelectMany((l, i) => l.Select(rl => (rl, i))).ToDictionary(p => (IRandoCouple)p.rl, p => p.i);
                     SortedArrayList<IRandoItem> remainingItems = new(locDepthLookup.Keys, ComparerUtil.ItemComparer, ComparerUtil.ItemEqualityComparer);
-                    while (remainingItems.TryExtractMin(out IRandoItem ri))
+                    while (remainingItems.TryExtractMin(out IRandoItem? ri))
                     {
                         IRandoLocation rl = SelectNext(sphere, _locations, _meanSphereProgressionPriorities, ri, out int priorityDepth, out int locationDepth, out float adjustedPriority);
                         _placements.Add(new(ri, rl));

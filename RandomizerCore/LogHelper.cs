@@ -4,7 +4,7 @@ namespace RandomizerCore
 {
     public static class LogHelper
     {
-        public static event Action<string> OnLog;
+        public static event Action<string>? OnLog;
 
         public static void Log(string message) => OnLog?.Invoke(message);
 

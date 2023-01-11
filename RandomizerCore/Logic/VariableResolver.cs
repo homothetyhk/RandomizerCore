@@ -1,5 +1,6 @@
-﻿using RandomizerCore.Logic.StateLogic;
-using RandomizerCore.StringLogic;
+﻿using System.Diagnostics.CodeAnalysis;
+using RandomizerCore.Logic.StateLogic;
+
 
 namespace RandomizerCore.Logic
 {
@@ -21,7 +22,7 @@ namespace RandomizerCore.Logic
         /// <summary>
         /// Returns true if the term can be matched to a LogicVariable, and outputs the variable.
         /// </summary>
-        public virtual bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
+        public virtual bool TryMatch(LogicManager lm, string term, [MaybeNullWhen(false)] out LogicVariable variable)
         {
             if (Inner is not null)
             {
@@ -48,7 +49,7 @@ namespace RandomizerCore.Logic
             if (StateFieldAccessor.TryMatch(lm, term, out variable)) return true;
 
             #pragma warning disable CS0618 // Type or member is obsolete
-            if (TryMatch(lm, term, out LogicInt @int))
+            if (TryMatch(lm, term, out LogicInt? @int))
             {
                 variable = @int;
                 return true;
@@ -59,7 +60,7 @@ namespace RandomizerCore.Logic
             return false;
         }
         [Obsolete("Use LogicVariable overload of TryMatch instead.")]
-        public virtual bool TryMatch(LogicManager lm, string term, out LogicInt variable)
+        public virtual bool TryMatch(LogicManager lm, string term, [MaybeNullWhen(false)] out LogicInt variable)
         {
             variable = default;
             return false;
@@ -69,7 +70,7 @@ namespace RandomizerCore.Logic
         /// Matches a variable identified via a prefix. The input must either equal the prefix exactly, or consist of the prefix, followed by square brackets enclosing a comma-separated list. Subexpressions within square brackets will not be split.
         /// <br/>Outputs the comma-separated parameters list.
         /// </summary>
-        public static bool TryMatchPrefix(string term, string prefix, out string[] parameters)
+        public static bool TryMatchPrefix(string term, string prefix, [MaybeNullWhen(false)] out string[] parameters)
         {
             if (term.StartsWith(prefix))
             {

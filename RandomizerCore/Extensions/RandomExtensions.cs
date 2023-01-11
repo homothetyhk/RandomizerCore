@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.Extensions
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace RandomizerCore.Extensions
 {
     public static class RandomExtensions
     {
@@ -49,7 +51,7 @@
         /// <summary>
         /// Searches for the first element of the list which satisfies the predicate. If found, returns true, and removes and outputs that element. Otherwise, returns false.
         /// </summary>
-        public static bool TryPop<T>(this IList<T> list, Predicate<T> TSelector, out T val)
+        public static bool TryPop<T>(this IList<T> list, Predicate<T> TSelector, [MaybeNullWhen(false)] out T val)
         {
             int i = Enumerable.Range(0, list.Count).Where(j => TSelector(list[j])).DefaultIfEmpty(-1).First();
             if (i < 0)
@@ -152,7 +154,7 @@
         /// </summary>
         public static T[] Permute<T>(this Random rand, T[] input)
         {
-            T[] output = input.Clone() as T[];
+            T[] output = (T[])input.Clone();
             rand.PermuteInPlace(output);
             return output;
         }

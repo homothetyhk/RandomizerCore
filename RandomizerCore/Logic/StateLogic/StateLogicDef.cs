@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.Logic.StateLogic
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace RandomizerCore.Logic.StateLogic
 {
     /// <summary>
     /// A LogicDef which also supports state calculation.
@@ -15,7 +17,7 @@
         /// <summary>
         /// Runs EvaluateState, and returns true if any new states are added to the state union, or if current is null and the result is empty.
         /// </summary>
-        public virtual bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> accumulator, out StateUnion result)
+        public virtual bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> accumulator, [MaybeNullWhen(false)] out StateUnion result)
         {
             bool succeedsOnEmpty = EvaluateState(pm, accumulator);
             if (current is null)
@@ -41,7 +43,7 @@
         /// <summary>
         /// Runs EvaluateState, and returns true if any new states are added to the state union.
         /// </summary>
-        public virtual bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> accumulator, int modifiedTerm, out StateUnion result)
+        public virtual bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> accumulator, int modifiedTerm, [MaybeNullWhen(false)] out StateUnion result)
         {
             return CheckForUpdatedState(pm, current, accumulator, out result);
         }

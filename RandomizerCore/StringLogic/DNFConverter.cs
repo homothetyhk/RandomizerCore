@@ -13,14 +13,14 @@ namespace RandomizerCore.StringLogic
         /// <summary>
         /// The output of Convert. Is recycled 
         /// </summary>
-        public List<List<TermToken>> Result { get => _result; }
-        private List<List<TermToken>> _result;
+        public List<List<TermToken>>? Result { get => _result; }
+        private List<List<TermToken>>? _result;
 
         private void Push(TermToken tt)
         {
-            if (!listPool.TryPop(out List<TermToken> l)) l = new();
+            if (!listPool.TryPop(out List<TermToken>? l)) l = new();
             l.Add(tt);
-            if (!outerListPool.TryPop(out List<List<TermToken>> ll)) ll = new();
+            if (!outerListPool.TryPop(out List<List<TermToken>>? ll)) ll = new();
             ll.Add(l);
             evaluationStack.Push(ll);
         }
@@ -34,12 +34,12 @@ namespace RandomizerCore.StringLogic
         {
             var l2 = evaluationStack.Pop();
             var l1 = evaluationStack.Pop();
-            if (!outerListPool.TryPop(out List<List<TermToken>> res)) res = new();
+            if (!outerListPool.TryPop(out List<List<TermToken>>? res)) res = new();
 
             int total = l1.Count * l2.Count;
             for (int i = 0; i < total; i++)
             {
-                if (!listPool.TryPop(out List<TermToken> l)) l = new();
+                if (!listPool.TryPop(out List<TermToken>? l)) l = new();
                 res.Add(l);
             }
 

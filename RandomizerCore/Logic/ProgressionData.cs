@@ -81,7 +81,7 @@ namespace RandomizerCore.Logic
             return StateData[Term.GetIndex(id)];
         }
 
-        public void SetState(int id, StateUnion state)
+        public void SetState(int id, StateUnion? state)
         {
             if (Term.GetTermType(id) != TermType.State) throw new InvalidCastException($"Term {LM.GetTerm(id).Name} of type {Term.GetTermType(id)} cannot be set to state value.");
             StateData[Term.GetIndex(id)] = state;

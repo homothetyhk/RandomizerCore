@@ -99,8 +99,8 @@ namespace RandomizerCore.Logic.StateLogic
 
             bools = _bools;
             ints = _ints;
-            _bools = null;
-            _ints = null;
+            _bools = null!;
+            _ints = null!;
         }
 
         public static bool IsComparablyLE(StateBuilder left, State right)

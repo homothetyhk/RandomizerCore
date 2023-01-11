@@ -70,7 +70,7 @@ namespace RandomizerCore
                 GroupedStateTransmittingHook hook;
                 if (!il.Shared.TryGetValue(key, out object obj))
                 {
-                    il.Shared.Add(key, obj = hook = new GroupedStateTransmittingHook() { groupLabel = il.Group.Label });
+                    il.Shared.Add(key, obj = hook = new GroupedStateTransmittingHook(il.Group.Label));
                     foreach (IRandoLocation rl in il.Group.Locations)
                     {
                         if (rl is RandoTransition rt) hook.AddTarget(rt.lt.term);

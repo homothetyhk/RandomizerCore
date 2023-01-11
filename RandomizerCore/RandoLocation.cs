@@ -6,7 +6,7 @@ namespace RandomizerCore
     public class RandoLocation : IRandoLocation
     {
         public LogicDef logic;
-        public List<LogicCost> costs;
+        public List<LogicCost>? costs;
 
         [JsonIgnore]
         public string Name => logic.Name;
@@ -42,7 +42,7 @@ namespace RandomizerCore
 
         public RandoLocation Clone()
         {
-            RandoLocation rl = MemberwiseClone() as RandoLocation;
+            RandoLocation rl = (RandoLocation)MemberwiseClone();
             rl.costs = rl.costs?.ToList();
             return rl;
         }

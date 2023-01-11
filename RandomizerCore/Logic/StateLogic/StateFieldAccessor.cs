@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.Logic.StateLogic
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace RandomizerCore.Logic.StateLogic
 {
     public class StateFieldAccessor : StateAccessVariable
     {
@@ -10,7 +12,7 @@
             Field = field;
         }
 
-        public static bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
+        public static bool TryMatch(LogicManager lm, string term, [MaybeNullWhen(false)] out LogicVariable variable)
         {
             if (lm.StateManager.FieldLookup.TryGetValue(term, out StateField field))
             {

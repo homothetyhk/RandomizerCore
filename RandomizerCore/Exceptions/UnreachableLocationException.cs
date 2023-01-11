@@ -9,17 +9,17 @@ namespace RandomizerCore.Exceptions
     /// </summary>
     public class UnreachableLocationException : Exception
     {
-        public readonly List<IRandoLocation>[] unreachableLocations;
-        public readonly RandomizationStage stage;
+        public readonly List<IRandoLocation>[]? unreachableLocations;
+        public readonly RandomizationStage? stage;
         public readonly TempState state;
-        public readonly ProgressionManager pm;
+        public readonly ProgressionManager? pm;
 
 
         public UnreachableLocationException() { }
         public UnreachableLocationException(string message) : base(message) { }
         public UnreachableLocationException(string message, Exception inner) : base(message, inner) { }
         public UnreachableLocationException(List<IRandoLocation>[] unreachableLocations, RandomizationStage stage, TempState state, ProgressionManager pm)
-            : base() 
+            : base()
         {
             this.unreachableLocations = unreachableLocations;
             this.stage = stage;
@@ -29,7 +29,7 @@ namespace RandomizerCore.Exceptions
 
         public string GetVerboseMessage()
         {
-            if (unreachableLocations == null || stage == null) return string.Empty;
+            if (unreachableLocations == null || stage == null || pm == null) return string.Empty;
 
             StringBuilder sb = new();
             sb.AppendLine($"Unreachable locations found during randomization stage {stage.label} ({state}):");

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Collections
 {
@@ -69,7 +70,7 @@ namespace RandomizerCore.Collections
             }
         }
 
-        public bool TryPeek(out TKey priority, out TValue t)
+        public bool TryPeek([MaybeNullWhen(false)] out TKey priority, [MaybeNullWhen(false)] out TValue t)
         {
             if (count > 0)
             {
@@ -140,10 +141,10 @@ namespace RandomizerCore.Collections
 
         public void ExtractMin(out TKey priority, out TValue t)
         {
-            if (!TryExtractMin(out priority, out t)) throw new InvalidOperationException("Priority queue empty.");
+            if (!TryExtractMin(out priority!, out t!)) throw new InvalidOperationException("Priority queue empty.");
         }
 
-        public bool TryExtractMin(out TKey priority, out TValue t)
+        public bool TryExtractMin([MaybeNullWhen(false)] out TKey priority, [MaybeNullWhen(false)] out TValue t)
         {
             if (count > 0)
             {

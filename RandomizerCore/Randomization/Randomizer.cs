@@ -14,7 +14,7 @@ namespace RandomizerCore.Randomization
         public readonly RandoMonitor rm;
         public readonly List<List<RandoPlacement>[]> stagedPlacements;
 
-        public Randomizer(Random rng, RandoContext ctx, RandomizationStage[] stages, RandoMonitor rm = null)
+        public Randomizer(Random rng, RandoContext ctx, RandomizationStage[] stages, RandoMonitor? rm = null)
         {
             this.ctx = ctx;
             this.lm = ctx.LM;
@@ -31,7 +31,7 @@ namespace RandomizerCore.Randomization
                     if (group.Items.Length != group.Locations.Length) throw new ArgumentException($"Group {group.Label} in stage {stage.label} has nonmatching arrays!");
                 }
             }
-            rm.SendEvent(RandoEventType.Initializing);
+            this.rm.SendEvent(RandoEventType.Initializing);
         }
 
         public List<List<RandoPlacement>[]> Run()

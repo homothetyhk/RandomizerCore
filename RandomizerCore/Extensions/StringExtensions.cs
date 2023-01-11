@@ -31,7 +31,7 @@ namespace RandomizerCore.Extensions
         /// </summary>
         public static string FromCamelCase(this string str)
         {
-            StringBuilder uiname = new StringBuilder(str);
+            StringBuilder uiname = new(str);
             if (str.Length > 0)
             {
                 uiname[0] = char.ToUpper(uiname[0]);
@@ -63,7 +63,7 @@ namespace RandomizerCore.Extensions
         /// <summary>
         /// If the string can be parsed to a value of the enum type, ignoring case, returns true and outputs the value. Otherwise, returns false.
         /// </summary>
-        public static bool TryToEnum<T>(this string self, out T val) where T : Enum
+        public static bool TryToEnum<T>(this string self, out T val) where T : struct, Enum
         {
             try
             {

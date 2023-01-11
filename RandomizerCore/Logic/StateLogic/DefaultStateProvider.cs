@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.Logic.StateLogic
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace RandomizerCore.Logic.StateLogic
 {
     /// <summary>
     /// A <see cref="StateProvider"/> which provides the default state.
@@ -8,7 +10,7 @@
         public override string Name => Prefix;
         public const string Prefix = "$DEFAULTSTATE";
 
-        public static bool TryMatch(LogicManager lm, string term, out LogicVariable variable)
+        public static bool TryMatch(LogicManager lm, string term, [MaybeNullWhen(false)] out LogicVariable variable)
         {
             if (term == Prefix)
             {

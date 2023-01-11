@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Extensions;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RandomizerCore.Collections
 {
@@ -221,7 +222,7 @@ namespace RandomizerCore.Collections
             return t;
         }
 
-        public bool TryExtractMin(out T t)
+        public bool TryExtractMin([MaybeNullWhen(false)] out T t)
         {
             if (Count == 0)
             {

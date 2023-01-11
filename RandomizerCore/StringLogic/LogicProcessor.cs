@@ -20,7 +20,7 @@ namespace RandomizerCore.StringLogic
 
         [JsonIgnore] public readonly ReadOnlyDictionary<string, LogicToken> TokenPool;
         [JsonIgnore] public readonly ReadOnlyDictionary<string, LogicClause> Macros;
-        [JsonProperty("macros")] private Dictionary<string, string> __macros => Macros?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToInfix());
+        [JsonProperty("macros")] private Dictionary<string, string>? __macros => Macros?.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToInfix());
 
         public LogicProcessor() 
         {
@@ -41,6 +41,9 @@ namespace RandomizerCore.StringLogic
         {
             tokenPool = new(source.tokenPool);
             macros = new(source.macros);
+
+            TokenPool = new(tokenPool);
+            Macros = new(macros);
         }
 
         public void SetMacro(Dictionary<string, string> newMacros)

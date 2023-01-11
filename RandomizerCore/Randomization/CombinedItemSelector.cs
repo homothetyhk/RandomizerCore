@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Collections;
 using RandomizerCore.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RandomizerCore.Randomization
 {
@@ -119,7 +120,7 @@ namespace RandomizerCore.Randomization
             {
                 if (t != s) t.UnacceptAll();
             }
-            while (acceptOrder.TryPop(out GroupItemSelector g)) proposeOrder.Push(g);
+            while (acceptOrder.TryPop(out GroupItemSelector? g)) proposeOrder.Push(g);
         }
 
         public void RejectAllRemaining()
@@ -134,9 +135,9 @@ namespace RandomizerCore.Randomization
             s.RejectLast();
         }
 
-        public bool TryProposeNext(out IRandoItem item)
+        public bool TryProposeNext([MaybeNullWhen(false)] out IRandoItem item)
         {
-            if (!openSelectors.TryPeek(out _, out GroupItemSelector s))
+            if (!openSelectors.TryPeek(out _, out GroupItemSelector? s))
             {
                 item = default;
                 return false;
@@ -161,9 +162,9 @@ namespace RandomizerCore.Randomization
             return true;
         }
 
-        public bool TryRecallLast(out IRandoItem item, out bool coupled)
+        public bool TryRecallLast([MaybeNullWhen(false)] out IRandoItem item, out bool coupled)
         {
-            if (proposeOrder.TryPeek(out GroupItemSelector s))
+            if (proposeOrder.TryPeek(out GroupItemSelector? s))
             {
                 coupled = s.coupled;
                 return s.TryRecallLast(out item);
@@ -173,9 +174,9 @@ namespace RandomizerCore.Randomization
             return false;
         }
 
-        public bool TryRecallLast(out IRandoItem item)
+        public bool TryRecallLast([MaybeNullWhen(false)] out IRandoItem item)
         {
-            if (proposeOrder.TryPeek(out GroupItemSelector s))
+            if (proposeOrder.TryPeek(out GroupItemSelector? s))
             {
                 return s.TryRecallLast(out item);
             }

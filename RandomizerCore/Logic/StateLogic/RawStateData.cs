@@ -18,9 +18,9 @@
             NamedStateUnions = sm.NamedStateUnions.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(s => new PreState(s, sm)).ToList());
         }
 
-        public Dictionary<string, List<string>> Fields;
-        public Dictionary<string, Dictionary<string, object?>> Properties;
-        public Dictionary<string, PreState> NamedStates;
-        public Dictionary<string, List<PreState>> NamedStateUnions;
+        public Dictionary<string, List<string>>? Fields;
+        public Dictionary<string, Dictionary<string, object?>>? Properties;
+        public Dictionary<string, PreState>? NamedStates;
+        public Dictionary<string, List<PreState>>? NamedStateUnions;
     }
 }

@@ -134,7 +134,7 @@ namespace RandomizerCore.StringLogic
             _tokens.Add(OperatorToken.AND);
         }
 
-        public void AndWithLeft(string infix, ITokenSource? tokenSource = null) => AndWithLeft(new LogicClauseBuilder(infix, tokenSource));
+        public void AndWithLeft(string infix, ITokenSource tokenSource) => AndWithLeft(new LogicClauseBuilder(infix, tokenSource));
 
         public void OrWithLeft(TermToken t)
         {
@@ -157,7 +157,7 @@ namespace RandomizerCore.StringLogic
             _tokens.Add(OperatorToken.OR);
         }
 
-        public void OrWithLeft(string infix, ITokenSource tokenSource = null) => OrWithLeft(new LogicClauseBuilder(infix, tokenSource));
+        public void OrWithLeft(string infix, ITokenSource tokenSource) => OrWithLeft(new LogicClauseBuilder(infix, tokenSource));
 
         public void Append(LogicToken lt)
         {

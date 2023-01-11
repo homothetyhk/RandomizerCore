@@ -109,7 +109,7 @@ namespace RandomizerCore.StringLogic
 
         public static string ToInfix(IReadOnlyList<LogicToken> tokens)
         {
-            Stack<(string text, OperatorToken outermost)> phrases = new();
+            Stack<(string text, OperatorToken? outermost)> phrases = new();
             // a "phrase" is a string of logic in infix form
             // the outermost operator is used to determine whether the infix must be parenthesized
 
@@ -118,8 +118,8 @@ namespace RandomizerCore.StringLogic
                 LogicToken t = tokens[i];
                 if (t is OperatorToken op)
                 {
-                    (string right, OperatorToken rightOp) = phrases.Pop();
-                    (string left, OperatorToken leftOp) = phrases.Pop();
+                    (string right, OperatorToken? rightOp) = phrases.Pop();
+                    (string left, OperatorToken? leftOp) = phrases.Pop();
                     if (rightOp != null && op.Precedence > rightOp.Precedence)
                     {
                         right = $"({right})";

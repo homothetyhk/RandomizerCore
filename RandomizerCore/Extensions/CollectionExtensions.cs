@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace RandomizerCore.Extensions
 {
@@ -110,7 +110,7 @@ namespace RandomizerCore.Extensions
         /// <summary>
         /// If the stack is nonempty, pops the stack, outputting the result, and returns true. Otherwise, returns false.
         /// </summary>
-        public static bool TryPop<T>(this Stack<T> ts, out T t)
+        public static bool TryPop<T>(this Stack<T> ts, [MaybeNullWhen(false)] out T t)
         {
             bool flag = ts.Count > 0;
             t = flag ? ts.Pop() : default;
@@ -120,7 +120,7 @@ namespace RandomizerCore.Extensions
         /// <summary>
         /// If the stack is nonempty, peeks the stack, outputting the result, and returns true. Otherwise, returns false.
         /// </summary>
-        public static bool TryPeek<T>(this Stack<T> ts, out T t)
+        public static bool TryPeek<T>(this Stack<T> ts, [MaybeNullWhen(false)] out T t)
         {
             bool flag = ts.Count > 0;
             t = flag ? ts.Peek() : default;
@@ -130,7 +130,7 @@ namespace RandomizerCore.Extensions
         /// <summary>
         /// If the queue is nonempty, dequeues an element, outputting the result, and returns true. Otherwise, returns false.
         /// </summary>
-        public static bool TryDequeue<T>(this Queue<T> ts, out T t)
+        public static bool TryDequeue<T>(this Queue<T> ts, [MaybeNullWhen(false)] out T t)
         {
             bool flag = ts.Count > 0;
             t = flag ? ts.Dequeue() : default;
@@ -140,7 +140,7 @@ namespace RandomizerCore.Extensions
         /// <summary>
         /// If the queue is nonempty, peeks the queue, outputting the result, and returns true. Otherwise, returns false.
         /// </summary>
-        public static bool TryPeek<T>(this Queue<T> ts, out T t)
+        public static bool TryPeek<T>(this Queue<T> ts, [MaybeNullWhen(false)] out T t)
         {
             bool flag = ts.Count > 0;
             t = flag ? ts.Peek() : default;

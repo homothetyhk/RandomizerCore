@@ -8,7 +8,7 @@ namespace RandomizerCore.Logic
     /// </summary>
     public class MainUpdater
     {
-        public event Action OnReset;
+        public event Action? OnReset;
 
         readonly TermIndexedCollection<List<UpdateEntryBase>> entriesByTerm;
         readonly List<UpdateEntryBase> individualEntries;
