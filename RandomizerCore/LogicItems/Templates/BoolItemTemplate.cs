@@ -6,7 +6,7 @@ namespace RandomizerCore.LogicItems.Templates
     {
         public override BoolItem Create(LogicManager lm)
         {
-            return new(Name, lm.GetTerm(Term));
+            return new(Name, lm.GetTermStrict(Term));
         }
     }
 

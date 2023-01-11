@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.LogicItems
 {
-    public record EmptyItem : LogicItem
+    public sealed record EmptyItem : LogicItem
     {
         public EmptyItem(string Name) : base(Name) { }
 

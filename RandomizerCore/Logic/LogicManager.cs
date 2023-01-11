@@ -25,7 +25,7 @@ namespace RandomizerCore.Logic
         private readonly Dictionary<string, int> _variableIndices;
         private readonly Dictionary<string, LogicItem> _items;
         private readonly Dictionary<string, LogicTransition> _transitions;
-        private readonly LogicManagerBuilder _source; // set to null on exiting constructor
+        private readonly LogicManagerBuilder? _source; // set to null on exiting constructor
         private readonly DNFConverter _DNFConverter;
         private readonly List<int> _logicBuilder;
 
@@ -60,10 +60,10 @@ namespace RandomizerCore.Logic
             LogicLookup = new(_logicDefs);
 
             // Waypoints
-            Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(Terms.GetTerm(name), _logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)))).ToArray());
+            Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(Terms.GetTerm(name)!, _logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)))).ToArray());
 
             // Transitions
-            _transitions = source.Transitions.ToDictionary(name => name, name => new LogicTransition(_logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)), Terms.GetTerm(name)));
+            _transitions = source.Transitions.ToDictionary(name => name, name => new LogicTransition(_logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)), Terms.GetTerm(name)!));
             TransitionLookup = new(_transitions);
 
             // Items
@@ -71,7 +71,7 @@ namespace RandomizerCore.Logic
             JsonSerializer js = JsonUtil.GetLogicSerializer(this);
             foreach (var kvp in source.UnparsedItems)
             {
-                _items.Add(kvp.Key, kvp.Value.ToObject<LogicItem>(js));
+                _items.Add(kvp.Key, kvp.Value.ToObject<LogicItem>(js)!);
             }
             foreach (var kvp in source.TemplateItems)
             {
@@ -345,77 +345,81 @@ namespace RandomizerCore.Logic
             {
                 Expand(tokens);
                 _DNFConverter.Convert(tokens);
-                var res = _DNFConverter.Result;
-                DNFLogicDef.Clause[] clauses = new DNFLogicDef.Clause[res.Count];
-                for (int j = 0; j < clauses.Length; j++)
+                List<List<TermToken>> res = _DNFConverter.Result;
+                return new(CreateClauses, this, name, Infix.ToInfix(tokens));
+
+                DNFLogicDef.Clause[] CreateClauses(DNFLogicDef parent)
                 {
-                    _logicBuilder.Clear();
-                    foreach (TermToken tt in res[j])
+                    DNFLogicDef.Clause[] clauses = new DNFLogicDef.Clause[res.Count];
+                    for (int j = 0; j < clauses.Length; j++)
                     {
-                        ApplyToken(_logicBuilder, tt);
-                    }
-
-                    List<int> logic = new();
-                    List<int> stateLogic = new();
-                    bool IsStateless(int id)
-                    {
-                        return id > intVariableOffset || GetVariable(id) switch
+                        _logicBuilder.Clear();
+                        foreach (TermToken tt in res[j])
                         {
-                            StateModifier or StateAccessVariable => false,
-                            _ => true,
-                        };
-                    }
+                            ApplyToken(_logicBuilder, tt);
+                        }
 
-                    for (int i = 0; i < _logicBuilder.Count; i++)
-                    {
-                        int id = _logicBuilder[i];
-                        switch (id)
+                        List<int> logic = new();
+                        List<int> stateLogic = new();
+                        bool IsStateless(int id)
                         {
-                            default:
-                                logic.Add(id);
-                                break;
-                            case <= intVariableOffset:
-                                if (IsStateless(id))
-                                {
+                            return id > intVariableOffset || GetVariable(id) switch
+                            {
+                                StateModifier or StateAccessVariable => false,
+                                _ => true,
+                            };
+                        }
+
+                        for (int i = 0; i < _logicBuilder.Count; i++)
+                        {
+                            int id = _logicBuilder[i];
+                            switch (id)
+                            {
+                                default:
                                     logic.Add(id);
-                                }
-                                else
-                                {
-                                    stateLogic.Add(id);
-                                }
-                                break;
-                            case (int)LogicOperators.EQ:
-                            case (int)LogicOperators.LT:
-                            case (int)LogicOperators.GT:
-                                if (IsStateless(_logicBuilder[i + 1]) && IsStateless(_logicBuilder[i + 2]))
-                                {
-                                    logic.Add(_logicBuilder[i++]);
-                                    logic.Add(_logicBuilder[i++]);
-                                    logic.Add(_logicBuilder[i]);
-                                }
-                                else
-                                {
-                                    stateLogic.Add(_logicBuilder[i++]);
-                                    stateLogic.Add(_logicBuilder[i++]);
-                                    stateLogic.Add(_logicBuilder[i]);
-                                }
-                                break;
+                                    break;
+                                case <= intVariableOffset:
+                                    if (IsStateless(id))
+                                    {
+                                        logic.Add(id);
+                                    }
+                                    else
+                                    {
+                                        stateLogic.Add(id);
+                                    }
+                                    break;
+                                case (int)LogicOperators.EQ:
+                                case (int)LogicOperators.LT:
+                                case (int)LogicOperators.GT:
+                                    if (IsStateless(_logicBuilder[i + 1]) && IsStateless(_logicBuilder[i + 2]))
+                                    {
+                                        logic.Add(_logicBuilder[i++]);
+                                        logic.Add(_logicBuilder[i++]);
+                                        logic.Add(_logicBuilder[i]);
+                                    }
+                                    else
+                                    {
+                                        stateLogic.Add(_logicBuilder[i++]);
+                                        stateLogic.Add(_logicBuilder[i++]);
+                                        stateLogic.Add(_logicBuilder[i]);
+                                    }
+                                    break;
+                            }
                         }
-                    }
-                    int source = -1;
-                    for (int i = 0; i < _logicBuilder.Count; i++)
-                    {
-                        if (_logicBuilder[i] >= 0 && Terms[_logicBuilder[i]].Type == TermType.State || _logicBuilder[i] <= intVariableOffset && GetVariable(_logicBuilder[i]) is StateProvider)
+                        int source = -1;
+                        for (int i = 0; i < _logicBuilder.Count; i++)
                         {
-                            source = _logicBuilder[i];
-                            break;
+                            if (_logicBuilder[i] >= 0 && Terms[_logicBuilder[i]].Type == TermType.State || _logicBuilder[i] <= intVariableOffset && GetVariable(_logicBuilder[i]) is StateProvider)
+                            {
+                                source = _logicBuilder[i];
+                                break;
+                            }
                         }
+                        clauses[j] = new(logic.ToArray(), stateLogic.ToArray(), source, parent);
                     }
-                    clauses[j] = new(logic.ToArray(), stateLogic.ToArray(), source);
+                    _logicBuilder.Clear();
+                    return clauses;
                 }
-                clauses.StableSort((c1, c2) => c1.stateLogic.Length - c2.stateLogic.Length);
-                _logicBuilder.Clear();
-                return new(clauses, this, name, Infix.ToInfix(tokens));
             }
             catch (Exception e)
             {

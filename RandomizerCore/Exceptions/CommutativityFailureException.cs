@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic;
+using RandomizerCore.Randomization;
 using System.Text;
 
 namespace RandomizerCore.Exceptions
@@ -16,7 +17,7 @@ namespace RandomizerCore.Exceptions
         {
         }
 
-        public CommutativityFailureException(string message, Randomization.CombinedItemSelector selector, ProgressionManager pm) : base(AugmentMessage(message, selector, pm))
+        public CommutativityFailureException(string message, CombinedItemSelector selector, ProgressionManager pm) : base(AugmentMessage(message, selector, pm))
         {
         }
 
@@ -24,7 +25,7 @@ namespace RandomizerCore.Exceptions
         {
         }
 
-        private static string AugmentMessage(string orig, Randomization.CombinedItemSelector selector, ProgressionManager pm)
+        private static string AugmentMessage(string orig, CombinedItemSelector selector, ProgressionManager pm)
         {
             StringBuilder sb = new();
             sb.AppendLine(orig);

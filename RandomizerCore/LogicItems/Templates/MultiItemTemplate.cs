@@ -6,7 +6,7 @@ namespace RandomizerCore.LogicItems.Templates
     {
         public override MultiItem Create(LogicManager lm)
         {
-            return new(Name, Effects.Select(p => new TermValue(lm.GetTerm(p.Term), p.Value)).ToArray());
+            return new(Name, Effects.Select(p => new TermValue(lm.GetTermStrict(p.Term), p.Value)).ToArray());
         }
     }
 }

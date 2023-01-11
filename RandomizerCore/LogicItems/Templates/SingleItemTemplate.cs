@@ -6,7 +6,7 @@ namespace RandomizerCore.LogicItems.Templates
     {
         public override SingleItem Create(LogicManager lm)
         {
-            return new(Name, new(lm.GetTerm(Effect.Term), Effect.Value));
+            return new(Name, new(lm.GetTermStrict(Effect.Term), Effect.Value));
         }
     }
 }

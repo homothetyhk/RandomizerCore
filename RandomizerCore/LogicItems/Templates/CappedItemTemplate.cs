@@ -6,7 +6,7 @@ namespace RandomizerCore.LogicItems.Templates
     {
         public override CappedItem Create(LogicManager lm)
         {
-            return new(Name, Effects.Select(p => new TermValue(lm.GetTerm(p.Term), p.Value)).ToArray(), new(lm.GetTerm(Cap.Term), Cap.Value));
+            return new(Name, Effects.Select(p => new TermValue(lm.GetTermStrict(p.Term), p.Value)).ToArray(), new(lm.GetTermStrict(Cap.Term), Cap.Value));
         }
     }
 }

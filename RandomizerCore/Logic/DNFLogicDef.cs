@@ -21,17 +21,16 @@ namespace RandomizerCore.Logic
             public readonly int[] logic;
             public readonly int[] stateLogic;
             public readonly int stateProvider;
-            private DNFLogicDef? parent;
+            private readonly DNFLogicDef parent;
             private LogicManager lm => parent.lm;
 
-            public Clause(int[] logic, int[] stateLogic, int stateProvider)
+            public Clause(int[] logic, int[] stateLogic, int stateProvider, DNFLogicDef parent)
             {
                 this.logic = logic;
                 this.stateLogic = stateLogic;
                 this.stateProvider = stateProvider;
+                this.parent = parent;
             }
-
-            internal void SetParent(DNFLogicDef parent) => this.parent = parent;
 
             public bool EvaluateLogic(ProgressionManager pm)
             {
@@ -353,12 +352,11 @@ namespace RandomizerCore.Logic
             public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequence(), OperatorToken.AND);
         }
 
-        internal DNFLogicDef(Clause[] clauses, LogicManager lm, string name, string infixSource) : base(name, infixSource)
+        internal DNFLogicDef(Func<DNFLogicDef, Clause[]> clauseGenerator, LogicManager lm, string name, string infixSource)
+            : base(name, infixSource)
         {
-            this.clauses = clauses;
+            this.clauses = clauseGenerator(this);
             this.lm = lm;
-
-            foreach (Clause c in clauses) c.SetParent(this);
         }
 
         public DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)

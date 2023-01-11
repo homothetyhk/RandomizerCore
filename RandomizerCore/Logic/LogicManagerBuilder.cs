@@ -45,7 +45,8 @@ namespace RandomizerCore.Logic
             PrefabItems = new(source.ItemLookup);
             TemplateItems = new();
             UnparsedItems = new();
-            LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToLogicClause());
+            LogicLookup = new();
+            foreach (KeyValuePair<string, LogicDef> kvp in source.LogicLookup) AddLogicDef(new(kvp.Key, kvp.Value.InfixSource));
             Waypoints = new(source.Waypoints.Select(w => w.Name));
             Transitions = new(source.TransitionLookup.Values.Select(lt => lt.Name));
             StateManager = new(source.StateManager);
@@ -115,7 +116,7 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void AddUnparsedItem(JObject item)
         {
-            string name = item.Value<string>("Name");
+            string name = item.Value<string>("Name")!;
             UnparsedItems[name] = item;
             PrefabItems.Remove(name);
             TemplateItems.Remove(name);

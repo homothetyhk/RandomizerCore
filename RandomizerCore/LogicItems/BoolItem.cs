@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.LogicItems
 {
-    public record BoolItem(string Name, Term Term) : LogicItem(Name)
+    public sealed record BoolItem(string Name, Term Term) : LogicItem(Name)
     {
         public override void AddTo(ProgressionManager pm)
         {
