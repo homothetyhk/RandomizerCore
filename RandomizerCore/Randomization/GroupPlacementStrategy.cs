@@ -11,5 +11,10 @@
         /// Called before rerandomization, or if the randomizer resets for subsequent attempts.
         /// </summary>
         public virtual void Reset() { }
+
+        /// <summary>
+        /// Creates a copy of the strategy that can be used for another group.
+        /// </summary>
+        public virtual GroupPlacementStrategy Clone() => (GroupPlacementStrategy)MemberwiseClone();
     }
 }

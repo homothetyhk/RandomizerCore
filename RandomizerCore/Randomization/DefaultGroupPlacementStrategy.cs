@@ -219,5 +219,13 @@ namespace RandomizerCore.Randomization
             _dualMeanSphereProgressionPriorities.Clear();
             _placements.Clear();
         }
+
+        public override GroupPlacementStrategy Clone()
+        {
+            DefaultGroupPlacementStrategy dgps = new(depthPriorityTransform);
+            dgps._constraints.AddRange(_constraints);
+            dgps.OnConstraintViolated = OnConstraintViolated;
+            return dgps;
+        }
     }
 }

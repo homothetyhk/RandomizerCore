@@ -101,6 +101,13 @@ namespace RandomizerCore.Logic
             }
         }
 
+        public void LogAll()
+        {
+            Log("Logging mu entries...");
+            foreach (UpdateEntryBase e in individualEntries) Log(e.ToString());
+            Log("Finished logging mu entries");
+        }
+
         private void SetShortTermRevertPoint()
         {
             shortTermRevertPoint.Set(this);
