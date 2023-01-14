@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Collections
@@ -26,14 +27,13 @@ namespace RandomizerCore.Collections
         }
 
         public int Count => count;
+        /// <summary>
+        /// Gets a collection that enumerates the elements of the queue in an unordered manner.
+        /// </summary>
+        public IReadOnlyCollection<(TKey, TValue)> UnorderedItems { get => _unorderedItems ??= new UnorderedItemsCollection(this); }
+        private UnorderedItemsCollection? _unorderedItems;
 
-
-        public PriorityQueue()
-        {
-            list = new PriorityEntry[4];
-            _capacity = list.Length;
-        }
-
+        public PriorityQueue() : this(4) { }
         public PriorityQueue(int capacity)
         {
             list = new PriorityEntry[capacity];
@@ -44,7 +44,6 @@ namespace RandomizerCore.Collections
         {
             if (ts is ICollection<TValue> c) list = new PriorityEntry[c.Count];
             else list = new PriorityEntry[4];
-
             foreach (TValue t in ts) Enqueue(prioritySelector(t), t);
         }
 
@@ -199,6 +198,17 @@ namespace RandomizerCore.Collections
             }
         }
 
+        /// <summary>
+        /// Returns an enumerable which, when enumerated, extracts and returns the elements of the priority queue in order.
+        /// </summary>
+        public IEnumerable<(TKey, TValue)> GetConsumingEnumerable()
+        {
+            while (TryExtractMin(out TKey priority, out TValue t))
+            {
+                yield return (priority, t);
+            }
+        }
+
         private void EnsureCapacity(int min)
         {
             if (list.Length < min) Capacity = Math.Max(min, 2 * list.Length);
@@ -246,8 +256,33 @@ namespace RandomizerCore.Collections
                 if (c != 0) return c;
                 return version.CompareTo(other.version);
             }
+
+            public static implicit operator ValueTuple<TKey, TValue>(PriorityEntry e) => (e.priority, e.t);
+        }
+
+        private class UnorderedItemsCollection : IReadOnlyCollection<(TKey, TValue)>, ICollection<(TKey, TValue)>
+        {
+            private readonly PriorityQueue<TKey, TValue> parent;
+            public UnorderedItemsCollection(PriorityQueue<TKey, TValue> parent) => this.parent = parent;
+            public int Count => parent.Count;
+            bool ICollection<(TKey, TValue)>.IsReadOnly => true;
+            public IEnumerator<(TKey, TValue)> GetEnumerator()
+            {
+                for (int i = 0; i < parent.Count; i++) yield return parent.list[i];
+            }
+            void ICollection<(TKey, TValue)>.Add((TKey, TValue) item) => throw new NotImplementedException();
+            void ICollection<(TKey, TValue)>.Clear() => throw new NotImplementedException();
+            bool ICollection<(TKey, TValue)>.Contains((TKey, TValue) item)
+            {
+                for (int i = 0; i < parent.Count; i++) if (Equals(parent.list[i].priority, item.Item1) && Equals(parent.list[i].t, item.Item2)) return true;
+                return false;
+            }
+            void ICollection<(TKey, TValue)>.CopyTo((TKey, TValue)[] array, int arrayIndex)
+            {
+                for (int i = 0; i < Count; i++) array[arrayIndex + i] = parent.list[i];
+            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            bool ICollection<(TKey, TValue)>.Remove((TKey, TValue) item) => throw new NotImplementedException();
         }
     }
-
-    
 }
