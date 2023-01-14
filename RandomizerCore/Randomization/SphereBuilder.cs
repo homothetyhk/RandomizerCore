@@ -268,48 +268,29 @@ namespace RandomizerCore.Randomization
 
             if (!rt.FoundNew)
             {
-                // no locations were unlocked by adding items
-                // we check that no locations are blocked by added items
-                // specifically, audit checks for the case that a later proposal unlocks a location which was also a proposed item (e.g. a later proposed transition unlocks a coupled proposed transition)
-                while (selector.TryRecallLast(out IRandoItem t, out bool coupled))
+                // any locations which are not reachable at this point are unreachable
+                // randomization will fail during placement, so better to throw early and provide info
+                List<IRandoLocation>[] unreachable = rt.FindNonreachableLocations();
+                for (int i = 0; i < groups.Length; i++)
                 {
-                    if (coupled && Audit(t))
+                    if (unreachable[i].Count != 0)
                     {
-                        selector.RejectCurrentAndUnacceptAll();
-                        break;
-                    }
-                    else
-                    {
-                        selector.AcceptLast();
+                        throw new UnreachableLocationException(unreachable, stage, tempState, pm);
                     }
                 }
 
-                if (!rt.FoundNew)
+                // All locations are reachable, so this is the last step, and we output all remaining items, unlocking no locations
+                try
                 {
-                    // any locations which are not reachable at this point are unreachable
-                    // randomization will fail during placement, so better to throw early and provide info
-                    List<IRandoLocation>[] unreachable = rt.FindNonreachableLocations();
-                    for (int i = 0; i < groups.Length; i++)
-                    {
-                        if (unreachable[i].Count != 0)
-                        {
-                            throw new UnreachableLocationException(unreachable, stage, tempState, pm);
-                        }
-                    }
-
-                    // Nothing found by audit, so this is the last step, and we output all remaining items, unlocking no locations
-                    try
-                    {
-                        selector.Finish(out placed);
-                    }
-                    catch (OutOfLocationsException oole)
-                    {
-                        throw new OutOfLocationsException("Ran out of locations on final step", oole);
-                    }
-                    
-                    pm.SaveTempItems();
-                    return;
+                    selector.Finish(out placed);
                 }
+                catch (OutOfLocationsException oole)
+                {
+                    throw new OutOfLocationsException("Ran out of locations on final step", oole);
+                }
+
+                pm.SaveTempItems();
+                return;
             }
 
             while (selector.TryRecallLast(out IRandoItem t))
@@ -352,26 +333,6 @@ namespace RandomizerCore.Randomization
                     selector.AcceptLast(); // sets placed to permanent
                     if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations during progression test success branch.", selector, pm);
                     return true;
-                }
-            }
-
-            // used in a situation where all unused items together failed to make progress
-            // tests a coupled item to determine whether its corresponding location becomes reachable with all other proposed items
-            // in this case, we can reject the current item and do the normal decision process with the remaining items.
-            bool Audit(IRandoItem t)
-            {
-                t.Placed = TempState.None;
-                pm.RestrictTempTo(selector.GetTestItems());
-                if (rt.FoundNew)
-                {
-                    // audit succeeded
-                    return true;
-                }
-                else
-                {
-                    // audit failed
-                    Place(t, pm); // resets state to as before audit
-                    return false;
                 }
             }
 

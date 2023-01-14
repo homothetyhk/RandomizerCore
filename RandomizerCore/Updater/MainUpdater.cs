@@ -21,6 +21,8 @@ namespace RandomizerCore.Logic
         readonly RevertPoint longTermRevertPoint;
         readonly RevertPoint shortTermRevertPoint;
 
+        public bool HasCustomLongTermRevertPoint { get; private set; }
+
         bool active;
 
         private class RevertPoint
@@ -36,10 +38,16 @@ namespace RandomizerCore.Logic
 
             public void Set(MainUpdater mu)
             {
-                if (mu.individualEntries.Count == revertIndividualCount && mu.pmHooks.Count == revertHookCount) return;
                 revertIndividualCount = mu.individualEntries.Count;
                 revertHookCount = mu.pmHooks.Count;
                 revertCounts.PopulateFrom(mu.entriesByTerm, l => l.Count);
+            }
+
+            public void Set(RevertPoint other)
+            {
+                revertIndividualCount = other.revertIndividualCount;
+                revertHookCount = other.revertHookCount;
+                revertCounts.PopulateFrom(other.revertCounts, i => i);
             }
 
             public void Apply(MainUpdater mu)
@@ -55,7 +63,6 @@ namespace RandomizerCore.Logic
                     mu.pmHooks.RemoveRange(revertHookCount, mu.pmHooks.Count - revertHookCount);
                 }
             }
-
         }
 
         public MainUpdater(LogicManager lm, ProgressionManager pm)
@@ -115,7 +122,9 @@ namespace RandomizerCore.Logic
 
         public void SetLongTermRevertPoint()
         {
+            HasCustomLongTermRevertPoint = true;
             longTermRevertPoint.Set(this);
+            shortTermRevertPoint.Set(longTermRevertPoint);
         }
 
         /// <summary>
@@ -124,6 +133,7 @@ namespace RandomizerCore.Logic
         public void RevertLong()
         {
             Reset();
+            shortTermRevertPoint.Set(longTermRevertPoint);
             longTermRevertPoint.Apply(this);
         }
 
