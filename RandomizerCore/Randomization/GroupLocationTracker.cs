@@ -126,7 +126,7 @@ namespace RandomizerCore.Randomization
 
             public override string ToString()
             {
-                return $"{Location.Name}: {obtained}";
+                return $"{GetType().Name}: {Location.Name}, obtained: {obtained}";
             }
         }
     }

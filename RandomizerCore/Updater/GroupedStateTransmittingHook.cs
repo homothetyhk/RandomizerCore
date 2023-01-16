@@ -13,7 +13,7 @@ namespace RandomizerCore.Updater
         private StateUnion? current;
         private StateUnion? backup;
 
-        string ILogicItem.Name => nameof(GroupedStateTransmittingHook);
+        string ILogicItem.Name => ToString();
 
         public GroupedStateTransmittingHook(string groupLabel)
         {
@@ -145,6 +145,11 @@ namespace RandomizerCore.Updater
         IEnumerable<Term> ILogicItem.GetAffectedTerms()
         {
             return targets;
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}: {groupLabel}";
         }
     }
 }

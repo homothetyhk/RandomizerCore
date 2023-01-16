@@ -22,6 +22,7 @@ namespace RandomizerCore.Logic
         readonly RevertPoint shortTermRevertPoint;
 
         public bool HasCustomLongTermRevertPoint { get; private set; }
+        public object? Current { get; private set; }
 
         bool active;
 
@@ -149,7 +150,7 @@ namespace RandomizerCore.Logic
             individualEntries.Add(entry);
             addEntryHelper.Clear();
 
-            if (active) entry.Update(pm);
+            if (active) DoUpdate(entry);
         }
 
         public void AddPMHook(PMHook hook)
@@ -244,7 +245,7 @@ namespace RandomizerCore.Logic
             List<UpdateEntryBase> l = entriesByTerm[term];
             for (int i = 0; i < l.Count; i++)
             {
-                l[i].Update(pm, term);
+                DoUpdate(l[i], term);
             }
         }
 
@@ -252,8 +253,22 @@ namespace RandomizerCore.Logic
         {
             for (int i = 0; i < individualEntries.Count; i++)
             {
-                individualEntries[i].Update(pm);
+                DoUpdate(individualEntries[i]);
             }
+        }
+
+        private void DoUpdate(UpdateEntryBase e)
+        {
+            Current = e;
+            e.Update(pm);
+            Current = null;
+        }
+
+        private void DoUpdate(UpdateEntryBase e, int term)
+        {
+            Current = e;
+            e.Update(pm, term);
+            Current = null;
         }
 
         public void OnEndTemp(bool saved)

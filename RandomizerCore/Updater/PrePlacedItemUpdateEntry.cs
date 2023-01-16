@@ -38,7 +38,7 @@
 
         public override string ToString()
         {
-            return $"PPMUE: {item.Name} at {location.Name}, state: {state}";
+            return $"{GetType().Name}: {item.Name} at {location.Name}, state: {state}";
         }
 
     }

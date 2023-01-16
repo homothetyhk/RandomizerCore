@@ -66,5 +66,10 @@ namespace RandomizerCore.Updater
         {
             Update(pm);
         }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}: {source.Name} -> {target.Name}";
+        }
     }
 }

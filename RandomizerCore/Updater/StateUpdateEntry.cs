@@ -21,7 +21,7 @@ namespace RandomizerCore.Logic
                 this.term = term;
             }
 
-            public string Name => term.Name;
+            public string Name => $"{GetType().Name}: {term.Name}";
 
             public void AddTo(ProgressionManager pm)
             {
@@ -69,6 +69,11 @@ namespace RandomizerCore.Logic
                 stateSetter.value = pm.lm.StateManager.Empty;
                 pm.Add(stateSetter);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}: {term.Name}, {logic.InfixSource}";
         }
     }
 }
