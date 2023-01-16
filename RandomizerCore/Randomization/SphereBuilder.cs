@@ -18,6 +18,12 @@ namespace RandomizerCore.Randomization
         public List<RandoPlacement>[] Placements;
         private readonly TempState tempState;
 
+        // for debugging commutativity failures
+        readonly List<IRandoItem> lastProposed = new();
+        readonly List<IRandoItem> lastAccepted = new();
+        ItemAddPattern itemCode;
+
+
         /// <summary>
         /// Creates a new SphereBuilder, using the ProgressionManager to monitor reachable locations.
         /// </summary>
@@ -256,9 +262,11 @@ namespace RandomizerCore.Randomization
         {
             if (pm.Temp) throw new InvalidOperationException("Previous temp was not disposed!");
             pm.StartTemp();
+            ResetStepHistory();
 
             while (selector.TryProposeNext(out IRandoItem t))
             {
+                lastProposed.Add(t);
                 Place(t, pm);
                 if (rt.FoundNew)
                 {
@@ -295,12 +303,11 @@ namespace RandomizerCore.Randomization
 
             while (selector.TryRecallLast(out IRandoItem t))
             {
-                if (Decide(t) && IsFinalItem())
+                if (Decide(t))
                 {
                     selector.RejectAllRemaining();
                     break;
                 }
-                if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations after progression test.", selector, pm);
             }
 
             try
@@ -316,42 +323,105 @@ namespace RandomizerCore.Randomization
             return;
 
             // used after new reachable locations have been found to determine which items are required for the access
-            // returns false if there are still new reachable locations after restricting to the accepted items and the proposed items other than the current item
-            // returns true otherwise
+            // automatically rejects/accepts the current item based on whether restricted to the other proposed/accepted items still leaves new reachable locations
+            // returns true if the item was accepted and all remaining proposed items can be rejected (the current accepted items suffice to unlock new reachable locations)
             bool Decide(IRandoItem t)
             {
                 t.Placed = TempState.None;
                 pm.RestrictTempTo(selector.GetTestItems());
+
                 if (rt.FoundNew)
                 {
+                    UpdateStepHistoryReject();
                     selector.RejectLast(); // sets placed to none
                     return false;
                 }
-                else
-                {
-                    Place(t, pm); // sets placed to temporary
-                    selector.AcceptLast(); // sets placed to permanent
-                    if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations during progression test success branch.", selector, pm);
-                    return true;
-                }
-            }
+                
+                Place(t, pm); // sets placed to temporary
 
-            // used after an item is determined to be required by Decide
-            // returns true if all remaining proposed items can be rejected (the current accepted items suffice to unlock new reachable locations)
-            bool IsFinalItem()
-            {
+                if (!rt.FoundNew)
+                {
+                    CommutativityError(t, CommutativityErrorSource.ProgressionTest);
+                }
+
+                selector.AcceptLast(); // sets placed to permanent
+
+                // Begin short circuit test
+
                 pm.RestrictTempTo(selector.GetAcceptedItems());
+
                 if (rt.FoundNew)
                 {
-                    return true;
+                    return true; // this short circuits the step
                 }
-                else
+
+                pm.Add(selector.GetProposedItems());
+
+                if (!rt.FoundNew)
                 {
-                    pm.Add(selector.GetProposedItems());
-                    if (!rt.FoundNew) throw new CommutativityFailureException("Lost all new reachable locations during shortcircuit test.", selector, pm);
-                    return false;
+                    CommutativityError(t, CommutativityErrorSource.ShortCircuitTest);
                 }
+                UpdateStepHistoryAccept();
+
+                return false;
             }
+        }
+
+        private void ResetStepHistory()
+        {
+            lastAccepted.Clear();
+            lastProposed.Clear();
+            itemCode = ItemAddPattern.Individual;
+        }
+
+        private void UpdateStepHistoryReject()
+        {
+            lastProposed.Clear();
+            lastProposed.AddRange(selector.GetTestItems());
+            itemCode = ItemAddPattern.Test;
+        }
+
+        private void UpdateStepHistoryAccept()
+        {
+            lastProposed.Clear();
+            lastProposed.AddRange(selector.GetProposedItems());
+            lastAccepted.Clear();
+            lastAccepted.AddRange(selector.GetAcceptedItems());
+            itemCode = ItemAddPattern.AcceptedProposed;
+        }
+
+        private enum ItemAddPattern
+        {
+            Individual,
+            AcceptedProposed,
+            Test,
+        }
+
+        private enum CommutativityErrorSource
+        {
+            ProgressionTest,
+            ShortCircuitTest
+        }
+
+        private void CommutativityError(IRandoItem decideItem, CommutativityErrorSource errorSource)
+        {
+            string message = errorSource switch 
+            {
+                CommutativityErrorSource.ProgressionTest => "Lost all new reachable locations during progression test.",
+                CommutativityErrorSource.ShortCircuitTest or _ => "Lost all new reachable locations during shortcircuit test.",
+            };
+            IEnumerable<IEnumerable<IRandoItem>> gtList = itemCode switch
+            {
+                ItemAddPattern.AcceptedProposed => new[] { lastAccepted, lastProposed },
+                ItemAddPattern.Test => new[] { lastProposed },
+                ItemAddPattern.Individual or _ => lastProposed.Select(i => new[] { i })
+            };
+            IEnumerable<IEnumerable<IRandoItem>> ltList = errorSource switch
+            {
+                CommutativityErrorSource.ProgressionTest => new[] { selector.GetTestItems(), new[] { decideItem } },
+                CommutativityErrorSource.ShortCircuitTest or _ => new[] { selector.GetAcceptedItems(), selector.GetProposedItems() },
+            };
+            throw new CommutativityFailureException(message, pm, gtList, ltList);
         }
     }
 }
