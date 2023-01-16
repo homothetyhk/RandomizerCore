@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.StringLogic;
 using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
@@ -188,6 +189,13 @@ namespace RandomizerCore.Logic
             AfterStartTemp?.Invoke();
         }
 
+        private void RestartTemp()
+        {
+            Temp = true;
+            // the backup was just applied, so it is still correct
+            AfterStartTemp?.Invoke();
+        }
+
         public void RemoveTempItems()
         {
             if (!Temp) throw new InvalidOperationException("RemoveTempItems called outside of Temp!");
@@ -199,14 +207,14 @@ namespace RandomizerCore.Logic
         public void RestrictTempTo(ILogicItem soleItem)
         {
             RemoveTempItems();
-            StartTemp();
+            RestartTemp();
             Add(soleItem);
         }
 
         public void RestrictTempTo(IEnumerable<ILogicItem> items)
         {
             RemoveTempItems();
-            StartTemp();
+            RestartTemp();
             Add(items);
         }
 
@@ -221,6 +229,8 @@ namespace RandomizerCore.Logic
         public string Dump() => obtained.Dump(lm);
         public static string Diff(ProgressionManager left, ProgressionManager right) => ProgressionData.Diff(left.obtained, right.obtained);
         public static string Diff(ProgressionManager left, ProgressionData right) => ProgressionData.Diff(left.obtained, right);
+        public static List<Term> GetDiffTerms(ProgressionManager left, ProgressionData right, ComparisonType type = ComparisonType.EQ) => ProgressionData.GetDiffTerms(left.obtained, right, type);
+
         public ProgressionData GetSnapshot() => obtained.DeepClone();
     }
 }

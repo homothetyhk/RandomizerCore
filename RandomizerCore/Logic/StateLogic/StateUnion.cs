@@ -32,6 +32,41 @@ namespace RandomizerCore.Logic.StateLogic
             _states = states;
         }
 
+        /// <summary>
+        /// A partial ordering which holds if the right union represents equal or better progression than the left union.
+        /// Returns true if left is null, or else both are not null and there is a map from left to right which takes each state in left to a <see cref="State.IsComparablyLE(State, State)"/> state in right.
+        /// Note: this ordering is reversed from the natural ordering induced by the ordering on State.
+        /// </summary>
+        public static bool IsProgressivelyLE(StateUnion? left, StateUnion? right)
+        {
+            if (ReferenceEquals(left, right)) return true;
+            if (left is null) return true;
+            if (right is null) return false;
+
+            for (int i = 0; i < left.Count; i++)
+            {
+                for (int j = 0; j < right.Count; j++)
+                {
+                    if (State.IsComparablyLE(right[j], left[i]))
+                    {
+                        goto continue_outer;
+                    }
+                }
+                return false;
+                continue_outer: continue;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the two state unions are equivalent under the partial order of <see cref="IsProgressivelyLE(StateUnion, StateUnion)"/>.
+        /// </summary>
+        public static bool IsProgressivelyEqual(StateUnion? left, StateUnion? right)
+        {
+            if (left is null || right is null) return left is null && right is null;
+            if (left.Count != right.Count) return false;
+            return IsProgressivelyLE(left, right) && IsProgressivelyLE(right, left);
+        }
 
         public static bool TryUnion(StateUnion left, List<State> states, out StateUnion result)
         {

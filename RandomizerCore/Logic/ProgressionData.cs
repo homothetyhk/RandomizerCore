@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.StringLogic;
 using System.Runtime.CompilerServices;
 
 namespace RandomizerCore.Logic
@@ -123,29 +124,81 @@ namespace RandomizerCore.Logic
             Dictionary<string, object> o = new();
             LogicManager lm = left.LM;
 
+            foreach (Term t in GetDiffTerms(left, right))
+            {
+                if (t.Type == TermType.State)
+                {
+                    o.Add(t.Name, $"{lm.StateManager.PrettyPrint(left.GetState(t))} <> {lm.StateManager.PrettyPrint(right.GetState(t))}");
+                }
+                else
+                {
+                    o.Add(t.Name, $"{left.GetValue(t)} <> {right.GetValue(t)}");
+                }
+            }
+            return JsonUtil.Serialize(o);
+        }
+
+        public static List<Term> GetDiffTerms(ProgressionData left, ProgressionData right, ComparisonType type = ComparisonType.EQ)
+        {
+            return type switch
+            {
+                ComparisonType.GT => GetLT(right, left),
+                ComparisonType.LT => GetLT(left, right),
+                _ => GetNE(left, right),
+            };
+        }
+
+        private static List<Term> GetLT(ProgressionData left, ProgressionData right)
+        {
+            List<Term> result = new();
+            LogicManager lm = left.LM;
+
             IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.SignedByte);
             for (int i = 0; i < left.Data.Length; i++)
             {
-                int diff = right.Data[i] - left.Data[i];
-                if (diff != 0) o.Add(termList[i].Name, diff);
+                if (left.Data[i] < right.Data[i]) result.Add(termList[i]);
             }
 
             termList = lm.Terms.GetTermList(TermType.Int);
             for (int i = 0; i < left.LargeData.Length; i++)
             {
-                int diff = right.LargeData[i] - left.LargeData[i];
-                if (diff != 0) o.Add(termList[i].Name, diff);
+                if (left.LargeData[i] < right.LargeData[i]) result.Add(termList[i]);
             }
 
             termList = lm.Terms.GetTermList(TermType.State);
             for (int i = 0; i < left.StateData.Length; i++)
             {
-                string leftSt = lm.StateManager.PrettyPrint(left.StateData[i]);
-                string rightSt = lm.StateManager.PrettyPrint(right.StateData[i]);
-                if (leftSt != rightSt) o.Add(termList[i].Name, $"{leftSt} <> {rightSt}");
+                if (StateUnion.IsProgressivelyLE(left.StateData[i], right.StateData[i])
+                    && !StateUnion.IsProgressivelyLE(right.StateData[i], left.StateData[i])) result.Add(termList[i]);
             }
 
-            return JsonUtil.Serialize(o);
+            return result;
+        }
+
+        private static List<Term> GetNE(ProgressionData left, ProgressionData right)
+        {
+            List<Term> result = new();
+            LogicManager lm = left.LM;
+
+            IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.SignedByte);
+            for (int i = 0; i < left.Data.Length; i++)
+            {
+                if (left.Data[i] != right.Data[i]) result.Add(termList[i]);
+            }
+
+            termList = lm.Terms.GetTermList(TermType.Int);
+            for (int i = 0; i < left.LargeData.Length; i++)
+            {
+                if (left.LargeData[i] != right.LargeData[i]) result.Add(termList[i]);
+            }
+
+            termList = lm.Terms.GetTermList(TermType.State);
+            for (int i = 0; i < left.StateData.Length; i++)
+            {
+                if (!StateUnion.IsProgressivelyEqual(left.StateData[i], right.StateData[i])) result.Add(termList[i]);
+            }
+
+            return result;
         }
 
         public ProgressionData DeepClone()
