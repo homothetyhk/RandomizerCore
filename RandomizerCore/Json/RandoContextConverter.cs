@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using RandomizerCore.Logic;
 
 namespace RandomizerCore.Json
 {
     public class RandoContextConverter : JsonConverter<RandoContext>
     {
-        [ThreadStatic] public static bool inUse;
-        public override bool CanWrite => !inUse;
-
         public override RandoContext ReadJson(JsonReader reader, Type objectType, RandoContext existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             JObject jo = JObject.Load(reader);
@@ -16,42 +14,45 @@ namespace RandomizerCore.Json
             LogicManager lm = jo[nameof(RandoContext.LM)].ToObject<LogicManager>(serializer);
             RandoContext ctx = (RandoContext)Activator.CreateInstance(objectType, lm);
 
-            TermConverter tc = new() { LM = lm };
+            IContractResolver orig = serializer.ContractResolver;
+            serializer.ContractResolver = new LogicContractResolver { LM = lm };
+
+            TermConverter tc = new() { Terms = lm.Terms };
             StateFieldConverter sfc = new() { SM = lm.StateManager };
+            LogicDefReader ldr = new() { LM = lm };
             serializer.Converters.Add(tc);
             serializer.Converters.Add(sfc);
-            serializer.Converters.Add(LogicDefConverter.Instance);
-            LogicDefConverter.Instance.LM = lm;
+            serializer.Converters.Add(ldr);
 
             JsonReader jr = jo.CreateReader();
             serializer.Populate(jr, ctx);
 
-            serializer.Converters.Remove(LogicDefConverter.Instance);
+            serializer.Converters.Remove(ldr);
             serializer.Converters.Remove(sfc);
             serializer.Converters.Remove(tc);
-            LogicDefConverter.Instance.LM = null;
+            serializer.ContractResolver = orig;
 
             return ctx;
         }
 
+        public bool skipNextWrite;
+        public override bool CanWrite => !skipNextWrite || (skipNextWrite = false);
+
         public override void WriteJson(JsonWriter writer, RandoContext value, JsonSerializer serializer)
         {
-            TermConverter tc = new() { LM = value.LM };
+            TermConverter tc = new() { Terms = value.LM.Terms };
             StateFieldConverter sfc = new() { SM = value.LM.StateManager };
-            LogicDefConverter.Instance.LM = value.LM;
+            LogicObjectWriter low = new() { LM = value.LM };
             serializer.Converters.Add(tc);
             serializer.Converters.Add(sfc);
-            serializer.Converters.Add(LogicDefConverter.Instance);
+            serializer.Converters.Add(low);
 
-            inUse = true;
+            skipNextWrite = true;
             serializer.Serialize(writer, value);
-            inUse = false;
 
-            serializer.Converters.Remove(LogicDefConverter.Instance);
             serializer.Converters.Remove(sfc);
             serializer.Converters.Remove(tc);
-
-            LogicDefConverter.Instance.LM = null;
+            serializer.Converters.Remove(low);
         }
     }
 }

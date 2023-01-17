@@ -4,7 +4,7 @@ namespace RandomizerCore.Logic
 {
     public class LogicWaypoint : ILogicDef, ILogicItem
     {
-        public LogicWaypoint(Term term, StateLogicDef logic)
+        internal LogicWaypoint(Term term, StateLogicDef logic)
         {
             this.term = term;
             this.logic = logic;

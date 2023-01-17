@@ -208,17 +208,5 @@ namespace RandomizerCore.Logic
             i++;
             right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
         }
-
-        // cursed hacks for deserialization into ILogicDef property type, where the converter doesn't trigger.
-        [JsonConstructor]
-        protected RPNLogicDef(string Name, string Logic) : this(ConverterFetchOrMake(Name, Logic))
-        {
-        }
-
-        private static RPNLogicDef ConverterFetchOrMake(string name, string logic)
-        {
-            if (LogicDefConverter.Instance.LM.GetLogicDef(name) is RPNLogicDef other && other.InfixSource == logic) return other;
-            return LogicDefConverter.Instance.LM.CreateRPNLogicDef(new(name, logic));
-        }
     }
 }

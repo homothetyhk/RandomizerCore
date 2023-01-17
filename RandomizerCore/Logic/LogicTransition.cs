@@ -1,18 +1,15 @@
-﻿using Newtonsoft.Json;
-using RandomizerCore.Logic.StateLogic;
+﻿using RandomizerCore.Logic.StateLogic;
 
 namespace RandomizerCore.Logic
 {
     public class LogicTransition : ILogicItem, ILogicDef, ILocationDependentItem, ILocationWaypoint
     {
-        [JsonConstructor]
-        public LogicTransition(StateLogicDef logic, Term term)
+        internal LogicTransition(StateLogicDef logic, Term term)
         {
             this.logic = logic;
             this.term = term;
         }
 
-        [JsonIgnore]
         public string Name => logic.Name;
 
         public readonly StateLogicDef logic;

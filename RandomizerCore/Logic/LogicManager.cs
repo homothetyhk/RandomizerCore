@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using RandomizerCore.Extensions;
 using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
@@ -8,7 +7,7 @@ using System.Collections.ObjectModel;
 namespace RandomizerCore.Logic
 {
     [JsonConverter(typeof(LMConverter))]
-    public class LogicManager : ILogicManager
+    public class LogicManager
     {
         public readonly TermCollection Terms;
         public readonly ReadOnlyDictionary<string, LogicDef> LogicLookup;
@@ -124,7 +123,7 @@ namespace RandomizerCore.Logic
         }
 
         /// <summary>
-        /// Fetches the term by name. Returns null if not defined.
+        /// Fetches the term by name.
         /// </summary>
         /// <exception cref="ArgumentException">The tern is not defined.</exception>
         public Term GetTermStrict(string item)

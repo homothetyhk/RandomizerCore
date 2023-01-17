@@ -4,25 +4,23 @@ using RandomizerCore.Logic;
 
 namespace RandomizerCore.Json
 {
-    public class LogicDefConverter : JsonConverter<LogicDef>
+    public class LogicDefReader : JsonConverter<LogicDef>
     {
-        [ThreadStatic] private static LogicDefConverter? _instance;
-        public static LogicDefConverter Instance { get => _instance ??= new(); }
-        // the thread static instance allows the converter to be accessed from the private OptimizedLogicDef constructor, which can get called during polymorphic deserialization.
-
         public LogicManager? LM;
 
         public override LogicDef ReadJson(JsonReader reader, Type objectType, LogicDef? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            JObject t = JObject.Load(reader);
-            string? name = t.GetValue("name", StringComparison.OrdinalIgnoreCase)?.Value<string>();
-            string? logic = t.GetValue("logic", StringComparison.OrdinalIgnoreCase)?.Value<string>();
+            JToken t = JToken.Load(reader);
+            JObject o = (JObject)t;
+            string? name = o.GetValue("name", StringComparison.OrdinalIgnoreCase)?.Value<string>();
+            string? logic = o.GetValue("logic", StringComparison.OrdinalIgnoreCase)?.Value<string>();
 
             if (name is null) throw new NullReferenceException($"Error deserializing logic def at {reader.Path}: null name.");
-            if (logic is null) throw new NullReferenceException($"Error deserializing logic def {name} at {reader.Path}: null logic.");
             if (LM is null) throw new NullReferenceException(nameof(LM));
 
-            if (LM.GetLogicDef(name) is LogicDef lDef && lDef.InfixSource == logic && objectType.IsAssignableFrom(lDef.GetType()))
+            LogicDef? lDef = LM.GetLogicDef(name);
+
+            if (logic is null || lDef is not null && lDef.InfixSource == logic && objectType.IsAssignableFrom(lDef.GetType()))
             {
                 return lDef;
             }
@@ -45,7 +43,6 @@ namespace RandomizerCore.Json
         }
 
         public override bool CanWrite => false;
-
         public override void WriteJson(JsonWriter writer, LogicDef? value, JsonSerializer serializer)
         {
             throw new NotImplementedException();

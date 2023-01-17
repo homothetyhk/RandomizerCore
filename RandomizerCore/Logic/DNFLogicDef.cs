@@ -360,7 +360,7 @@ namespace RandomizerCore.Logic
             this.lm = lm;
         }
 
-        public DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)
+        protected DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)
         {
             this.clauses = other.clauses;
             this.lm = other.lm;
@@ -458,18 +458,6 @@ namespace RandomizerCore.Logic
         {
             return clauses.SelectMany(c => c.GetTerms());
         }
-
-        // cursed hacks for deserialization into ILogicDef property type, where the converter doesn't trigger.
-        [JsonConstructor]
-        protected DNFLogicDef(string Name, string Logic) : this(ConverterFetchOrMake(Name, Logic))
-        {
-        }
-
-        private static DNFLogicDef ConverterFetchOrMake(string name, string logic)
-        {
-            if (LogicDefConverter.Instance.LM!.GetLogicDef(name) is DNFLogicDef other && other.InfixSource == logic) return other;
-            return LogicDefConverter.Instance.LM.CreateDNFLogicDef(new(name, logic));
-        }
     }
 
     [Obsolete]
@@ -477,11 +465,6 @@ namespace RandomizerCore.Logic
     public class OptimizedLogicDef : DNFLogicDef
     {
         public OptimizedLogicDef(DNFLogicDef def) : base(def)
-        {
-        }
-
-        [JsonConstructor]
-        protected OptimizedLogicDef(string Name, string Logic) : base(Name, Logic)
         {
         }
     }
