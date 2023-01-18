@@ -7,7 +7,7 @@ namespace RandomizerCore
     [JsonConverter(typeof(RandoContextConverter))]
     public abstract class RandoContext
     {
-        public LogicManager LM;
+        public readonly LogicManager LM;
         public ILogicItem InitialProgression;
 
         public RandoContext(LogicManager LM)

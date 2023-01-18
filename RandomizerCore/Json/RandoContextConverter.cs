@@ -13,6 +13,7 @@ namespace RandomizerCore.Json
 
             LogicManager lm = jo[nameof(RandoContext.LM)].ToObject<LogicManager>(serializer);
             RandoContext ctx = (RandoContext)Activator.CreateInstance(objectType, lm);
+            jo.Remove(nameof(RandoContext.LM));
 
             IContractResolver orig = serializer.ContractResolver;
             serializer.ContractResolver = new LogicContractResolver { LM = lm };

@@ -46,14 +46,34 @@ namespace RandomizerCore.StringLogic
             Macros = new(macros);
         }
 
+        private void DefineMacroToken(string key)
+        {
+            if (tokenPool.TryGetValue(key, out LogicToken lt))
+            {
+                if (lt is not MacroToken) throw new ArgumentException($"Key {key} cannot be used as a macro since it is already in use for {lt}");
+            }
+            else
+            {
+                tokenPool.Add(key, new MacroToken(key, this));
+            }
+        }
+
+        private void DefineMacroTokens(IEnumerable<string> keys)
+        {
+            foreach (string key in keys) DefineMacroToken(key);
+        }
+
         public void SetMacro(Dictionary<string, string> newMacros)
         {
             if (newMacros == null) return;
+            DefineMacroTokens(newMacros.Keys);
+
             foreach (var kvp in newMacros)
             {
                 SetMacro(kvp);
             }
         }
+
         public void SetMacro(string key, string infix)
         {
             LogicClause lc;
@@ -68,30 +88,12 @@ namespace RandomizerCore.StringLogic
             SetMacro(key, lc);
         }
 
-        public void SetMacro(KeyValuePair<string, string> kvp)
-        {
-            LogicClause lc;
-            try
-            {
-                lc = ParseInfixToClause(kvp.Value);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException($"Logic \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
-            }
-
-            SetMacro(kvp.Key, lc);
-        }
+        public void SetMacro(KeyValuePair<string, string> kvp) => SetMacro(kvp.Key, kvp.Value);
 
         public void SetMacro(string key, LogicClause c)
         {
-            if (tokenPool.TryGetValue(key, out LogicToken lt) && lt is not MacroToken)
-            {
-                throw new ArgumentException($"Key {key} cannot be used as a macro since it is already in use for {lt}");
-            }
-
+            DefineMacroToken(key);
             macros[key] = c;
-            if (lt is null) tokenPool[key] = new MacroToken(key, this);
         }
 
         public bool IsMacro(string name) => macros.ContainsKey(name);
