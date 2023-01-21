@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.Updater;
+using System.Diagnostics;
 
 namespace RandomizerCore.Logic
 {
@@ -237,7 +238,10 @@ namespace RandomizerCore.Logic
 
         public void DoUpdates()
         {
+            Stopwatch sw = Stopwatch.StartNew();
             while (updates.TryDequeue(out int term)) DoUpdate(term);
+            sw.Stop();
+            Profiling.EmitMetric("MainUpdater.DoUpdate.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
         }
 
         public void DoUpdate(int term)
