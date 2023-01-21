@@ -345,6 +345,10 @@ namespace RandomizerCore.Logic
                 Expand(tokens);
                 _DNFConverter.Convert(tokens);
                 List<List<TermToken>> res = _DNFConverter.Result;
+                if (res.Count > 200)
+                {
+                    LogDebug($"Warning - DNF for {name} expanded to {res.Count} clauses.");
+                }
                 DNFLogicDef result = new(CreateClauses, this, name, Infix.ToInfix(tokens));
                 Profiling.EmitMetric("LogicManager.CreateDNFLogicDef.ResultingTermCount", result.GetTerms().Count());
                 return result;

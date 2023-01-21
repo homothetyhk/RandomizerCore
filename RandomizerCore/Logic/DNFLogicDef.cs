@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using RandomizerCore.Json;
-using RandomizerCore.Logic.StateLogic;
+﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -135,7 +133,7 @@ namespace RandomizerCore.Logic
                 {
                     LogicOperators op = (LogicOperators)id;
                     int left = EvaluateStateVariable(stateLogic[i + 1], pm, lsb);
-                    int right = EvaluateStateVariable(stateLogic[i + 1], pm, lsb);
+                    int right = EvaluateStateVariable(stateLogic[i + 2], pm, lsb);
                     if (op switch
                     {
                         LogicOperators.GT => left > right,
@@ -190,8 +188,8 @@ namespace RandomizerCore.Logic
                 else
                 {
                     LogicOperators op = (LogicOperators)id;
-                    int left = EvaluateStateVariable(id + 1, pm, lsb);
-                    int right = EvaluateStateVariable(id + 2, pm, lsb);
+                    int left = EvaluateStateVariable(stateLogic[i + 1], pm, lsb);
+                    int right = EvaluateStateVariable(stateLogic[i + 2], pm, lsb);
                     if (op switch
                     {
                         LogicOperators.GT => left > right,
@@ -402,15 +400,20 @@ namespace RandomizerCore.Logic
         private void CreateTermClauseLookup()
         {
             termClauseLookup = new();
+            HashSet<int> termHelper = new();
             foreach (Clause c in clauses)
             {
+                termHelper.Clear();
                 foreach (Term t in c.GetTerms())
                 {
-                    if (!termClauseLookup.TryGetValue(t, out List<Clause> cs))
+                    if (termHelper.Add(t))
                     {
-                        termClauseLookup.Add(t, cs = new());
+                        if (!termClauseLookup.TryGetValue(t, out List<Clause> cs))
+                        {
+                            termClauseLookup.Add(t, cs = new());
+                        }
+                        cs.Add(c);
                     }
-                    cs.Add(c);
                 }
             }
         }
