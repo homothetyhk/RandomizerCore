@@ -8,13 +8,22 @@ namespace RandomizerCore
         private static readonly Dictionary<string, List<double>> committedMetrics = new();
         private static readonly Dictionary<string, List<double>> metrics = new();
 
+        /// <summary>
+        /// Fully resets all committed, uncommitted, and reverted datapoints.
+        /// </summary>
         [Conditional("DEBUG")]
         public static void Reset()
         {
             metrics.Clear();
+            revertedMetrics.Clear();
             committedMetrics.Clear();
         }
 
+        /// <summary>
+        /// Emits a datapoint for the specified metric
+        /// </summary>
+        /// <param name="name">The metric name. Should be unique to the code being profiled.</param>
+        /// <param name="value">The value to emit.</param>
         [Conditional("DEBUG")]
         internal static void EmitMetric(string name, double value)
         {
@@ -25,6 +34,9 @@ namespace RandomizerCore
             metrics[name].Add(value);
         }
 
+        /// <summary>
+        /// Commits all staged emitted metrics.
+        /// </summary>
         [Conditional("DEBUG")]
         public static void Commit()
         {
@@ -42,6 +54,9 @@ namespace RandomizerCore
             metrics.Clear();
         }
 
+        /// <summary>
+        /// Reverts all staged emitted metrics.
+        /// </summary>
         [Conditional("DEBUG")]
         public static void Revert()
         {
@@ -59,6 +74,10 @@ namespace RandomizerCore
             metrics.Clear();
         }
 
+        /// <summary>
+        /// Aggregates and logs metrics in a tabular format. Staged (uncommitted) metrics are not included.
+        /// </summary>
+        /// <param name="includeReverted">Whether to include reverted metrics in the aggregation.</param>
         [Conditional("DEBUG")]
         public static void Log(bool includeReverted = false)
         {
