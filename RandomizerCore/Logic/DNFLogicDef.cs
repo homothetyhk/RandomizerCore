@@ -3,6 +3,7 @@ using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace RandomizerCore.Logic
@@ -357,6 +358,7 @@ namespace RandomizerCore.Logic
             : base(name, infixSource)
         {
             this.clauses = clauseGenerator(this);
+            Profiling.EmitMetric("DNFLogicDef.ClauseCount", clauses.Length);
             this.lm = lm;
         }
 
@@ -369,20 +371,31 @@ namespace RandomizerCore.Logic
 
         public override bool CanGet(ProgressionManager pm)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             for (int j = 0; j < clauses.Length; j++)
             {
-                if (clauses[j].EvaluateClause(pm)) return true;
+                if (clauses[j].EvaluateClause(pm))
+                {
+                    sw.Stop();
+                    Profiling.EmitMetric("DNFLogicDef.CanGet.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+                    return true;
+                }
             }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.CanGet.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
             return false;
         }
 
         public override bool EvaluateState(ProgressionManager pm, List<State> states)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             bool succeedsOnEmpty = false;
             for (int j = 0; j < clauses.Length; j++)
             {
                 succeedsOnEmpty |= clauses[j].EvaluateStateChange(pm, states);
             }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.EvaluateState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
             return succeedsOnEmpty;
         }
 
@@ -404,6 +417,7 @@ namespace RandomizerCore.Logic
 
         public override bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> newStates, int modifiedTerm, [MaybeNullWhen(false)] out StateUnion result)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             if (termClauseLookup is null) CreateTermClauseLookup();
 
             bool succeedOnEmpty = false;
@@ -416,20 +430,32 @@ namespace RandomizerCore.Logic
                 if (newStates.Count > 0)
                 {
                     result = new(newStates);
+                    sw.Stop();
+                    Profiling.EmitMetric("DNFLogicDef.CheckForUpdatedState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
                     return true;
                 }
                 else if (succeedOnEmpty)
                 {
                     result = lm.StateManager.Empty;
+                    sw.Stop();
+                    Profiling.EmitMetric("DNFLogicDef.CheckForUpdatedState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
                     return true;
                 }
                 else
                 {
                     result = null;
+                    sw.Stop();
+                    Profiling.EmitMetric("DNFLogicDef.CheckForUpdatedState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
                     return false;
                 }
             }
-            else return StateUnion.TryUnion(current, newStates, out result);
+            else
+            {
+                bool succeeded = StateUnion.TryUnion(current, newStates, out result);
+                sw.Stop();
+                Profiling.EmitMetric("DNFLogicDef.CheckForUpdatedState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+                return succeeded;
+            }
         }
 
         public IEnumerable<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)

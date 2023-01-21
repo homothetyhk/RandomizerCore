@@ -345,7 +345,9 @@ namespace RandomizerCore.Logic
                 Expand(tokens);
                 _DNFConverter.Convert(tokens);
                 List<List<TermToken>> res = _DNFConverter.Result;
-                return new(CreateClauses, this, name, Infix.ToInfix(tokens));
+                DNFLogicDef result = new(CreateClauses, this, name, Infix.ToInfix(tokens));
+                Profiling.EmitMetric("LogicManager.CreateDNFLogicDef.ResultingTermCount", result.GetTerms().Count());
+                return result;
 
                 DNFLogicDef.Clause[] CreateClauses(DNFLogicDef parent)
                 {
