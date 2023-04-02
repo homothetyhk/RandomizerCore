@@ -10,7 +10,8 @@ namespace RandomizerCore.Json
         public override Term? ReadJson(JsonReader reader, Type objectType, Term? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (Terms is null) throw new NullReferenceException(nameof(Terms));
-            return Terms.GetTerm((string)reader.Value!);
+            if (reader.Value is null) return null;
+            return Terms.GetTerm((string)reader.Value);
         }
 
         public override void WriteJson(JsonWriter writer, Term? value, JsonSerializer serializer)

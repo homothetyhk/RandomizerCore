@@ -10,24 +10,65 @@ namespace RandomizerCore.Randomization
     {
         public delegate void DepthPriorityTransformHandler(IRandoItem item, IRandoLocation location, int itemDepth, int itemPriorityDepth, int locationDepth, ref float locationPriority);
 
+        public record Constraint
+        {
+            /// <summary>
+            /// Delegate for <see cref="IsSatisfied(IRandoItem, IRandoLocation)"/>
+            /// </summary>
+            public Func<IRandoItem, IRandoLocation, bool> Test { get; init; }
+            /// <summary>
+            /// Delegate for <see cref="OnViolated(IRandoItem, IRandoLocation)"/>
+            /// </summary>
+            public Action<IRandoItem, IRandoLocation>? Fail { get; init; }
+            /// <summary>
+            /// Optional identifying label
+            /// </summary>
+            public string? Label { get; init; }
+
+            public Constraint(Func<IRandoItem, IRandoLocation, bool> Test, Action<IRandoItem, IRandoLocation>? Fail = null, string? Label = null)
+            {
+                this.Test = Test;
+                this.Fail = Fail;
+                this.Label = Label;
+            }
+
+            protected Constraint() { }
+
+            /// <summary>
+            /// Return false to indicate that the item cannot be placed with the location, unless no constraint-satisfying alternatives exist.
+            /// </summary>
+            public bool IsSatisfied(IRandoItem ri, IRandoLocation rl) => Test(ri, rl);
+            /// <summary>
+            /// Called when the constraint is not satisfied, but no constraint-satisfying alternatives exist. 
+            /// Exit normally to accept the placement, or throw OutOfLocationsException to trigger a new attempt.
+            /// Throw other exceptions to halt randomization.
+            /// </summary>
+            /// 
+            public void OnViolated(IRandoItem ri, IRandoLocation rl) => Fail?.Invoke(ri, rl);
+        }
+
         /// <summary>
         /// Invoked on the minimum priority locations of each sphere to modify the priority used to select the location for item.
         /// <br/>Item priority depth is the number of spheres such that the average priority of their forced progression items is less than the priority of item.
         /// </summary>
         public DepthPriorityTransformHandler depthPriorityTransform;
 
-        private readonly List<Func<IRandoItem, IRandoLocation, bool>> _constraints = new();
+        /// <summary>
+        /// If any of the constraints in this list are not satisfied, then the placement will be rejected unless no alternatives exist.
+        /// </summary>
+        public List<Constraint> ConstraintList { get; } = new();
         /// <summary>
         /// If any of the subscribers to this event return false, then the placement will be rejected unless no alternatives exist.
         /// </summary>
+        [Obsolete("Use ConstraintList instead")]
         public event Func<IRandoItem, IRandoLocation, bool> Constraints
         {
-            add => _constraints.Add(value);
-            remove => _constraints.Remove(value);
+            add => ConstraintList.Add(new Constraint(value));
+            remove => ConstraintList.Remove(new Constraint(value));
         }
         protected bool CanPlace(IRandoItem item, IRandoLocation location)
         {
-            foreach (var test in _constraints) if (!test(item, location)) return false;
+            foreach (var test in ConstraintList) if (!test.IsSatisfied(item, location)) return false;
             return true;
         }
 
@@ -41,10 +82,12 @@ namespace RandomizerCore.Randomization
         /// Event for when no reachable locations satisfy the constraint for item.
         /// <br/>Raise OutOfLocationsException to trigger rerandomization. Raise other exceptions to halt randomization.
         /// </summary>
+        [Obsolete("Use Constraint.Fail with ConstraintList instead.")]
         public event Action<IRandoItem, IRandoLocation>? OnConstraintViolated;
         protected void InvokeOnConstraintViolated(IRandoItem item, IRandoLocation location)
         {
             OnConstraintViolated?.Invoke(item, location);
+            foreach (Constraint c in ConstraintList) if (!c.IsSatisfied(item, location)) c.OnViolated(item, location);
         }
 
         public DefaultGroupPlacementStrategy(DepthPriorityTransformHandler depthPriorityTransform)
@@ -223,7 +266,7 @@ namespace RandomizerCore.Randomization
         public override GroupPlacementStrategy Clone()
         {
             DefaultGroupPlacementStrategy dgps = new(depthPriorityTransform);
-            dgps._constraints.AddRange(_constraints);
+            dgps.ConstraintList.AddRange(ConstraintList);
             dgps.OnConstraintViolated = OnConstraintViolated;
             return dgps;
         }
