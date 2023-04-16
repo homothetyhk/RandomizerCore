@@ -122,6 +122,8 @@ namespace RandomizerCore.StringLogic
             }
         }
 
+        private static readonly HashSet<char> illegalSimpleTokenChars = new() { '|', '+', '<', '>', '=', '?', '(', ')', '*' };
+
         public TermToken GetTermToken(string name)
         {
             if (globalTokens.TryGetValue(name, out LogicToken lt) || tokenPool.TryGetValue(name, out lt)) return (TermToken)lt;
@@ -133,6 +135,8 @@ namespace RandomizerCore.StringLogic
                     tokenPool.Add(name, rt);
                     return rt;
                 }
+
+                if (name.Any(illegalSimpleTokenChars.Contains)) throw new ArgumentException($"Failed to convert {name} to token due to illegal characters.");
 
                 TermToken tt = new SimpleToken(name);
                 tokenPool.Add(name, tt);
