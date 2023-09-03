@@ -1,38 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <ProjectGuid>ae78b8e8-a733-44a2-be63-d264c82118b7</ProjectGuid>
-    <AssemblyTitle>RandomizerCore</AssemblyTitle>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
-    <TargetFramework>net472</TargetFramework>
-    <Deterministic>true</Deterministic>
-    <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <ImplicitUsings>true</ImplicitUsings>
-    <Nullable>annotations</Nullable>
-    <References>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</References>
-  </PropertyGroup>
+    <PropertyGroup>
+        <ProjectGuid>ae78b8e8-a733-44a2-be63-d264c82118b7</ProjectGuid>
+        <AssemblyTitle>RandomizerCore</AssemblyTitle>
+        <AssemblyVersion>1.1.2.0</AssemblyVersion>
+        <FileVersion>1.1.2.0</FileVersion>
+        <TargetFrameworks>netstandard2.1;net472;net6.0</TargetFrameworks>
+        <Deterministic>true</Deterministic>
+        <LangVersion>latest</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <ImplicitUsings>true</ImplicitUsings>
+        <Nullable>annotations</Nullable>
+        <References>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</References>
+    </PropertyGroup>
 
-  <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')"/>
+    <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')"/>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+        <PackageReference Include="PolySharp" Version="1.13.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(References)\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="PolySharp" Version="1.13.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Remove="System.Net.Http" />
+        <Using Remove="System.Threading" />
+        <Using Remove="System.Threading.Tasks" />
+        <Using Include="RandomizerCore.LogHelper" Static="true" />
+    </ItemGroup>
+    <PropertyGroup>
+        <WarningsAsErrors>;NU1605</WarningsAsErrors>
+        <NoWarn>1701;1702;CS1591</NoWarn>
+    </PropertyGroup>
     
-  <ItemGroup>
-    <Using Remove="System.Net.Http" />
-    <Using Remove="System.Threading" />
-    <Using Remove="System.Threading.Tasks" />
-    <PackageReference Include="PolySharp" Version="1.8.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <Using Include="RandomizerCore.LogHelper" Static="true" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(References)\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <PropertyGroup>
-    <WarningsAsErrors>;NU1605</WarningsAsErrors>
-    <NoWarn>1701;1702;CS1591</NoWarn>
-  </PropertyGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).xml" DestinationFolder="$(References)\Mods\$(TargetName)" SkipUnchangedFiles="true" />
-  </Target>
- </Project>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net472'">
+        <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).xml" DestinationFolder="$(References)\Mods\$(TargetName)" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
