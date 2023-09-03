@@ -16,15 +16,11 @@
     <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')"/>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-        <PackageReference Include="PolySharp" Version="1.13.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <Reference Include="Newtonsoft.Json">
             <HintPath>$(References)\Newtonsoft.Json.dll</HintPath>
         </Reference>
     </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
         <PackageReference Include="PolySharp" Version="1.13.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
