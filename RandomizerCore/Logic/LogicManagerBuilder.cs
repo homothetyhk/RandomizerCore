@@ -470,6 +470,93 @@ namespace RandomizerCore.Logic
             }
         }
 
+        public void DeserializeFile(JsonType type, ILogicFormat logicFormat, Stream s)
+
+        {
+            switch(type)
+            {
+                case JsonType.Terms:
+                    foreach ((string term, TermType termType) in logicFormat.LoadTerms(s))
+                    {
+                        GetOrAddTerm(term, termType);
+                    }
+                    break;
+
+                case JsonType.Waypoints:
+                    foreach (RawWaypointDef def in logicFormat.LoadWaypoints(s))
+                    {
+                        AddWaypoint(def);
+                    }
+                    break;
+
+                case JsonType.Transitions:
+                    foreach (RawLogicDef def in logicFormat.LoadTransitions(s))
+                    {
+                        AddTransition(def);
+                    }
+                    break;
+
+                case JsonType.Macros:
+                    LP.SetMacro(logicFormat.LoadMacros(s));
+                    break;
+
+                case JsonType.Items:
+                    foreach (object obj in logicFormat.LoadItems(s))
+                    {
+                        if (obj is LogicItem item)
+                        {
+                            AddItem(item);
+                        }
+                        else if (obj is ILogicItemTemplate templ)
+                        {
+                            AddTemplateItem(templ);
+                        }
+                        else
+                        {
+                            throw new FormatException($"Unexpected item of type {obj.GetType()} " +
+                                $"returned by logic format of type {logicFormat.GetType()}");
+                        }
+                    }
+                    break;
+
+                case JsonType.Locations:
+                    foreach (RawLogicDef def in logicFormat.LoadLocations(s))
+                    {
+                        AddLogicDef(def);
+                    }
+                    break;
+
+                case JsonType.LogicEdit:
+                    foreach (RawLogicDef def in logicFormat.LoadLogicEdits(s))
+                    {
+                        DoLogicEdit(def);
+                    }
+                    break;
+                case JsonType.MacroEdit:
+                    foreach (KeyValuePair<string, string> kvp in logicFormat.LoadMacroEdits(s))
+                    {
+                        DoMacroEdit(kvp);
+                    }
+                    break;
+
+                case JsonType.LogicSubst:
+                    foreach (RawSubstDef def in logicFormat.LoadLogicSubstitutions(s))
+                    {
+                        DoSubst(def);
+                    }
+                    break;
+                case JsonType.ItemTemplates:
+                    foreach (ILogicItemTemplate template in logicFormat.LoadItemTemplates(s))
+                    {
+                        AddTemplateItem(template);
+                    }
+                    break;
+                case JsonType.StateData:
+                    RawStateData rsd = logicFormat.LoadStateData(s);
+                    StateManager.AppendRawStateData(rsd);
+                    break;
+            }
+        }
         public Term GetTerm(string term)
         {
             return Terms.TermLookup[term];
