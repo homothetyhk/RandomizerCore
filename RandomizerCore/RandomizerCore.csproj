@@ -13,7 +13,7 @@
     <References>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</References>
   </PropertyGroup>
 
-  <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')"/>
+  <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')" />
     
   <ItemGroup>
     <Using Remove="System.Net.Http" />
