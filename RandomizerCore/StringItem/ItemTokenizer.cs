@@ -130,6 +130,10 @@ namespace RandomizerCore.StringItem
             AdvanceState();
             OpTokenizerTree tree = Operators.TokenizerTree;
             char next;
+            // todo - this approach misses cases where operators are not leaf nodes. For example, if we added
+            // an operator >|, and the sequence >|* appeared, that could be tokenized as >| and *, but would instead
+            // fail because >|> exists and so there is a length-3 candidate, and * is not >, so the Expect will explode.
+            // making this generic and not requiring backtracking might be hard so maybe it shouldn't be supported?
             while (Operators.IsReservedCharacter(next = Peek()) && tree.Candidates.Count > 0)
             {
                 Expect(tree.Candidates.Contains);

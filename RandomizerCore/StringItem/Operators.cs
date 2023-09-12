@@ -69,6 +69,7 @@ namespace RandomizerCore.StringItem
 
         // postfix operators
         public const string TermCoalescing = "?";
+        public const string Increment = "++";
 
         public static readonly IReadOnlyCollection<string> AllOperators = new HashSet<string>()
         {
@@ -79,7 +80,8 @@ namespace RandomizerCore.StringItem
             Chaining,
             Reference,
             Negation,
-            TermCoalescing
+            TermCoalescing,
+            Increment,
         };
 
         private static HashSet<char> reservedChars = new(AllOperators.SelectMany(x => x));
@@ -94,10 +96,10 @@ namespace RandomizerCore.StringItem
             _ => throw new NotImplementedException()
         };
 
-        public static int PostfixBindingPower(string op) => op switch
+        public static int? PostfixBindingPower(string op) => op switch
         {
-            TermCoalescing => 11,
-            _ => throw new NotImplementedException()
+            TermCoalescing or Increment => 11,
+            _ => null
         };
 
         public static (int, int) InfixBindingPower(string op) => op switch

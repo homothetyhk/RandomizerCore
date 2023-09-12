@@ -13,7 +13,6 @@ namespace RandomizerCore.StringItem
         public string LeadingTrivia;
         public string TrailingTrivia;
 
-
         public string Print() => LeadingTrivia + PrintContent() + TrailingTrivia;
         protected abstract string PrintContent();
     }
