@@ -48,6 +48,41 @@ namespace RandomizerCoreTests
         }
 
         [Fact]
+        public void TestParserPostfix()
+        {
+            // string input = "  Grubsong++ >> `Grubsong = 1` => CHARMS += 1";
+            List<Token> tokens = new()
+            {
+                new NameToken { Value = "Grubsong", LeadingTrivia = "  ", TrailingTrivia = "", StartCharacter = 2, EndCharacter = 9 },
+                new OperatorToken { Operator = "++", LeadingTrivia = "", TrailingTrivia = "", StartCharacter = 10, EndCharacter = 11 },
+                new OperatorToken { Operator = ">>", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 14, EndCharacter = 15 },
+                new LogicStringToken { Value = "Grubsong = 1", LeadingTrivia = "`", TrailingTrivia = "` ", StartCharacter = 18, EndCharacter = 29},
+                new OperatorToken { Operator = "=>", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 32, EndCharacter = 33 },
+                new NameToken { Value = "CHARMS", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 35, EndCharacter = 40 },
+                new OperatorToken { Operator = "+=", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 42, EndCharacter = 43 },
+                new NumberToken { Value = 1, LeadingTrivia = "", TrailingTrivia = "", StartCharacter = 45, EndCharacter = 45 }
+            };
+
+            ItemParser parser = new(tokens);
+            IExpression expr = parser.Parse();
+
+            expr.Should().BeEquivalentTo(new ChainingExpression(
+                new IncrementExpression(
+                    new AtomExpression(tokens[0])
+                ),
+                new ConditionalExpression(
+                    new AtomExpression(tokens[3]),
+                    new AdditionAssignmentExpression(
+                        new AtomExpression(tokens[5]),
+                        new AtomExpression(tokens[7])
+                    )
+                )
+            ));
+            expr.Validate().Should().BeTrue("this is a valid expression");
+            expr.Evaluate().Should().BeEquivalentTo(new[] { EvaluatedType.ItemEffect });
+        }
+
+        [Fact]
         public void TestParserParens()
         {
             List<Token> tokens = new ItemTokenizer("(((Grubsong)))").Tokenize();

@@ -66,15 +66,12 @@ namespace RandomizerCore.StringItem
                 }
 
                 Token op = Peek();
-                if (op is StructuralToken st && st.TokenType == StructuralToken.Type.CloseParenthesis)
-                {
-                    // we found our closing parens get outta here
-                    break;
-                }
+
                 if (op is not OperatorToken ot)
                 {
                     throw new Exception($"Expected an operator at position {op.StartCharacter}"); // todo - better exception
                 }
+
                 if (Operators.PostfixBindingPower(ot.Operator) is int postLbp)
                 {
                     if (postLbp < minBindingPower)
@@ -85,6 +82,7 @@ namespace RandomizerCore.StringItem
                     }
                     Next();
                     lhs = PostfixExpression.ForOperand(ot, lhs);
+                    continue;
                 }
 
                 (int lbp, int rbp) = Operators.InfixBindingPower(ot.Operator);
