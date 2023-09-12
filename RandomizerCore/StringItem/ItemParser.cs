@@ -66,7 +66,11 @@ namespace RandomizerCore.StringItem
                 }
 
                 Token op = Peek();
-
+                if (op is StructuralToken st && st.TokenType == StructuralToken.Type.CloseParenthesis)
+                {
+                    break;
+                }
+                
                 if (op is not OperatorToken ot)
                 {
                     throw new Exception($"Expected an operator at position {op.StartCharacter}"); // todo - better exception
