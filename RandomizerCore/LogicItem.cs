@@ -48,9 +48,11 @@ namespace RandomizerCore
         /// </summary>
         public abstract IEnumerable<Term> GetAffectedTerms();
 
+        public abstract bool CheckForEffect(ProgressionManager pm);
+
         LogicItem ILogicItemTemplate.Create(LogicManager lm)
         {
             return this;
         }
-    }    
+    }
 }

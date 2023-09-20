@@ -21,5 +21,17 @@ namespace RandomizerCore.LogicItems
             return (TrueItem?.GetAffectedTerms() ?? Enumerable.Empty<Term>())
                 .Concat(FalseItem?.GetAffectedTerms() ?? Enumerable.Empty<Term>());
         }
+
+        public override bool CheckForEffect(ProgressionManager pm)
+        {
+            if (Logic.CanGet(pm))
+            {
+                return TrueItem != null;
+            }
+            else
+            {
+                return FalseItem != null;
+            }
+        }
     }
 }

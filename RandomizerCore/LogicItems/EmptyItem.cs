@@ -10,10 +10,11 @@ namespace RandomizerCore.LogicItems
         {
             return;
         }
-
         public override IEnumerable<Term> GetAffectedTerms()
         {
             return Enumerable.Empty<Term>();
         }
+
+        public override bool CheckForEffect(ProgressionManager pm) => false;
     }
 }
