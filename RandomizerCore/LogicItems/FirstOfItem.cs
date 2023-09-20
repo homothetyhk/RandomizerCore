@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record FirstOfItem(string Name, IEnumerable<LogicItem> NestedItems) : LogicItem(Name)
+    public sealed record FirstOfItem(string Name, IEnumerable<LogicItem> NestedItems) : LogicItem(Name), IConditionalItem
     {
         public override void AddTo(ProgressionManager pm)
         {
-            LogicItem? firstItemWithEffect = NestedItems.FirstOrDefault(i => i.CheckForEffect(pm));
+            LogicItem? firstItemWithEffect = NestedItems.FirstOrDefault(i => i is not IConditionalItem ci 
+                || ci.CheckForEffect(pm));
             if (firstItemWithEffect != null)
             {
                 firstItemWithEffect.AddTo(pm);
@@ -20,6 +21,7 @@ namespace RandomizerCore.LogicItems
 
         public override IEnumerable<Term> GetAffectedTerms() => NestedItems.SelectMany(i => i.GetAffectedTerms());
 
-        public override bool CheckForEffect(ProgressionManager pm) => NestedItems.Any(i => i.CheckForEffect(pm));
+        public bool CheckForEffect(ProgressionManager pm) => NestedItems.Any(i => i is not IConditionalItem ci 
+            || ci.CheckForEffect(pm));
     }
 }

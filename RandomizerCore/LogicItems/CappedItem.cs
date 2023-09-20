@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record CappedItem(string Name, TermValue[] Effects, TermValue Cap) : LogicItem(Name)
+    public sealed record CappedItem(string Name, TermValue[] Effects, TermValue Cap) : LogicItem(Name), IConditionalItem
     {
         public override void AddTo(ProgressionManager pm)
         {
@@ -20,6 +20,6 @@ namespace RandomizerCore.LogicItems
             return Effects.Select(e => e.Term);
         }
 
-        public override bool CheckForEffect(ProgressionManager pm) => !pm.Has(Cap);
+        public bool CheckForEffect(ProgressionManager pm) => !pm.Has(Cap);
     }
 }

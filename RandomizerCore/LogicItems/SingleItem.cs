@@ -18,7 +18,5 @@ namespace RandomizerCore.LogicItems
         {
             yield return Effect.Term;
         }
-
-        public override bool CheckForEffect(ProgressionManager pm) => true;
     }
 }

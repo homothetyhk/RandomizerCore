@@ -2,7 +2,7 @@
 
 namespace RandomizerCore.LogicItems
 {
-    public sealed record BranchedItem(string Name, LogicDef Logic, LogicItem TrueItem, LogicItem FalseItem) : LogicItem(Name)
+    public sealed record BranchedItem(string Name, LogicDef Logic, LogicItem TrueItem, LogicItem FalseItem) : LogicItem(Name), IConditionalItem
     {
         public override void AddTo(ProgressionManager pm)
         {
@@ -22,7 +22,7 @@ namespace RandomizerCore.LogicItems
                 .Concat(FalseItem?.GetAffectedTerms() ?? Enumerable.Empty<Term>());
         }
 
-        public override bool CheckForEffect(ProgressionManager pm)
+        public bool CheckForEffect(ProgressionManager pm)
         {
             if (Logic.CanGet(pm))
             {

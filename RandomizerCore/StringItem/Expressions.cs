@@ -72,6 +72,8 @@ namespace RandomizerCore.StringItem
 
     public record CoalescingExpression(IExpression Operand) : IExpression
     {
+        // todo - is this really an ItemEffect? It's also not really TermLike - the intended usage is `TermThatMayNotExist?++` or so, with the intent
+        // to no-op the ++ if TermThatMayNotExist does not exist.
         public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
 
         public bool Validate() => Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
