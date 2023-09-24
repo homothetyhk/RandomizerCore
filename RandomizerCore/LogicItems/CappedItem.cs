@@ -6,7 +6,7 @@ namespace RandomizerCore.LogicItems
     {
         public override void AddTo(ProgressionManager pm)
         {
-            if (!pm.Has(Cap))
+            if (CheckForEffect(pm))
             {
                 for (int i = 0; i < Effects.Length; i++)
                 {
