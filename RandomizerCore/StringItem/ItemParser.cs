@@ -21,7 +21,7 @@ namespace RandomizerCore.StringItem
             IExpression expr = PrattParser(0);
             if (!IsEmpty())
             {
-                throw new Exception($"Unmatched closing parenthesis ')' at position {index - 1}");
+                throw new Exception($"Unmatched closing parenthesis ')' at position {tokenStream[index - 1].StartCharacter}.");
             }
             return expr;
         }
@@ -47,8 +47,7 @@ namespace RandomizerCore.StringItem
                 if (closingParen is not StructuralToken nst || nst.TokenType != StructuralToken.Type.CloseParenthesis)
                 {
                     // todo - better exception
-                    // todo - it would be better to call out position of the unmatched opening paren
-                    throw new Exception($"Expected closing parenthesis ')' at position {closingParen.StartCharacter}");
+                    throw new Exception($"Unmatched opening parenthesis '(' at position {st.StartCharacter}.");
                 }
                 lhs = new GroupingExpression(st, lhs, nst);
             }
