@@ -50,6 +50,7 @@ namespace RandomizerCore.StringItem
                     // todo - it would be better to call out position of the unmatched opening paren
                     throw new Exception($"Expected closing parenthesis ')' at position {closingParen.StartCharacter}");
                 }
+                lhs = new GroupingExpression(st, lhs, nst);
             }
             else
             {

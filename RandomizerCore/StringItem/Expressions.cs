@@ -14,7 +14,6 @@ namespace RandomizerCore.StringItem
         ItemEffect
     }
 
-    // todo - all expressions should actually preserve their operator token in order to be able to reconstruct the source string
     // todo - all validation implementations should actually produce useful error messages
     public interface IExpression
     {
@@ -25,6 +24,8 @@ namespace RandomizerCore.StringItem
         IEnumerable<EvaluatedType> Evaluate();
 
         bool Validate();
+
+        string Print();
     }
 
     public record AtomExpression(Token Token) : IExpression
@@ -39,120 +40,153 @@ namespace RandomizerCore.StringItem
 
         public bool Validate() => Token is NameToken or NumberToken or LogicStringToken;
 
+        public string Print() => Token.Print();
+
         public static bool IsAtomToken(Token token) => new AtomExpression(token).Validate();
+    }
+
+    public record GroupingExpression(StructuralToken OpenParenthesis, IExpression Nested, StructuralToken CloseParenthesis) : IExpression
+    {
+        public IEnumerable<EvaluatedType> Evaluate() => Nested.Evaluate();
+        public bool Validate() => OpenParenthesis.TokenType == StructuralToken.Type.OpenParenthesis
+            && CloseParenthesis.TokenType == StructuralToken.Type.CloseParenthesis
+            && Nested.Validate();
+        public string Print() => OpenParenthesis.Print() + Nested.Print() + CloseParenthesis.Print();
     }
 
     // ----- prefix expressions ----- //
 
-    public record NegationExpression(IExpression Operand) : IExpression
+    public abstract record PrefixExpression(OperatorToken Operator, IExpression Operand) : IExpression
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.Bool };
+        public abstract IEnumerable<EvaluatedType> Evaluate();
+        public abstract bool Validate();
 
-        public bool Validate() => Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.Bool);
-    }
+        public string Print() => Operator.Print() + Operand.Print();
 
-    public record ReferenceExpression(IExpression Operand) : IExpression
-    {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect, EvaluatedType.Bool };
-
-        public bool Validate() => Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
-    }
-
-    public static class PrefixExpression
-    {
         public static IExpression ForOperand(OperatorToken op, IExpression operand) => op.Operator switch
         {
-            Operators.Negation => new NegationExpression(operand),
-            Operators.Reference => new ReferenceExpression(operand),
+            Operators.Negation => new NegationExpression(op, operand),
+            Operators.Reference => new ReferenceExpression(op, operand),
             _ => throw new NotImplementedException()
         };
+    }
+
+    public record NegationExpression(OperatorToken Operator, IExpression Operand) : PrefixExpression(Operator, Operand)
+    {
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.Bool };
+
+        public override bool Validate() => Operator.Operator == Operators.Negation 
+            && Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.Bool);
+    }
+
+    public record ReferenceExpression(OperatorToken Operator, IExpression Operand) : PrefixExpression(Operator, Operand)
+    {
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect, EvaluatedType.Bool };
+
+        public override bool Validate() => Operator.Operator == Operators.Reference
+            && Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
     }
 
     // ----- postfix expressions ----- //
 
-    public record CoalescingExpression(IExpression Operand) : IExpression
+    public abstract record PostfixExpression(IExpression Operand, OperatorToken Operator) : IExpression
     {
-        // todo - is this really an ItemEffect? It's also not really TermLike - the intended usage is `TermThatMayNotExist?++` or so, with the intent
-        // to no-op the ++ if TermThatMayNotExist does not exist.
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public abstract IEnumerable<EvaluatedType> Evaluate();
+        public abstract bool Validate();
 
-        public bool Validate() => Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
-    }
+        public string Print() => Operand.Print() + Operator.Print();
 
-    public record IncrementExpression(IExpression Operand) : IExpression
-    {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
-
-        public bool Validate() => Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
-    }
-
-    public static class PostfixExpression
-    {
         public static IExpression ForOperand(OperatorToken op, IExpression operand) => op.Operator switch
         {
-            Operators.TermCoalescing => new CoalescingExpression(operand),
-            Operators.Increment => new IncrementExpression(operand),
+            Operators.TermCoalescing => new CoalescingExpression(operand, op),
+            Operators.Increment => new IncrementExpression(operand, op),
             _ => throw new NotImplementedException()
         };
+    }
+
+    public record CoalescingExpression(IExpression Operand, OperatorToken Operator) : PostfixExpression(Operand, Operator)
+    {
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.TermLike };
+
+        public override bool Validate() => Operator.Operator == Operators.TermCoalescing
+            && Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
+    }
+
+    public record IncrementExpression(IExpression Operand, OperatorToken Operator) : PostfixExpression(Operand, Operator)
+    {
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+
+        public override bool Validate() => Operator.Operator == Operators.Increment
+            && Operand.Validate() && Operand.Evaluate().Contains(EvaluatedType.TermLike);
     }
 
     // ----- infix expressions ----- //
 
-    public record AdditionAssignmentExpression(IExpression Left, IExpression Right) : IExpression
+    public abstract record InfixExpression(IExpression Left, OperatorToken Operator, IExpression Right) : IExpression
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public abstract IEnumerable<EvaluatedType> Evaluate();
+        public abstract bool Validate();
 
-        public bool Validate() => Left.Validate() && Right.Validate()
+        public string Print() => Left.Print() + Operator.Print() + Right.Print();
+
+        public static IExpression ForOperands(OperatorToken op, IExpression left, IExpression right) => op.Operator switch
+        {
+            Operators.AdditionAssignment => new AdditionAssignmentExpression(left, op, right),
+            Operators.MaxAssignment => new MaxAssignmentExpression(left, op, right),
+            Operators.Conditional => new ConditionalExpression(left, op, right),
+            Operators.ShortCircuitChaining => new ShortCircuitChainingExpression(left, op, right),
+            Operators.Chaining => new ChainingExpression(left, op, right),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    public record AdditionAssignmentExpression(IExpression Left, OperatorToken Operator, IExpression Right) : InfixExpression(Left, Operator, Right)
+    {
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+
+        public override bool Validate() => Operator.Operator == Operators.AdditionAssignment
+            && Left.Validate() && Right.Validate()
             && Left.Evaluate().Contains(EvaluatedType.TermLike)
             && Right.Evaluate().Contains(EvaluatedType.Int);
     }
 
-    public record MaxAssignmentExpression(IExpression Left, IExpression Right) : IExpression
+    public record MaxAssignmentExpression(IExpression Left, OperatorToken Operator, IExpression Right) : InfixExpression(Left, Operator, Right)
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
 
-        public bool Validate() => Left.Validate() && Right.Validate()
+        public override bool Validate() => Operator.Operator == Operators.MaxAssignment
+            && Left.Validate() && Right.Validate()
             && Left.Evaluate().Contains(EvaluatedType.TermLike)
             && Right.Evaluate().Contains(EvaluatedType.Int);
     }
 
-    public record ConditionalExpression(IExpression Left, IExpression Right) : IExpression
+    public record ConditionalExpression(IExpression Left, OperatorToken Operator, IExpression Right) : InfixExpression(Left, Operator, Right)
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
 
-        public bool Validate() => Left.Validate() && Right.Validate()
+        public override bool Validate() => Operator.Operator == Operators.Conditional
+            && Left.Validate() && Right.Validate()
             && Left.Evaluate().Contains(EvaluatedType.Bool)
             && Right.Evaluate().Contains(EvaluatedType.ItemEffect);
     }
 
-    public record ShortCircuitChainingExpression(IExpression Left, IExpression Right) : IExpression
+    public record ShortCircuitChainingExpression(IExpression Left, OperatorToken Operator, IExpression Right) : InfixExpression(Left, Operator, Right)
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
 
-        public bool Validate() => Left.Validate() && Right.Validate()
+        public override bool Validate() => Operator.Operator == Operators.ShortCircuitChaining
+            && Left.Validate() && Right.Validate()
             && Left.Evaluate().Contains(EvaluatedType.ItemEffect)
             && Right.Evaluate().Contains(EvaluatedType.ItemEffect);
     }
 
-    public record ChainingExpression(IExpression Left, IExpression Right) : IExpression
+    public record ChainingExpression(IExpression Left, OperatorToken Operator, IExpression Right) : InfixExpression(Left, Operator, Right)
     {
-        public IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
+        public override IEnumerable<EvaluatedType> Evaluate() => new[] { EvaluatedType.ItemEffect };
 
-        public bool Validate() => Left.Validate() && Right.Validate()
+        public override bool Validate() => Operator.Operator == Operators.Chaining
+            && Left.Validate() && Right.Validate()
             && Left.Evaluate().Contains(EvaluatedType.ItemEffect)
             && Right.Evaluate().Contains(EvaluatedType.ItemEffect);
-    }
-
-    public static class InfixExpression
-    {
-        public static IExpression ForOperands(OperatorToken op, IExpression left, IExpression right) => op.Operator switch
-        {
-            Operators.AdditionAssignment => new AdditionAssignmentExpression(left, right),
-            Operators.MaxAssignment => new MaxAssignmentExpression(left, right),
-            Operators.Conditional => new ConditionalExpression(left, right),
-            Operators.ShortCircuitChaining => new ShortCircuitChainingExpression(left, right),
-            Operators.Chaining => new ChainingExpression(left, right),
-            _ => throw new NotImplementedException()
-        };
     }
 }
