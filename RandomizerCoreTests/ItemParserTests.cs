@@ -13,7 +13,7 @@ namespace RandomizerCoreTests
         [Fact]
         public void TestParserBasic()
         {
-            // string input = "  Grubsong+=1 >> `Grubsong = 1` => CHARMS += 1";
+            string input = "  Grubsong+=1 >> `Grubsong = 1` => CHARMS += 1";
             List<Token> tokens = new()
             {
                 new NameToken { Value = "Grubsong", LeadingTrivia = "  ", TrailingTrivia = "", StartCharacter = 2, EndCharacter = 9 },
@@ -49,13 +49,13 @@ namespace RandomizerCoreTests
             ));
             expr.Validate().Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { EvaluatedType.ItemEffect });
-            expr.Print().Should().Be("  Grubsong+=1 >> `Grubsong = 1` => CHARMS += 1");
+            expr.Print().Should().Be(input);
         }
 
         [Fact]
         public void TestParserPostfix()
         {
-            // string input = "  Grubsong++ >> `Grubsong = 1` => CHARMS += 1";
+            string input = "  Grubsong++ >> `Grubsong = 1` => CHARMS += 1";
             List<Token> tokens = new()
             {
                 new NameToken { Value = "Grubsong", LeadingTrivia = "  ", TrailingTrivia = "", StartCharacter = 2, EndCharacter = 9 },
@@ -89,13 +89,13 @@ namespace RandomizerCoreTests
             ));
             expr.Validate().Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { EvaluatedType.ItemEffect });
-            expr.Print().Should().Be("  Grubsong++ >> `Grubsong = 1` => CHARMS += 1");
+            expr.Print().Should().Be(input);
         }
 
         [Fact]
         public void TestParserAssociativity()
         {
-            // string input = "`Grubsong = 0` => `Grubsong < 1` => CHARMS++ >> Grubsong++";
+            string input = "`Grubsong = 0` => `Grubsong < 1` => CHARMS++ >> Grubsong++";
             List<Token> tokens = new()
             {
                 new LogicStringToken { Value = "Grubsong = 0", LeadingTrivia = "`", TrailingTrivia = "` ", StartCharacter = 1, EndCharacter = 12 },
@@ -132,13 +132,13 @@ namespace RandomizerCoreTests
             ));
             expr.Validate().Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { EvaluatedType.ItemEffect });
-            expr.Print().Should().Be("`Grubsong = 0` => `Grubsong < 1` => CHARMS++ >> Grubsong++");
+            expr.Print().Should().Be(input);
         }
 
         [Fact]
         public void TestParserParens()
         {
-            // string input = "(((Grubsong)))";
+            string input = "(((Grubsong)))";
             List<Token> tokens = new()
             {
                 new StructuralToken
@@ -193,7 +193,7 @@ namespace RandomizerCoreTests
             ));
             expr.Validate().Should().BeTrue("this is a valid expression, just not a valid item effect");
             expr.Evaluate().Should().BeEquivalentTo(new[] { EvaluatedType.TermLike, EvaluatedType.Bool });
-            expr.Print().Should().Be("(((Grubsong)))");
+            expr.Print().Should().Be(input);
         }
     }
 }
