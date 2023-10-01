@@ -13,7 +13,7 @@
         <References>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</References>
     </PropertyGroup>
 
-    <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')"/>
+    <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')" />
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
         <Reference Include="Newtonsoft.Json">
@@ -27,7 +27,7 @@
         </PackageReference>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
     <ItemGroup>

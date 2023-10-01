@@ -1,24 +1,31 @@
-﻿using System;
+﻿using RandomizerCore.StringItem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RandomizerCore.StringItem
+namespace RandomizerCore.StringParsing
 {
-    public class ItemParser
+    public class ExpressionParser<T>
     {
+        private readonly IOperatorProvider operatorProvider;
+        private readonly IExpressionFactory<T> expressionFactory;
+        private readonly IReadOnlyList<Token> tokenStream;
+
         private int index = 0;
-        private IReadOnlyList<Token> tokenStream;
-        public ItemParser(IReadOnlyList<Token> tokenStream)
+
+        public ExpressionParser(IOperatorProvider operatorProvider, IExpressionFactory<T> expressionFactory, IReadOnlyList<Token> tokenStream)
         {
+            this.operatorProvider = operatorProvider;
+            this.expressionFactory = expressionFactory;
             this.tokenStream = tokenStream;
         }
 
-        public IExpression Parse()
+        public IExpression<T> Parse()
         {
-            IExpression expr = PrattParser(0);
+            IExpression<T> expr = PrattParser(0);
             if (!IsEmpty())
             {
                 throw new Exception($"Unmatched closing parenthesis ')' at position {tokenStream[index - 1].StartCharacter}.");
@@ -26,19 +33,19 @@ namespace RandomizerCore.StringItem
             return expr;
         }
 
-        private IExpression PrattParser(int minBindingPower)
+        private IExpression<T> PrattParser(int minBindingPower)
         {
             Token next = Next();
-            IExpression lhs;
-            if (AtomExpression.IsAtomToken(next))
+            IExpression<T> lhs;
+            if (expressionFactory.IsAtom(next))
             {
-                lhs = new AtomExpression(next);
+                lhs = expressionFactory.CreateAtomExpression(next);
             }
             else if (next is OperatorToken ot)
             {
-                int prefixRbp = Operators.PrefixBindingPower(ot.Operator);
-                IExpression operand = PrattParser(prefixRbp);
-                lhs = PrefixExpression.ForOperand(ot, operand);
+                int prefixRbp = operatorProvider.PrefixBindingPower(ot.Operator);
+                IExpression<T> operand = PrattParser(prefixRbp);
+                lhs = expressionFactory.CreatePrefixExpression(ot, operand);
             }
             else if (next is StructuralToken st && st.TokenType == StructuralToken.Type.OpenParenthesis)
             {
@@ -49,7 +56,7 @@ namespace RandomizerCore.StringItem
                     // todo - better exception
                     throw new Exception($"Unmatched opening parenthesis '(' at position {st.StartCharacter}.");
                 }
-                lhs = new GroupingExpression(st, lhs, nst);
+                lhs = new GroupingExpression<T>(st, lhs, nst);
             }
             else
             {
@@ -70,13 +77,13 @@ namespace RandomizerCore.StringItem
                 {
                     break;
                 }
-                
+
                 if (op is not OperatorToken ot)
                 {
                     throw new Exception($"Expected an operator at position {op.StartCharacter}"); // todo - better exception
                 }
 
-                if (Operators.PostfixBindingPower(ot.Operator) is int postLbp)
+                if (operatorProvider.PostfixBindingPower(ot.Operator) is int postLbp)
                 {
                     if (postLbp < minBindingPower)
                     {
@@ -85,11 +92,11 @@ namespace RandomizerCore.StringItem
                         break;
                     }
                     Next();
-                    lhs = PostfixExpression.ForOperand(ot, lhs);
+                    lhs = expressionFactory.CreatePostfixExpression(lhs, ot);
                     continue;
                 }
 
-                (int lbp, int rbp) = Operators.InfixBindingPower(ot.Operator);
+                (int lbp, int rbp) = operatorProvider.InfixBindingPower(ot.Operator);
                 if (lbp < minBindingPower)
                 {
                     // the incoming binding power is stronger than the binding power of the next operator, so we will steal
@@ -97,9 +104,9 @@ namespace RandomizerCore.StringItem
                     break;
                 }
                 Next();
-                IExpression rhs = PrattParser(rbp);
+                IExpression<T> rhs = PrattParser(rbp);
 
-                lhs = InfixExpression.ForOperands(ot, lhs, rhs);
+                lhs = expressionFactory.CreateInfixExpression(lhs, ot, rhs);
             }
             return lhs;
         }

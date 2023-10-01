@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RandomizerCore.StringItem
+namespace RandomizerCore.StringParsing
 {
-    public class ItemTokenizer
+    public class Tokenizer
     {
         private enum TokenizingState
         {
@@ -14,8 +14,12 @@ namespace RandomizerCore.StringItem
             TrailingTrivia
         }
 
-        private string input;
-        
+        private readonly IOperatorProvider operatorProvider;
+        private readonly HashSet<char> reservedOperatorChars;
+        private readonly OperatorTokenizerTree operatorTokenizerTree;
+        private readonly string input;
+        private readonly char? stringDelimiter;
+
         private int cursor = 0;
         private TokenizingState state;
         private int startingIndex;
@@ -24,9 +28,19 @@ namespace RandomizerCore.StringItem
         private StringBuilder content;
         private StringBuilder trailingTrivia;
 
-        public ItemTokenizer(string input)
+        public Tokenizer(IOperatorProvider operatorProvider, string input, char? stringDelimiter = null)
         {
+            this.operatorProvider = operatorProvider;
+            this.reservedOperatorChars = new HashSet<char>();
+            this.operatorTokenizerTree = new OperatorTokenizerTree();
+            foreach (string op in operatorProvider.GetAllOperators())
+            {
+                this.reservedOperatorChars.UnionWith(op);
+                this.operatorTokenizerTree.Insert(op);
+            }
+
             this.input = input;
+            this.stringDelimiter = stringDelimiter;
             StartToken();
         }
 
@@ -69,11 +83,11 @@ namespace RandomizerCore.StringItem
                     };
                     AdvanceState();
                 }
-                else if (next == '`')
+                else if (stringDelimiter != null && next == stringDelimiter)
                 {
-                    tokenInProgress = ReadLogicStringToken();
+                    tokenInProgress = ReadStringToken();
                 }
-                else if (Operators.IsReservedCharacter(next))
+                else if (reservedOperatorChars.Contains(next))
                 {
                     tokenInProgress = ReadOperatorToken();
                 }
@@ -104,11 +118,12 @@ namespace RandomizerCore.StringItem
             return tokens;
         }
 
-        private Token ReadLogicStringToken()
+        // precondition: stringDelimiter must be nonnull
+        private Token ReadStringToken()
         {
-            Expect('`');
+            Expect(stringDelimiter.Value);
             AdvanceState();
-            while (Peek() != '`')
+            while (Peek() != stringDelimiter.Value)
             {
                 Consume();
                 if (IsEmpty())
@@ -118,8 +133,8 @@ namespace RandomizerCore.StringItem
                 }
             }
             AdvanceState();
-            Expect('`');
-            return new LogicStringToken
+            Expect(stringDelimiter.Value);
+            return new StringToken
             {
                 Value = content.ToString(),
             };
@@ -128,20 +143,20 @@ namespace RandomizerCore.StringItem
         private Token ReadOperatorToken()
         {
             AdvanceState();
-            OpTokenizerTree tree = Operators.TokenizerTree;
             char next;
+            OperatorTokenizerTree tree = operatorTokenizerTree;
             // todo - this approach misses cases where operators are not leaf nodes. For example, if we added
             // an operator >|, and the sequence >|* appeared, that could be tokenized as >| and *, but would instead
             // fail because >|> exists and so there is a length-3 candidate, and * is not >, so the Expect will explode.
             // making this generic and not requiring backtracking might be hard so maybe it shouldn't be supported?
-            while (Operators.IsReservedCharacter(next = Peek()) && tree.Candidates.Count > 0)
+            while (reservedOperatorChars.Contains(next = Peek()) && tree.Candidates.Count > 0)
             {
                 Expect(tree.Candidates.Contains);
-                tree = tree.Advance(next);
+                tree = operatorTokenizerTree.Advance(next);
                 if (IsEmpty())
                 {
                     // we hit EOF mid-parse; we have to forcibly terminate, but make sure we got a real operator
-                    if (!Operators.AllOperators.Contains(tree.Value))
+                    if (!operatorProvider.GetAllOperators().Contains(tree.Value))
                     {
                         // todo - better exception
                         throw new Exception($"Invalid operator `{tree.Value}` at position {startingIndex}");
@@ -178,9 +193,9 @@ namespace RandomizerCore.StringItem
         }
 
         private bool IsEmpty() => cursor >= input.Length;
-        private bool IsValidNameOrNumberCharacter(char ch) => 
-            !"()`".Contains(ch) 
-            && !Operators.IsReservedCharacter(ch) 
+        private bool IsValidNameOrNumberCharacter(char ch) =>
+            !"()`".Contains(ch)
+            && !reservedOperatorChars.Contains(ch)
             && !char.IsWhiteSpace(ch);
 
         private char Peek() => input[cursor];
@@ -207,7 +222,7 @@ namespace RandomizerCore.StringItem
             if (!predicate(next))
             {
                 // todo - better exception
-                throw new Exception($"Bad character `{next}` at position {cursor}.");
+                throw new Exception($"Bad character {next} at position {cursor}.");
             }
             Consume();
         }

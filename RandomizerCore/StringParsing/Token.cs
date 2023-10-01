@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace RandomizerCore.StringItem
+namespace RandomizerCore.StringParsing
 {
     public abstract record Token
     {
@@ -18,7 +16,7 @@ namespace RandomizerCore.StringItem
     }
 
     /// <summary>
-    /// Token representing a term, logicdef, or item name
+    /// Token representing a named symbol, e.g. a term, logic variable, item name, etc.
     /// </summary>
     public record NameToken : Token
     {
@@ -34,7 +32,7 @@ namespace RandomizerCore.StringItem
         protected override string PrintContent() => Value.ToString();
     }
 
-    public record LogicStringToken : Token
+    public record StringToken : Token
     {
         public string Value;
 
