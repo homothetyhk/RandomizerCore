@@ -48,7 +48,7 @@ namespace RandomizerCoreTests
                     )
                 )
             ));
-            expr.Validate().Should().BeTrue("this is a valid expression");
+            expr.Validate(new()).Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { ItemExpressionType.ItemEffect });
             expr.Print().Should().Be(input);
         }
@@ -88,7 +88,7 @@ namespace RandomizerCoreTests
                     )
                 )
             ));
-            expr.Validate().Should().BeTrue("this is a valid expression");
+            expr.Validate(new()).Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { ItemExpressionType.ItemEffect });
             expr.Print().Should().Be(input);
         }
@@ -131,7 +131,7 @@ namespace RandomizerCoreTests
                     (OperatorToken)tokens[8]
                 )
             ));
-            expr.Validate().Should().BeTrue("this is a valid expression");
+            expr.Validate(new()).Should().BeTrue("this is a valid expression");
             expr.Evaluate().Should().BeEquivalentTo(new[] { ItemExpressionType.ItemEffect });
             expr.Print().Should().Be(input);
         }
@@ -193,7 +193,7 @@ namespace RandomizerCoreTests
                 ),
                 (StructuralToken)tokens[6]
             ));
-            expr.Validate().Should().BeTrue("this is a valid expression, just not a valid item effect");
+            expr.Validate(new()).Should().BeTrue("this is a valid expression, just not a valid item effect");
             expr.Evaluate().Should().BeEquivalentTo(new[] { ItemExpressionType.TermLike, ItemExpressionType.Bool });
             expr.Print().Should().Be(input);
         }
