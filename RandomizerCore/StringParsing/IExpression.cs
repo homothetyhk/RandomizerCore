@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RandomizerCore.StringParsing
+﻿namespace RandomizerCore.StringParsing
 {
-    // todo - all validation implementations should actually produce useful error messages
     public interface IExpression<T>
     {
         int StartChar { get; }

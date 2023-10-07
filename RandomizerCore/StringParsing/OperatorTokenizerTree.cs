@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RandomizerCore.StringParsing
+﻿namespace RandomizerCore.StringParsing
 {
     internal class OperatorTokenizerTree
     {
@@ -30,8 +26,7 @@ namespace RandomizerCore.StringParsing
             else if (str.Length == 1)
             {
                 // this is a case where we have a duplicate of the same operator, throw a fit
-                // todo - better exception
-                throw new Exception($"Duplicate operator defined: {(Value ?? "") + first}");
+                throw new InvalidOperationException($"Duplicate operator defined: {(Value ?? "") + first}");
             }
 
             string rest = str[1..];

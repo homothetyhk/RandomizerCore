@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace RandomizerCore.StringParsing
 {
@@ -28,7 +25,7 @@ namespace RandomizerCore.StringParsing
         private StringBuilder content;
         private StringBuilder trailingTrivia;
 
-        public Tokenizer(IOperatorProvider operatorProvider, string input, char? stringDelimiter = null)
+        public Tokenizer(IOperatorProvider operatorProvider, string input, char? stringDelimiter)
         {
             this.operatorProvider = operatorProvider;
             this.reservedOperatorChars = new HashSet<char>();
@@ -128,8 +125,7 @@ namespace RandomizerCore.StringParsing
                 Consume();
                 if (IsEmpty())
                 {
-                    // todo - better exception
-                    throw new Exception($"Encountered unterminated logic string starting at position {startingIndex}");
+                    throw new TokenizingException($"Encountered unterminated logic string starting at position {startingIndex}");
                 }
             }
             AdvanceState();
@@ -145,10 +141,11 @@ namespace RandomizerCore.StringParsing
             AdvanceState();
             char next;
             OperatorTokenizerTree tree = operatorTokenizerTree;
-            // todo - this approach misses cases where operators are not leaf nodes. For example, if we added
-            // an operator >|, and the sequence >|* appeared, that could be tokenized as >| and *, but would instead
-            // fail because >|> exists and so there is a length-3 candidate, and * is not >, so the Expect will explode.
-            // making this generic and not requiring backtracking might be hard so maybe it shouldn't be supported?
+            // this approach misses cases where operators are not leaf nodes. For example, if we define the operators >|> and *,
+            // added an operator >|, and the sequence >|* appeared, that could theoretically be tokenized as >| and *,
+            // but would currently fail because >|> exists and so there is a length-3 candidate, and * is not >,
+            // so the Expect will explode. However, having a generic approach to this without backtracking required is hard so
+            // we will not support this case for simplicity's sake
             while (reservedOperatorChars.Contains(next = Peek()) && tree.Candidates.Count > 0)
             {
                 Expect(tree.Candidates.Contains);
@@ -158,8 +155,7 @@ namespace RandomizerCore.StringParsing
                     // we hit EOF mid-parse; we have to forcibly terminate, but make sure we got a real operator
                     if (!operatorProvider.GetAllOperators().Contains(tree.Value))
                     {
-                        // todo - better exception
-                        throw new Exception($"Invalid operator `{tree.Value}` at position {startingIndex}");
+                        throw new TokenizingException($"Invalid operator `{tree.Value}` at position {startingIndex}");
                     }
                     break;
                 }
@@ -221,8 +217,7 @@ namespace RandomizerCore.StringParsing
             char next = Peek();
             if (!predicate(next))
             {
-                // todo - better exception
-                throw new Exception($"Bad character {next} at position {cursor}.");
+                throw new TokenizingException($"Bad character {next} at position {cursor}.");
             }
             Consume();
         }

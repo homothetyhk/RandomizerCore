@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using RandomizerCore.StringParsing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.StringItem
 {
@@ -49,10 +43,10 @@ namespace RandomizerCore.StringItem
         };
         public IReadOnlyCollection<string> GetAllOperators() => allOperators;
 
-        public int PrefixBindingPower(string op) => op switch
+        public int? PrefixBindingPower(string op) => op switch
         {
             Reference or Negation => 9,
-            _ => throw new NotImplementedException()
+            _ => null
         };
 
         public int? PostfixBindingPower(string op) => op switch
@@ -61,13 +55,13 @@ namespace RandomizerCore.StringItem
             _ => null
         };
 
-        public (int, int) InfixBindingPower(string op) => op switch
+        public (int, int)? InfixBindingPower(string op) => op switch
         {
             Chaining => (1, 2),
             ShortCircuitChaining => (3, 4),
             Conditional => (6, 5),
             MaxAssignment or AdditionAssignment => (7, 8),
-            _ => throw new NotImplementedException()
+            _ => null
         };
     }
 

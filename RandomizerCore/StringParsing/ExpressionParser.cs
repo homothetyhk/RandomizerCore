@@ -1,12 +1,4 @@
-﻿using RandomizerCore.StringItem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RandomizerCore.StringParsing
+﻿namespace RandomizerCore.StringParsing
 {
     public class ExpressionParser<T>
     {
@@ -43,9 +35,17 @@ namespace RandomizerCore.StringParsing
             }
             else if (next is OperatorToken ot)
             {
-                int prefixRbp = operatorProvider.PrefixBindingPower(ot.Operator);
-                IExpression<T> operand = PrattParser(prefixRbp);
-                lhs = expressionFactory.CreatePrefixExpression(ot, operand);
+                int? prefixRbp = operatorProvider.PrefixBindingPower(ot.Operator);
+                if (prefixRbp != null)
+                {
+                    IExpression<T> operand = PrattParser(prefixRbp.Value);
+                    lhs = expressionFactory.CreatePrefixExpression(ot, operand);
+                }
+                else
+                {
+                    throw new ParsingException($"Expected a prefix operator at position {ot.StartCharacter} " +
+                        $"but got a different operator '{ot.Operator}'.");
+                }
             }
             else if (next is StructuralToken st && st.TokenType == StructuralToken.Type.OpenParenthesis)
             {
@@ -53,15 +53,17 @@ namespace RandomizerCore.StringParsing
                 Token closingParen = Next();
                 if (closingParen is not StructuralToken nst || nst.TokenType != StructuralToken.Type.CloseParenthesis)
                 {
-                    // todo - better exception
-                    throw new Exception($"Unmatched opening parenthesis '(' at position {st.StartCharacter}.");
+                    throw new ParsingException($"Unmatched opening parenthesis '(' at position {st.StartCharacter}.");
                 }
                 lhs = new GroupingExpression<T>(st, lhs, nst);
             }
+            else if (next is StructuralToken st2 && st2.TokenType == StructuralToken.Type.CloseParenthesis)
+            {
+                throw new ParsingException($"Unmatched closing parenthesis ')' at position {st2.StartCharacter}.");
+            }
             else
             {
-                // handle prefix ops, parens, error cases appropriately
-                throw new NotImplementedException();
+                throw new ParsingException($"Unexpected token '{next.Print()}' at position {next.StartCharacter}.");
             }
 
             while (true)
@@ -80,9 +82,11 @@ namespace RandomizerCore.StringParsing
 
                 if (op is not OperatorToken ot)
                 {
-                    throw new Exception($"Expected an operator at position {op.StartCharacter}"); // todo - better exception
+                    throw new ParsingException($"Expected an operator at position {op.StartCharacter}");
                 }
 
+                // postfix handling is a special case; it should not fail out if the operator is not
+                // known because it might be infix.
                 if (operatorProvider.PostfixBindingPower(ot.Operator) is int postLbp)
                 {
                     if (postLbp < minBindingPower)
@@ -96,17 +100,26 @@ namespace RandomizerCore.StringParsing
                     continue;
                 }
 
-                (int lbp, int rbp) = operatorProvider.InfixBindingPower(ot.Operator);
-                if (lbp < minBindingPower)
+                (int, int)? ibp = operatorProvider.InfixBindingPower(ot.Operator);
+                if (ibp != null)
                 {
-                    // the incoming binding power is stronger than the binding power of the next operator, so we will steal
-                    // the operand into our expression and call it a day (that operator will then later pull us into its expression)
-                    break;
-                }
-                Next();
-                IExpression<T> rhs = PrattParser(rbp);
+                    (int lbp, int rbp) = ibp.Value;
+                    if (lbp < minBindingPower)
+                    {
+                        // the incoming binding power is stronger than the binding power of the next operator, so we will steal
+                        // the operand into our expression and call it a day (that operator will then later pull us into its expression)
+                        break;
+                    }
+                    Next();
+                    IExpression<T> rhs = PrattParser(rbp);
 
-                lhs = expressionFactory.CreateInfixExpression(lhs, ot, rhs);
+                    lhs = expressionFactory.CreateInfixExpression(lhs, ot, rhs);
+                }
+                else
+                {
+                    throw new ParsingException($"Expected an infix operator at position {ot.StartCharacter} " +
+                        $"but got a different operator '{ot.Operator}'.");
+                }
             }
             return lhs;
         }

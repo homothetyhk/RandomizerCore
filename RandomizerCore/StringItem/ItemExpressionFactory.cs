@@ -1,7 +1,4 @@
 ﻿using RandomizerCore.StringParsing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RandomizerCore.StringItem
 {

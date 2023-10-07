@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RandomizerCore.StringParsing
+﻿namespace RandomizerCore.StringParsing
 {
     // the "binding power" concept was borrowed from this explainer of pratt parsing:
     // https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
@@ -18,8 +14,8 @@ namespace RandomizerCore.StringParsing
     public interface IOperatorProvider
     {
         IReadOnlyCollection<string> GetAllOperators();
-        int PrefixBindingPower(string op);
+        int? PrefixBindingPower(string op);
         int? PostfixBindingPower(string op);
-        (int, int) InfixBindingPower(string op);
+        (int, int)? InfixBindingPower(string op);
     }
 }
