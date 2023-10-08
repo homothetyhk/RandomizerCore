@@ -1,5 +1,8 @@
 ﻿namespace RandomizerCore.StringParsing
 {
+    /// <summary>
+    /// Provides typing validation and error aggregation for <see cref="IExpression{T}"/>s
+    /// </summary>
     public class ExpressionValidator<T>
     {
         private List<string> errors = new();
@@ -10,6 +13,14 @@
             errors.Add($"[{start}:{end}] {message}");
         }
 
+        /// <summary>
+        /// Assert/validate a custom condition holds.
+        /// </summary>
+        /// <param name="predicate">The condition to evaluate</param>
+        /// <param name="startChar">The starting character index where the error is present</param>
+        /// <param name="endChar">The ending character index where the error is present</param>
+        /// <param name="message">The error message</param>
+        /// <returns>Whether the condition was met (i.e. the result of predicate)</returns>
         public bool Expect(Func<bool> predicate, int startChar, int endChar, string message)
         {
             if (!predicate())
@@ -20,6 +31,11 @@
             return true;
         }
 
+        /// <summary>
+        /// Assert/validate that an expression evaluates to the expected type
+        /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="expectedType">The expected type</param>
         public bool ExpectType(IExpression<T> expression, T expectedType)
         {
             IEnumerable<T> possibleTypes = expression.Evaluate();
@@ -41,6 +57,11 @@
             return true;
         }
 
+        /// <summary>
+        /// Assert/validate that the correct operator was used
+        /// </summary>
+        /// <param name="op">The operator to </param>
+        /// <param name="expectedOp">The expected operator</param>
         public bool ExpectOperator(OperatorToken op, string expectedOp)
         {
             if (op.Operator != expectedOp)

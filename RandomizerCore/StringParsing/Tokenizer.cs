@@ -2,6 +2,9 @@
 
 namespace RandomizerCore.StringParsing
 {
+    /// <summary>
+    /// Converts a raw input string to a <see cref="Token"/> stream.
+    /// </summary>
     public class Tokenizer
     {
         private enum TokenizingState
@@ -25,6 +28,14 @@ namespace RandomizerCore.StringParsing
         private StringBuilder content;
         private StringBuilder trailingTrivia;
 
+        /// <summary>
+        /// Constructs a tokenizer
+        /// </summary>
+        /// <param name="operatorProvider">The operator definition provider to use when tokenizing</param>
+        /// <param name="input">The input string</param>
+        /// <param name="stringDelimiter">
+        /// If the grammar supports strings, the delimiting character that appears around strings otherwise null.
+        /// </param>
         public Tokenizer(IOperatorProvider operatorProvider, string input, char? stringDelimiter)
         {
             this.operatorProvider = operatorProvider;
@@ -41,6 +52,10 @@ namespace RandomizerCore.StringParsing
             StartToken();
         }
 
+        /// <summary>
+        /// Tokenizes the input
+        /// </summary>
+        /// <exception cref="TokenizingException">When an unrecoverable tokenization error occurs</exception>
         public List<Token> Tokenize()
         {
             List<Token> tokens = new();
@@ -49,7 +64,7 @@ namespace RandomizerCore.StringParsing
                 // we start each token by looking for leading trivia (usually whitespace)
                 if (state != TokenizingState.LeadingTrivia)
                 {
-                    throw new InvalidOperationException($"Tokenizing in bad state - expected " +
+                    throw new TokenizingException($"Tokenizing in bad state - expected " +
                         $"LeadingTrivia, was {state} at position {cursor}. " +
                         $"Current partial token: {leadingTrivia}{content}{trailingTrivia}");
                 }
@@ -96,7 +111,7 @@ namespace RandomizerCore.StringParsing
                 // and just as we started, we end by eating excess whitespace
                 if (state != TokenizingState.TrailingTrivia)
                 {
-                    throw new InvalidOperationException($"Tokenizing in bad state - expected " +
+                    throw new TokenizingException($"Tokenizing in bad state - expected " +
                         $"TrailingTrivia, was {state} at position {cursor}. " +
                         $"Current partial token: {leadingTrivia}{content}{trailingTrivia}");
                 }

@@ -1,5 +1,8 @@
 ﻿namespace RandomizerCore.StringParsing
 {
+    /// <summary>
+    /// Parses <see cref="IExpression{T}"/>s from a stream of <see cref="Token"/>s.
+    /// </summary>
     public class ExpressionParser<T>
     {
         private readonly IOperatorProvider operatorProvider;
@@ -8,6 +11,12 @@
 
         private int index = 0;
 
+        /// <summary>
+        /// Constructs a parser
+        /// </summary>
+        /// <param name="operatorProvider">The operator definition provider to use while parsing</param>
+        /// <param name="expressionFactory">The expression factory to use while parsing</param>
+        /// <param name="tokenStream">The token stream to parse from</param>
         public ExpressionParser(IOperatorProvider operatorProvider, IExpressionFactory<T> expressionFactory, IReadOnlyList<Token> tokenStream)
         {
             this.operatorProvider = operatorProvider;
@@ -15,12 +24,16 @@
             this.tokenStream = tokenStream;
         }
 
+        /// <summary>
+        /// Parses an expression
+        /// </summary>
+        /// <exception cref="ParsingException">When an unrecoverable parsing error occurs</exception>
         public IExpression<T> Parse()
         {
             IExpression<T> expr = PrattParser(0);
             if (!IsEmpty())
             {
-                throw new Exception($"Unmatched closing parenthesis ')' at position {tokenStream[index - 1].StartCharacter}.");
+                throw new ParsingException($"Unmatched closing parenthesis ')' at position {tokenStream[index - 1].StartCharacter}.");
             }
             return expr;
         }

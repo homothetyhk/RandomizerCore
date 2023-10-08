@@ -21,6 +21,9 @@
         protected override string PrintContent() => Value;
     }
 
+    /// <summary>
+    /// Token representing a number literal
+    /// </summary>
     public record NumberToken : Token
     {
         public int Value;
@@ -28,6 +31,9 @@
         protected override string PrintContent() => Value.ToString();
     }
 
+    /// <summary>
+    /// Token representing a string literal
+    /// </summary>
     public record StringToken : Token
     {
         public string Value;
@@ -35,6 +41,9 @@
         protected override string PrintContent() => Value;
     }
 
+    /// <summary>
+    /// Token representing a structural element, e.g. parentheses or braces
+    /// </summary>
     public record StructuralToken : Token
     {
         public enum Type
@@ -52,6 +61,9 @@
         };
     }
 
+    /// <summary>
+    /// Token representing a unary or binary operator
+    /// </summary>
     public record OperatorToken : Token
     {
         public string Operator;

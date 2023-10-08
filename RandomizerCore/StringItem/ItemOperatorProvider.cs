@@ -5,28 +5,46 @@ namespace RandomizerCore.StringItem
     public class ItemOperatorProvider : IOperatorProvider
     {
         // infix operators
-        // Term, Int -> Effect. Adds the provided value to the term
+        /// <summary>
+        /// Term, Int -> Effect. Adds the provided value to the term
+        /// </summary>
         public const string AdditionAssignment = "+=";
-        // Term, Int -> Effect. Sets the term to the maximum of the provided value and its current value
+        /// <summary>
+        /// Term, Int -> Effect. Sets the term to the maximum of the provided value and its current value
+        /// </summary>
         public const string MaxAssignment = "=/";
-        // Bool, Effect -> Effect. If the condition is met, applies the effect
+        /// <summary>
+        /// Bool, Effect -> Effect. If the condition is met, applies the effect
+        /// </summary>
         public const string Conditional = "=>";
-        // Effect, Effect -> Effect. Applies the right-hand effect if and only if the left-hand effect produces an empty item
+        /// <summary>
+        /// Effect, Effect -> Effect. Applies the right-hand effect if and only if the left-hand effect produces an empty item
+        /// </summary>
         public const string ShortCircuitChaining = ">|>";
-        // Effect, Effect -> Effect. Applies the 
+        /// <summary>
+        /// Effect, Effect -> Effect. Applies the 
+        /// </summary>
         public const string Chaining = ">>";
 
         // prefix operators
-        // where a bool is expected, the string is interpreted as the name of a logic def and its value is used as a bool.
-        // where an item effect is expected, the string is interpreted as the name of an item and its effect is copied
+        /// <summary>
+        /// Where a bool is expected, the string is interpreted as the name of a logic def and its value is used as a bool.
+        /// Where an item effect is expected, the string is interpreted as the name of an item and its effect is copied
+        /// </summary>
         public const string Reference = "*";
-        // Bool -> Bool. Negates the bool
+        /// <summary>
+        /// Bool -> Bool. Negates the bool
+        /// </summary>
         public const string Negation = "!";
 
         // postfix operators
-        // if the associated term does not correspond to a term in the LogicManager, any effect that would be applied to that term is ignored
+        /// <summary>
+        /// If the associated term does not correspond to a term in the LogicManager, any effect that would be applied to that term is ignored
+        /// </summary>
         public const string TermCoalescing = "?";
-        // Term -> Effect. Adds 1 to the term.
+        /// <summary>
+        /// Term -> Effect. Adds 1 to the term.
+        /// </summary>
         public const string Increment = "++";
 
         private static readonly IReadOnlyCollection<string> allOperators = new HashSet<string>()
