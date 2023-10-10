@@ -26,5 +26,31 @@ namespace RandomizerCoreTests
             );
             string.Join("", tokens.Select(x => x.Print())).Should().Be(input);
         }
+
+        private class TestOperatorProvider : IOperatorProvider
+        {
+            public IReadOnlyCollection<string> GetAllOperators() => new[] { ">|" };
+            public (int, int)? InfixBindingPower(string op) => throw new NotImplementedException();
+            public int? PostfixBindingPower(string op) => throw new NotImplementedException();
+            public int? PrefixBindingPower(string op) => throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Regression test for a bug where operator tokenization would appear to work correctly when the only characters
+        /// in an operator were valid first characters for operators, but would fail to advance the tokenizer tree traversal
+        /// correctly and throw a key error otherwise
+        /// </summary>
+        [Fact]
+        public void TestOperatorTokenizationWithUniqueSecondCharacterAdvancesTraversal()
+        {
+            string input = ">|";
+            Tokenizer tokenizer = new(new TestOperatorProvider(), input, null);
+            List<Token> tokens = tokenizer.Tokenize();
+            tokens.Should().ContainSingle().Which.Should().Be(new OperatorToken
+            {
+                StartCharacter = 0, EndCharacter = 1,
+                LeadingTrivia = "", TrailingTrivia = "",
+                Operator = ">|"
+            });
+        }
     }
 }
