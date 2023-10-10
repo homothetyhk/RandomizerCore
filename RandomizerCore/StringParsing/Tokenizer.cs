@@ -164,7 +164,7 @@ namespace RandomizerCore.StringParsing
             while (reservedOperatorChars.Contains(next = Peek()) && tree.Candidates.Count > 0)
             {
                 Expect(tree.Candidates.Contains);
-                tree = operatorTokenizerTree.Advance(next);
+                tree = tree.Advance(next);
                 if (IsEmpty())
                 {
                     // we hit EOF mid-parse; we have to forcibly terminate, but make sure we got a real operator
