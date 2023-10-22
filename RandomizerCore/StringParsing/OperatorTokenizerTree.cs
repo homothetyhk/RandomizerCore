@@ -4,8 +4,6 @@
     {
         private Dictionary<char, OperatorTokenizerTree> children = new();
 
-        // this is mostly for debugging purposes, we don't actually need it but it's helpful
-        // for path exploration
         public string? Value { get; private set; } = null;
         public ICollection<char> Candidates => children.Keys;
 

@@ -156,24 +156,27 @@ namespace RandomizerCore.StringParsing
             AdvanceState();
             char next;
             OperatorTokenizerTree tree = operatorTokenizerTree;
-            // this approach misses cases where operators are not leaf nodes. For example, if we define the operators >|> and *,
-            // added an operator >|, and the sequence >|* appeared, that could theoretically be tokenized as >| and *,
-            // but would currently fail because >|> exists and so there is a length-3 candidate, and * is not >,
-            // so the Expect will explode. However, having a generic approach to this without backtracking required is hard so
-            // we will not support this case for simplicity's sake
-            while (reservedOperatorChars.Contains(next = Peek()) && tree.Candidates.Count > 0)
+            while (reservedOperatorChars.Contains(next = Peek()) && tree.Candidates.Contains(next))
             {
-                Expect(tree.Candidates.Contains);
+                Consume();
                 tree = tree.Advance(next);
                 if (IsEmpty())
                 {
                     // we hit EOF mid-parse; we have to forcibly terminate, but make sure we got a real operator
                     if (!operatorProvider.GetAllOperators().Contains(tree.Value))
                     {
-                        throw new TokenizingException($"Invalid operator `{tree.Value}` at position {startingIndex}");
+                        throw new TokenizingException($"Invalid operator `{tree.Value}` at position {startingIndex}.");
                     }
                     break;
                 }
+            }
+            // there are conditions in which we might branch to an intermediate tree branch that is not a complete operator
+            // for example, consider the case where {ABCD} is the set of reserved characters, A is an operator,
+            // ABC is an operator, AB is not an operator, and the input ABD appears. We can traverse the tree down to AB,
+            // but when D appears, the loop will break and we should fail here because AB is not an operator.
+            if (!operatorProvider.GetAllOperators().Contains(tree.Value))
+            {
+                throw new TokenizingException($"Invalid operator `{tree.Value}` at position {startingIndex}.");
             }
             AdvanceState();
             return new OperatorToken
@@ -185,7 +188,7 @@ namespace RandomizerCore.StringParsing
         private Token ReadNameOrNumericToken()
         {
             AdvanceState();
-            Expect(IsValidNameOrNumberCharacter);
+            Expect(IsValidNameOrNumberCharacter, $"Expected a non-reserved character at position {cursor}.");
             while (!IsEmpty() && IsValidNameOrNumberCharacter(Peek()))
             {
                 Consume();
@@ -205,7 +208,8 @@ namespace RandomizerCore.StringParsing
 
         private bool IsEmpty() => cursor >= input.Length;
         private bool IsValidNameOrNumberCharacter(char ch) =>
-            !"()`".Contains(ch)
+            (stringDelimiter == null || stringDelimiter.Value != ch)
+            && !"()".Contains(ch)
             && !reservedOperatorChars.Contains(ch)
             && !char.IsWhiteSpace(ch);
 
@@ -226,13 +230,13 @@ namespace RandomizerCore.StringParsing
             }
         }
 
-        private void Expect(char ch) => Expect(next => ch == next);
-        private void Expect(Predicate<char> predicate)
+        private void Expect(char ch) => Expect(next => ch == next, $"Expected {ch} at position {cursor}.");
+        private void Expect(Predicate<char> predicate, string reason)
         {
             char next = Peek();
             if (!predicate(next))
             {
-                throw new TokenizingException($"Bad character {next} at position {cursor}.");
+                throw new TokenizingException(reason);
             }
             Consume();
         }
