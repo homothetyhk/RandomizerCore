@@ -39,6 +39,15 @@ namespace RandomizerCore
         void RemoveFrom(ProgressionManager pm);
     }
 
+    /// <summary>
+    /// Interface representing an item which may not have any effect. Items which do not implement this interface
+    /// are assumed to unconditionally have an effect.
+    /// </summary>
+    public interface IConditionalItem
+    {
+        bool CheckForEffect(ProgressionManager pm);
+    }
+
     public abstract record LogicItem(string Name) : ILogicItem, ILogicItemTemplate
     {
         public abstract void AddTo(ProgressionManager pm);
@@ -52,5 +61,5 @@ namespace RandomizerCore
         {
             return this;
         }
-    }    
+    }
 }

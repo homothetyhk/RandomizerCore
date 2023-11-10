@@ -5,6 +5,8 @@ VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomizerCore", "RandomizerCore\RandomizerCore.csproj", "{AE78B8E8-A733-44A2-BE63-D264C82118B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomizerCoreTests", "RandomizerCoreTests\RandomizerCoreTests.csproj", "{B28D8952-E74B-4805-A206-D2E25D416A13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{AE78B8E8-A733-44A2-BE63-D264C82118B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE78B8E8-A733-44A2-BE63-D264C82118B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE78B8E8-A733-44A2-BE63-D264C82118B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B28D8952-E74B-4805-A206-D2E25D416A13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B28D8952-E74B-4805-A206-D2E25D416A13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B28D8952-E74B-4805-A206-D2E25D416A13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B28D8952-E74B-4805-A206-D2E25D416A13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
