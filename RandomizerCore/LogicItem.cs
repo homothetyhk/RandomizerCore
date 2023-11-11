@@ -45,7 +45,14 @@ namespace RandomizerCore
     /// </summary>
     public interface IConditionalItem
     {
+        /// <summary>
+        /// Returns false if <see cref="LogicItem.AddTo(ProgressionManager)"/> will not modify the ProgressionManager, otherwise returns true.
+        /// </summary>
         bool CheckForEffect(ProgressionManager pm);
+        /// <summary>
+        /// Equivalent to calling <see cref="IConditionalItem.CheckForEffect(ProgressionManager)"/>, then <see cref="LogicItem.AddTo(ProgressionManager)"/>, and returning the result of the former.
+        /// </summary>
+        bool TryAddTo(ProgressionManager pm);
     }
 
     public abstract record LogicItem(string Name) : ILogicItem, ILogicItemTemplate

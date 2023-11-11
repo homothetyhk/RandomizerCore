@@ -26,11 +26,47 @@ namespace RandomizerCore.LogicItems
         {
             if (Logic.CanGet(pm))
             {
-                return TrueItem != null;
+                return TrueItem is not null && (TrueItem is not IConditionalItem icl || icl.CheckForEffect(pm));
             }
             else
             {
-                return FalseItem != null;
+                return FalseItem is not null && (FalseItem is not IConditionalItem icl || icl.CheckForEffect(pm));
+            }
+        }
+
+        public bool TryAddTo(ProgressionManager pm)
+        {
+            if (Logic.CanGet(pm))
+            {
+                if (TrueItem is null)
+                {
+                    return false;
+                }
+                else if (TrueItem is IConditionalItem icl)
+                {
+                    return icl.TryAddTo(pm);
+                }
+                else
+                {
+                    TrueItem.AddTo(pm);
+                    return true;
+                }
+            }
+            else
+            {
+                if (FalseItem is null)
+                {
+                    return false;
+                }
+                else if (FalseItem is IConditionalItem icl)
+                {
+                    return icl.TryAddTo(pm);
+                }
+                else
+                {
+                    FalseItem.AddTo(pm);
+                    return true;
+                }
             }
         }
     }

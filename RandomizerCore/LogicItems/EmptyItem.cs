@@ -16,5 +16,7 @@ namespace RandomizerCore.LogicItems
         }
 
         public bool CheckForEffect(ProgressionManager pm) => false;
+
+        public bool TryAddTo(ProgressionManager pm) => false;
     }
 }

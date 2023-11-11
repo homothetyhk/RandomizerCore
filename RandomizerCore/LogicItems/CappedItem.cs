@@ -21,5 +21,12 @@ namespace RandomizerCore.LogicItems
         }
 
         public bool CheckForEffect(ProgressionManager pm) => !pm.Has(Cap);
+
+        public bool TryAddTo(ProgressionManager pm)
+        {
+            if (pm.Has(Cap)) return false;
+            AddTo(pm);
+            return true;
+        }
     }
 }
