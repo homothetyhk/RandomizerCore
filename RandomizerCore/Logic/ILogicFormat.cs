@@ -1,10 +1,5 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RandomizerCore.Logic
 {
@@ -16,6 +11,7 @@ namespace RandomizerCore.Logic
     {
         /// <summary>
         /// Loads a collection of terms from a file.
+        /// </summary>
         IEnumerable<(string, TermType)> LoadTerms(Stream s);
         /// <summary>
         /// Loads a collection of waypoints from a file.

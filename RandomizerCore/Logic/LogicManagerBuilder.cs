@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
+using RandomizerCore.LogicItems.Templates;
 using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
@@ -14,9 +15,7 @@ namespace RandomizerCore.Logic
             Terms = new();
             LP = new();
             VariableResolver = new();
-            PrefabItems = new();
-            TemplateItems = new();
-            UnparsedItems = new();
+            ItemLookup = new();
             LogicLookup = new();
             Waypoints = new();
             Transitions = new();
@@ -28,9 +27,7 @@ namespace RandomizerCore.Logic
             Terms = new(source.Terms);
             LP = new(source.LP);
             VariableResolver = source.VariableResolver;
-            PrefabItems = new(source.PrefabItems);
-            TemplateItems = new(source.TemplateItems);
-            UnparsedItems = new(source.UnparsedItems);
+            ItemLookup = new(source.ItemLookup);
             LogicLookup = new(source.LogicLookup);
             Waypoints = new(source.Waypoints);
             Transitions = new(source.Transitions);
@@ -42,9 +39,7 @@ namespace RandomizerCore.Logic
             Terms = new(source.Terms);
             LP = new(source.LP);
             VariableResolver = source.VariableResolver;
-            PrefabItems = new(source.ItemLookup);
-            TemplateItems = new();
-            UnparsedItems = new();
+            ItemLookup = source.ItemLookup.ToDictionary(kvp => kvp.Key, kvp => (ILogicItemTemplate)kvp.Value);
             LogicLookup = new();
             foreach (KeyValuePair<string, LogicDef> kvp in source.LogicLookup) AddLogicDef(new(kvp.Key, kvp.Value.InfixSource));
             Waypoints = new(source.Waypoints.Select(w => w.Name));
@@ -56,9 +51,7 @@ namespace RandomizerCore.Logic
         public readonly TermCollectionBuilder Terms;
         public LogicProcessor LP { get; set; }
         public VariableResolver VariableResolver { get; set; }
-        public readonly Dictionary<string, LogicItem> PrefabItems;
-        public readonly Dictionary<string, ILogicItemTemplate> TemplateItems;
-        public readonly Dictionary<string, JObject> UnparsedItems;
+        public readonly Dictionary<string, ILogicItemTemplate> ItemLookup;
         public readonly Dictionary<string, LogicClause> LogicLookup;
         public readonly HashSet<string> Waypoints;
         public readonly HashSet<string> Transitions;
@@ -89,37 +82,13 @@ namespace RandomizerCore.Logic
             return Terms.GetOrAddTerm(value, type);
         }
 
-
-        /// <summary>
-        /// Adds the LogicItem to the builder's dictionary. Overwrites any existing item with the same name.
-        /// </summary>
-        /// <param name="item"></param>
-        public void AddItem(LogicItem item)
-        {
-            PrefabItems[item.Name] = item;
-            TemplateItems.Remove(item.Name);
-            UnparsedItems.Remove(item.Name);
-        }
-
         /// <summary>
         /// Adds the item template to the builder's dictionary. Overwrites any existing item with the same name.
         /// </summary>
-        public void AddTemplateItem(ILogicItemTemplate item)
+        /// <param name="item"></param>
+        public void AddItem(ILogicItemTemplate item)
         {
-            TemplateItems[item.Name] = item;
-            PrefabItems.Remove(item.Name);
-            UnparsedItems.Remove(item.Name);
-        }
-
-        /// <summary>
-        /// Adds the JLINQ representation of the LogicItem to the builder's dictionary. Overwrites any existing item with the same name.
-        /// </summary>
-        public void AddUnparsedItem(JObject item)
-        {
-            string name = item.Value<string>("Name")!;
-            UnparsedItems[name] = item;
-            PrefabItems.Remove(name);
-            TemplateItems.Remove(name);
+            ItemLookup[item.Name] = item;
         }
 
         /// <summary>
@@ -332,7 +301,7 @@ namespace RandomizerCore.Logic
                     {
                         foreach (JObject jo in JArray.Load(jtr).Cast<JObject>())
                         {
-                            AddUnparsedItem(jo);
+                            AddItem(new JsonItemTemplate(jo));
                         }
                     }
                     break;
@@ -366,7 +335,7 @@ namespace RandomizerCore.Logic
                 case JsonType.ItemTemplates:
                     foreach (ILogicItemTemplate template in JsonUtil.Deserialize<IEnumerable<ILogicItemTemplate>>(jtr) ?? Enumerable.Empty<ILogicItemTemplate>())
                     {
-                        AddTemplateItem(template);
+                        AddItem(template);
                     }
                     break;
                 case JsonType.StateData:
@@ -427,7 +396,7 @@ namespace RandomizerCore.Logic
                     {
                         foreach (JObject jo in (JArray)t)
                         {
-                            AddUnparsedItem(jo);
+                            AddItem(new JsonItemTemplate(jo));
                         }
                     }
                     break;
@@ -460,7 +429,7 @@ namespace RandomizerCore.Logic
                 case JsonType.ItemTemplates:
                     foreach (ILogicItemTemplate template in t?.ToObject<IEnumerable<ILogicItemTemplate>>() ?? Enumerable.Empty<ILogicItemTemplate>())
                     {
-                        AddTemplateItem(template);
+                        AddItem(template);
                     }
                     break;
                 case JsonType.StateData:
@@ -509,7 +478,7 @@ namespace RandomizerCore.Logic
                         }
                         else if (obj is ILogicItemTemplate templ)
                         {
-                            AddTemplateItem(templ);
+                            AddItem(templ);
                         }
                         else
                         {
@@ -548,7 +517,7 @@ namespace RandomizerCore.Logic
                 case JsonType.ItemTemplates:
                     foreach (ILogicItemTemplate template in logicFormat.LoadItemTemplates(s))
                     {
-                        AddTemplateItem(template);
+                        AddItem(template);
                     }
                     break;
                 case JsonType.StateData:
