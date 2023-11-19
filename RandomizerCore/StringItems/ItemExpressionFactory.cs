@@ -1,6 +1,6 @@
 ﻿using RandomizerCore.StringParsing;
 
-namespace RandomizerCore.StringItem
+namespace RandomizerCore.StringItems
 {
     public class ItemExpressionFactory : IExpressionFactory<ItemExpressionType>
     {

@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using RandomizerCore.StringItem;
+using RandomizerCore.StringItems;
 using RandomizerCore.StringParsing;
 
 namespace RandomizerCoreTests

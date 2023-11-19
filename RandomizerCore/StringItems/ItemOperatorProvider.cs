@@ -1,6 +1,6 @@
 ﻿using RandomizerCore.StringParsing;
 
-namespace RandomizerCore.StringItem
+namespace RandomizerCore.StringItems
 {
     public class ItemOperatorProvider : IOperatorProvider
     {
@@ -35,7 +35,7 @@ namespace RandomizerCore.StringItem
         /// <summary>
         /// Bool -> Bool. Negates the bool
         /// </summary>
-        public const string Negation = "!";
+        public const string Negation = "!"; // TODO
 
         // postfix operators
         /// <summary>
