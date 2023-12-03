@@ -118,5 +118,20 @@
 
         /// <inheritdoc/>
         public string Print() => Left.Print() + Operator.Print() + Right.Print();
+
+        /// <summary>
+        /// For the given associative infix expression type, recursively unfolds that type and any intermediate grouping expressions, returning a sequence of expressions on which the infix operator acts left to right.
+        /// </summary>
+        public static IEnumerable<IExpression<T>> FlattenAssoc<U>(U u) where U : InfixExpression<T>
+        {
+            return FlattenAssocHelper<U>(u.Left).Concat(FlattenAssocHelper<U>(u.Right));
+        }
+
+        private static IEnumerable<IExpression<T>> FlattenAssocHelper<U>(IExpression<T> e) where U : InfixExpression<T>
+        {
+            if (e is GroupingExpression<T> g) return FlattenAssocHelper<U>(g.Nested);
+            else if (e is U u) return FlattenAssoc(u);
+            else return new IExpression<T>[] { e };
+        }
     }
 }

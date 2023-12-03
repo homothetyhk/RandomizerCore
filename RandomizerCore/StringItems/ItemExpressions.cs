@@ -35,6 +35,23 @@ namespace RandomizerCore.StringItems
         public static bool IsAtomToken(Token token) => new ItemAtomExpression(token).Validate(new());
     }
 
+    public record EmptyEffectExpression(Token Token) : IExpression<ItemExpressionType>
+    {
+        public int StartChar => Token.StartCharacter;
+        public int EndChar => Token.EndCharacter;
+
+        public IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+
+        public bool Validate(ExpressionValidator<ItemExpressionType> validator) =>
+            validator.Expect(
+                () => Token is NameToken nt && nt.Value == "_",
+                Token.StartCharacter, Token.EndCharacter,
+                "Expected exactly \"_\"."
+            );
+
+        public string Print() => Token.Print();
+    }
+
     // ----- prefix expressions ----- //
 
     public record NegationExpression(OperatorToken Operator, IExpression<ItemExpressionType> Operand) 

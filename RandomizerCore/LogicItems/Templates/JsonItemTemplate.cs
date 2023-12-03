@@ -21,10 +21,12 @@ namespace RandomizerCore.LogicItems.Templates
         public string Name { get; }
         public JToken JToken { get; }
 
+        [ThreadStatic] private static (LogicManager, JsonSerializer) p;
+
         public LogicItem Create(LogicManager lm)
         {
-            JsonSerializer js = JsonUtil.GetLogicSerializer(lm);
-            return JToken.ToObject<LogicItem>(js);
+            if (!ReferenceEquals(p.Item1, lm)) p = (lm, JsonUtil.GetLogicSerializer(lm));
+            return JToken.ToObject<LogicItem>(p.Item2);
         }
     }
 }

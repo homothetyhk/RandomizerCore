@@ -4,6 +4,11 @@ namespace RandomizerCore.StringItems
 {
     public class ItemExpressionFactory : IExpressionFactory<ItemExpressionType>
     {
+        /// <summary>
+        /// Atom expression which produces a no-op item effect.
+        /// </summary>
+        public const string EmptyEffect = "_";
+
         public bool IsAtom(Token token)
         {
             return ItemAtomExpression.IsAtomToken(token);
@@ -11,6 +16,7 @@ namespace RandomizerCore.StringItems
 
         public IExpression<ItemExpressionType> CreateAtomExpression(Token token)
         {
+            if (token is NameToken { Value: "_" }) return new EmptyEffectExpression(token);
             return new ItemAtomExpression(token);
         }
 

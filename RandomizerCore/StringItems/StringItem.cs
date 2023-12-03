@@ -3,7 +3,7 @@ using RandomizerCore.LogicItems;
 
 namespace RandomizerCore.StringItems
 {
-    public sealed record StringItem(string Name, string InfixSource, StringItemEffect Effect) : LogicItem(Name), IConditionalItem
+    public sealed record StringItem(string Name, string EffectString, StringItemEffect Effect) : LogicItem(Name), IConditionalItem
     {
         public override void AddTo(ProgressionManager pm)
         {
@@ -26,11 +26,11 @@ namespace RandomizerCore.StringItems
         }
     }
 
-    public sealed record StringItemTemplate(string Name, string InfixSource) : LogicItemTemplate<StringItem>(Name)
+    public sealed record StringItemTemplate(string Name, string Effect) : LogicItemTemplate<StringItem>(Name)
     {
         public override StringItem Create(LogicManager lm)
         {
-            return (StringItem)lm.FromItemString(Name, InfixSource);
+            return (StringItem)lm.FromItemString(Name, Effect);
         }
     }
 

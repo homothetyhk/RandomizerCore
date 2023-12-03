@@ -4,6 +4,7 @@ using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.LogicItems.Templates;
+using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
@@ -90,6 +91,24 @@ namespace RandomizerCore.Logic
         {
             ItemLookup[item.Name] = item;
         }
+
+        public void AddItem(LogicItem item)
+        {
+            AddItem((ILogicItemTemplate)item);
+        }
+
+        [Obsolete("Use AddItem(ILogicItemTemplate)")]
+        public void AddTemplateItem(ILogicItemTemplate item)
+        {
+            AddItem(item);
+        }
+
+        [Obsolete("Use AddItem(ILogicItemTemplate)")]
+        public void AddUnparsedItem(JObject item)
+        {
+            AddItem(new JsonItemTemplate(item));
+        }
+
 
         /// <summary>
         /// Adds the RawLogicDef as a new waypoint. Overwrites any existing logic with the same name.
@@ -254,6 +273,7 @@ namespace RandomizerCore.Logic
             LogicSubst,
             ItemTemplates,
             StateData,
+            ItemStrings,
         }
 
         public void DeserializeJson(JsonType type, string s)
@@ -299,10 +319,14 @@ namespace RandomizerCore.Logic
 
                 case JsonType.Items:
                     {
-                        foreach (JObject jo in JArray.Load(jtr).Cast<JObject>())
-                        {
-                            AddItem(new JsonItemTemplate(jo));
-                        }
+                        DeserializeJson(type, JToken.Load(jtr));
+                    }
+                    break;
+
+                case JsonType.ItemStrings:
+                    foreach (StringItemTemplate t in JsonUtil.Deserialize<List<StringItemTemplate>>(jtr) ?? Enumerable.Empty<StringItemTemplate>())
+                    {
+                        AddItem(t);
                     }
                     break;
 
@@ -394,10 +418,16 @@ namespace RandomizerCore.Logic
 
                 case JsonType.Items:
                     {
-                        foreach (JObject jo in (JArray)t)
+                        foreach (JToken jt in (JArray)t)
                         {
-                            AddItem(new JsonItemTemplate(jo));
+                            AddItem(new JsonItemTemplate(jt));
                         }
+                    }
+                    break;
+                case JsonType.ItemStrings:
+                    foreach (StringItemTemplate sit in t.ToObject<List<StringItemTemplate>>() ?? Enumerable.Empty<StringItemTemplate>())
+                    {
+                        AddItem(sit);
                     }
                     break;
 
@@ -472,11 +502,7 @@ namespace RandomizerCore.Logic
                 case JsonType.Items:
                     foreach (object obj in logicFormat.LoadItems(s))
                     {
-                        if (obj is LogicItem item)
-                        {
-                            AddItem(item);
-                        }
-                        else if (obj is ILogicItemTemplate templ)
+                        if (obj is ILogicItemTemplate templ)
                         {
                             AddItem(templ);
                         }
