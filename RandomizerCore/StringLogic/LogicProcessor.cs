@@ -122,13 +122,31 @@ namespace RandomizerCore.StringLogic
             }
         }
 
-        private static readonly HashSet<char> illegalSimpleTokenChars = new() { '|', '+', '<', '>', '=', '?', '(', ')', '*' };
+        private static readonly HashSet<char> illegalSimpleTokenChars = new() { '|', '+', '<', '>', '=', '?', '(', ')', '*', '/' };
 
         public TermToken GetTermToken(string name)
         {
             if (globalTokens.TryGetValue(name, out LogicToken lt) || tokenPool.TryGetValue(name, out lt)) return (TermToken)lt;
             else
             {
+                if (name[^1] == '/')
+                {
+                    TermToken inner = GetTermToken(name[..^1]);
+                    if (inner is SimpleToken st)
+                    {
+                        ProjectedToken pt = new(st);
+                        tokenPool.Add(name, pt);
+                        return pt;
+                    }
+                    else if (inner is ReferenceToken rt)
+                    {
+                        ProjectedToken pt = new(rt);
+                        tokenPool.Add(name, pt);
+                        return pt;
+                    }
+                    else throw new ArgumentException($"Cannot apply projection operator to token {inner.Write()} of type {inner.GetType()}.");
+                }
+
                 if (name[0] == '*')
                 {
                     ReferenceToken rt = new(name[1..]);

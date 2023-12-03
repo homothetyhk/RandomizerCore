@@ -102,4 +102,15 @@
         public static readonly ConstToken True = new(true);
         public static readonly ConstToken False = new(false);
     }
+
+    /// <summary>
+    /// TermToken which wraps a state-valued TermToken, indicating that its state should be projected to a bool.
+    /// </summary>
+    public record ProjectedToken : TermToken
+    {
+        public TermToken Inner { get; }
+        public ProjectedToken(ReferenceToken inner) => Inner = inner;
+        public ProjectedToken(SimpleToken inner) => Inner = inner;
+        public override string Write() => Inner.Write() + '/';
+    }
 }

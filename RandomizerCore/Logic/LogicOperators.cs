@@ -10,5 +10,6 @@
         LT = -6,
         EQ = -7,
         COALESCE = -8,
+        PROJECT = -9,
     }
 }

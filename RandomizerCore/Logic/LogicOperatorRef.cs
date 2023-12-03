@@ -16,6 +16,7 @@
             { "<", (int)LogicOperators.LT },
             { "=", (int)LogicOperators.EQ },
             { "?", (int)LogicOperators.COALESCE },
+            { "/", (int)LogicOperators.PROJECT },
         };
 
         public static bool TryGetOperator(string op, out int index)

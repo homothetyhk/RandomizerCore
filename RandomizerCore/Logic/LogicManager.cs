@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using RandomizerCore.Exceptions;
 using RandomizerCore.Json;
 using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.LogicItems;
+using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
 using System.Collections.ObjectModel;
 
@@ -24,9 +27,13 @@ namespace RandomizerCore.Logic
         private readonly Dictionary<string, int> _variableIndices;
         private readonly Dictionary<string, LogicItem> _items;
         private readonly Dictionary<string, LogicTransition> _transitions;
+
         private readonly LogicManagerBuilder? _source; // set to null on exiting constructor
-        private readonly DNFConverter _DNFConverter;
-        private readonly List<int> _logicBuilder;
+
+        internal readonly CycleDetector _cycleDetector;
+
+        private readonly StringItemBuilder _stringItemBuilder;
+        private readonly DNFLogicDefBuilder _dnfLogicBuilder;
 
         public VariableResolver VariableResolver { get; }
 
@@ -38,8 +45,11 @@ namespace RandomizerCore.Logic
             LP = source.LP;
             VariableResolver = source.VariableResolver;
             StateManager = new(source.StateManager);
-            _DNFConverter = new();
-            _logicBuilder = new();
+            _cycleDetector = new();
+            _stringItemBuilder = new(this);
+            _dnfLogicBuilder = new(this);
+
+            List<Exception> errors = [];
 
             // Terms
             Terms = new(source.Terms);
@@ -54,37 +64,55 @@ namespace RandomizerCore.Logic
             _logicDefs = new(source.LogicLookup.Count);
             foreach (KeyValuePair<string, LogicClause> kvp in source.LogicLookup)
             {
-                _logicDefs.Add(kvp.Key, CreateDNFLogicDef(kvp.Key, kvp.Value));
+                if (!_logicDefs.ContainsKey(kvp.Key)) // logic may be created out of sequence due to references
+                {
+                    try
+                    {
+                        _logicDefs.Add(kvp.Key, CreateDNFLogicDef(kvp.Key, kvp.Value));
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add(e);
+                        _cycleDetector.Reset();
+                        _dnfLogicBuilder.Reset();
+                    }
+                }
             }
+            if (errors.Count > 0) throw errors.Count == 1 ? errors[0] : new AggregateException(errors);
             LogicLookup = new(_logicDefs);
+
 
             // Waypoints
             Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(Terms.GetTerm(name)!, _logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)))).ToArray());
-
+            
             // Transitions
             _transitions = source.Transitions.ToDictionary(name => name, name => new LogicTransition(_logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)), Terms.GetTerm(name)!));
             TransitionLookup = new(_transitions);
 
             // Items
-            _items = new(source.UnparsedItems.Count + source.TemplateItems.Count + source.PrefabItems.Count);
+            _items = new(source.ItemLookup.Count);
             JsonSerializer js = JsonUtil.GetLogicSerializer(this);
-            foreach (var kvp in source.UnparsedItems)
+            foreach (var kvp in source.ItemLookup)
             {
-                _items.Add(kvp.Key, kvp.Value.ToObject<LogicItem>(js)!);
+                if (!_items.ContainsKey(kvp.Key)) // items may be created out of sequence due to references
+                {
+                    try
+                    {
+                        _items.Add(kvp.Key, kvp.Value.Create(this));
+                    }
+                    catch (Exception e)
+                    {
+                        errors.Add(e);
+                        _cycleDetector.Reset();
+                        _dnfLogicBuilder.Reset();
+                    }
+                }
             }
-            foreach (var kvp in source.TemplateItems)
-            {
-                _items.Add(kvp.Key, kvp.Value.Create(this));
-            }
-            foreach (var kvp in source.PrefabItems)
-            {
-                _items[kvp.Key] = kvp.Value;
-            }
+            if (errors.Count > 0) throw errors.Count == 1 ? errors[0] : new AggregateException(errors);
             ItemLookup = new(_items);
 
             _source = null;
-            _DNFConverter.Trim();
-            _logicBuilder.TrimExcess();
+            _dnfLogicBuilder.Trim();
         }
 
         /// <summary>
@@ -166,7 +194,7 @@ namespace RandomizerCore.Logic
             throw new ArgumentException($"Unable to resolve {name} to LogicVariable.");
         }
 
-        private int? GetVariableID(string name)
+        internal int? GetVariableID(string name)
         {
             if (_variableIndices.TryGetValue(name, out int index)) return index;
 
@@ -185,6 +213,11 @@ namespace RandomizerCore.Logic
             _variableIndices.Add(name, index);
             _variables.Add(lv);
             return index;
+        }
+
+        public bool IsTermOrVariable(string name)
+        {
+            return name != null && (Terms.IsTerm(name) || _variableIndices.ContainsKey(name) || VariableResolver.CanMatch(this, name));
         }
 
         /// <summary>
@@ -246,341 +279,161 @@ namespace RandomizerCore.Logic
 
         public SingleStateLogic CreateSingleStateLogic(string name, LogicClause c)
         {
-            List<int> logic = new();
             try
             {
-                for (int i = 0; i < c.Count; i++)
-                {
-                    ApplyToken(logic, c[i]);
-                }
+                RPNLogicDefBuilder rlb = new(this, name, RPNLogicDefBuilder.AllowedVariableTypes.LogicInt | RPNLogicDefBuilder.AllowedVariableTypes.StateAccessVariable);
+                rlb.Process(c);
+                rlb.MoveComparisonOperatorsAfterArgs(); // SSRPNL is read backwards, so comparison ops should be after their args
+                return new SingleStateRPNLogic(name, rlb.GetRawLogic(), this, c.ToInfix());
             }
             catch (Exception e)
             {
                 throw new ArgumentException($"Error in processing logic for {name}.", e);
             }
-
-            for (int i = 0; i < logic.Count; i++) // SSRPNL is read backwards, so comparison ops should be after their args
-            {
-                switch (logic[i])
-                {
-                    case (int)LogicOperators.GT:
-                    case (int)LogicOperators.LT:
-                    case (int)LogicOperators.EQ:
-                        {
-                            int op = logic[i];
-                            logic[i] = logic[i + 1];
-                            logic[i + 1] = logic[i + 2];
-                            logic[i + 2] = op;
-                            i += 2;
-                        }
-                        break;
-                }
-            }
-
-            return new SingleStateRPNLogic(name, logic.ToArray(), this, c.ToInfix());
         }
 
         public RPNLogicDef CreateRPNLogicDef(RawLogicDef def)
         {
-            return Process(def);
-        }
-
-        private RPNLogicDef Process(RawLogicDef def)
-        {
             try
             {
-                return FromTokens(def.name, LP.ParseInfixToList(def.logic));
+                return CreateRPNLogicDef(def.name, def.logic, LP.ParseInfixToList(def.logic));
             }
             catch (Exception e)
             {
                 throw new ArgumentException($"Error in processing logic for {def.name}.", e);
             }
         }
-
         [Obsolete]
-        public RPNLogicDef FromTokens(string name, LogicClause c)
+        public RPNLogicDef FromTokens(string name, LogicClause c) => CreateRPNLogicDef(name, c.ToInfix(), c);
+        private RPNLogicDef CreateRPNLogicDef(string name, string infix, IEnumerable<LogicToken> tokens)
         {
-            List<int> logic = new();
             try
             {
-                for (int i = 0; i < c.Count; i++)
-                {
-                    ApplyToken(logic, c[i]);
-                }
+                RPNLogicDefBuilder rlb = new(this, name, RPNLogicDefBuilder.AllowedVariableTypes.LogicInt);
+                rlb.Process(tokens);
+                return new(name, rlb.GetRawLogic(), this, infix);
             }
             catch (Exception e)
             {
                 throw new ArgumentException($"Error in processing logic for {name}.", e);
             }
-
-            return new(name, logic.ToArray(), this, c.ToInfix());
         }
 
-        private RPNLogicDef FromTokens(string name, IReadOnlyList<LogicToken> lts)
-        {
-            List<int> logic = new();
-            try
-            {
-                foreach (LogicToken lt in lts)
-                {
-                    ApplyToken(logic, lt);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Error in processing logic for {name}.", e);
-            }
-
-            return new(name, logic.ToArray(), this, Infix.ToInfix(lts));
-        }
-
-        public DNFLogicDef CreateDNFLogicDef(RawLogicDef def) => CreateDNFLogicDef(def.name, def.logic, LP.ParseInfixToList(def.logic));
-
-        public DNFLogicDef CreateDNFLogicDef(string name, LogicClause tokens) => CreateDNFLogicDef(name, tokens.ToInfix(), tokens.Tokens.ToList());
-
-        private DNFLogicDef CreateDNFLogicDef(string name, string infix, List<LogicToken> tokens)
+        public DNFLogicDef CreateDNFLogicDef(RawLogicDef def)
         {
             try
             {
-                Expand(tokens);
-                _DNFConverter.Convert(tokens);
-                List<List<TermToken>> res = _DNFConverter.Result;
-                if (res.Count > 200)
-                {
-                    Log($"Warning - DNF for {name} expanded to {res.Count} clauses.");
-                }
-                DNFLogicDef result = new(CreateClauses, this, name, Infix.ToInfix(tokens));
-                Profiling.EmitMetric("LogicManager.CreateDNFLogicDef.ResultingTermCount", result.GetTerms().Count());
-                return result;
-
-                DNFLogicDef.Clause[] CreateClauses(DNFLogicDef parent)
-                {
-                    DNFLogicDef.Clause[] clauses = new DNFLogicDef.Clause[res.Count];
-                    for (int j = 0; j < clauses.Length; j++)
-                    {
-                        _logicBuilder.Clear();
-                        foreach (TermToken tt in res[j])
-                        {
-                            ApplyToken(_logicBuilder, tt);
-                        }
-
-                        List<int> logic = new();
-                        List<int> stateLogic = new();
-                        bool IsStateless(int id)
-                        {
-                            return id > intVariableOffset || GetVariable(id) switch
-                            {
-                                StateModifier or StateAccessVariable => false,
-                                _ => true,
-                            };
-                        }
-
-                        for (int i = 0; i < _logicBuilder.Count; i++)
-                        {
-                            int id = _logicBuilder[i];
-                            switch (id)
-                            {
-                                default:
-                                    logic.Add(id);
-                                    break;
-                                case <= intVariableOffset:
-                                    if (IsStateless(id))
-                                    {
-                                        logic.Add(id);
-                                    }
-                                    else
-                                    {
-                                        stateLogic.Add(id);
-                                    }
-                                    break;
-                                case (int)LogicOperators.EQ:
-                                case (int)LogicOperators.LT:
-                                case (int)LogicOperators.GT:
-                                    if (IsStateless(_logicBuilder[i + 1]) && IsStateless(_logicBuilder[i + 2]))
-                                    {
-                                        logic.Add(_logicBuilder[i++]);
-                                        logic.Add(_logicBuilder[i++]);
-                                        logic.Add(_logicBuilder[i]);
-                                    }
-                                    else
-                                    {
-                                        stateLogic.Add(_logicBuilder[i++]);
-                                        stateLogic.Add(_logicBuilder[i++]);
-                                        stateLogic.Add(_logicBuilder[i]);
-                                    }
-                                    break;
-                            }
-                        }
-                        int source = -1;
-                        for (int i = 0; i < _logicBuilder.Count; i++)
-                        {
-                            if (_logicBuilder[i] >= 0 && Terms[_logicBuilder[i]].Type == TermType.State || _logicBuilder[i] <= intVariableOffset && GetVariable(_logicBuilder[i]) is StateProvider)
-                            {
-                                source = _logicBuilder[i];
-                                break;
-                            }
-                        }
-                        clauses[j] = new(logic.ToArray(), stateLogic.ToArray(), source, parent);
-                    }
-                    _logicBuilder.Clear();
-                    return clauses;
-                }
+                return _dnfLogicBuilder.CreateDNFLogicDef(def.name, def.logic, LP.ParseInfixToList(def.logic));
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Error creating logic def for {name} with logic {infix}.", e);
+                throw new ArgumentException($"Error in processing logic for {def.name}.", e);
             }
         }
+        public DNFLogicDef CreateDNFLogicDef(string name, LogicClause tokens) => _dnfLogicBuilder.CreateDNFLogicDef(name, tokens.ToInfix(), tokens.Tokens.ToList());
 
-        private void Expand(List<LogicToken> tokens)
+        public LogicItem FromItemString(string name, string itemDef)
         {
-            for (int i = 0; i < tokens.Count; i++)
+            if (string.IsNullOrWhiteSpace(itemDef))
             {
-                switch (tokens[i])
-                {
-                    case ReferenceToken rt:
-                        tokens.RemoveAt(i);
-                        if (_source != null && _source.LogicLookup.TryGetValue(rt.Target, out LogicClause lc))
-                        {
-                            tokens.InsertRange(i, lc.Tokens);
-                        }
-                        else if (_logicDefs.TryGetValue(rt.Target, out LogicDef def))
-                        {
-                            tokens.InsertRange(i, def.ToTokenSequence());
-                        }
-                        else throw new ArgumentException($"ReferenceToken {rt.Write()} points to undefined logic.");
-                        i--;
-                        break;
-                    case MacroToken mt:
-                        tokens.RemoveAt(i);
-                        tokens.InsertRange(i, mt.Value.Tokens);
-                        i--;
-                        break;
-                    case CoalescingToken qt:
-                        tokens[i] = IsValidToken(qt.Left) ? qt.Left : qt.Right;
-                        i--;
-                        break;
-                }
+                return new StringItem(name, itemDef, EmptyEffect.Instance);
             }
+
+            return new StringItem(name, itemDef, _stringItemBuilder.ParseStringToEffect(name, itemDef));
         }
 
-        private void ApplyToken(List<int> logic, LogicToken lt)
+        internal LogicDef ResolveLogicDefReference(string source, string reference)
         {
-            switch (lt)
+            if (_logicDefs.TryGetValue(reference, out LogicDef value))
             {
-                case OperatorToken ot:
-                    ApplyOperatorToken(logic, ot);
-                    break;
-                case SimpleToken st:
-                    ApplySimpleToken(logic, st);
-                    break;
-                case ComparisonToken ct:
-                    ApplyComparisonToken(logic, ct);
-                    break;
-                case ConstToken bt:
-                    ApplyConstToken(logic, bt);
-                    break;
-                case MacroToken mt:
-                    ApplyMacroToken(logic, mt);
-                    break;
-                case ReferenceToken rt:
-                    ApplyReferenceToken(logic, rt);
-                    break;
-                case CoalescingToken qt:
-                    ApplyCoalescingToken(logic, qt);
-                    break;
-                default:
-                    throw new ArgumentException($"Found unrecognized token in logic: {lt}");
+                return value;
             }
-        }
 
-        private void ApplyOperatorToken(List<int> logic, OperatorToken ot)
-        {
-            logic.Add(ot.OperatorType switch
+            if (_source is null || !_source.LogicLookup.TryGetValue(reference, out LogicClause c))
             {
-                OperatorType.AND => (int)LogicOperators.AND,
-                OperatorType.OR => (int)LogicOperators.OR,
-                _ => throw new NotImplementedException()
-            });
-        }
-
-        private void ApplySimpleToken(List<int> logic, SimpleToken st)
-        {
-            ApplyTermOrVariable(logic, st.Name);
-        }
-
-        private void ApplyComparisonToken(List<int> logic, ComparisonToken ct)
-        {
-            logic.Add(ct.ComparisonType switch
-            {
-                ComparisonType.EQ => (int)LogicOperators.EQ,
-                ComparisonType.LT => (int)LogicOperators.LT,
-                ComparisonType.GT => (int)LogicOperators.GT,
-                _ => throw new NotImplementedException(),
-            });
-            ApplyTermOrVariable(logic, ct.Left);
-            ApplyTermOrVariable(logic, ct.Right);
-        }
-
-        private void ApplyConstToken(List<int> logic, ConstToken bt)
-        {
-            logic.Add(bt.Value ? (int)LogicOperators.ANY : (int)LogicOperators.NONE);
-        }
-
-        private void ApplyMacroToken(List<int> logic, MacroToken mt)
-        {
-            foreach (LogicToken tt in mt.Value) ApplyToken(logic, tt);
-        }
-
-        private void ApplyReferenceToken(List<int> logic, ReferenceToken rt)
-        {
-            if (_source != null && _source.LogicLookup.TryGetValue(rt.Target, out LogicClause lc))
-            {
-                foreach (LogicToken tt in lc) ApplyToken(logic, tt);
+                throw MissingLogicReferenceError(source, reference);
             }
-            else if (_logicDefs.TryGetValue(rt.Target, out LogicDef def))
+
+            _cycleDetector.PushLogic(reference);
+            value = CreateDNFLogicDef(reference, c);
+            _logicDefs.Add(reference, value);
+            _cycleDetector.PopLogic(reference);
+
+            return value;
+        }
+
+        internal LogicItem ResolveItemReference(string source, string reference)
+        {
+            if (_items.TryGetValue(reference, out LogicItem item))
             {
-                foreach (LogicToken tt in def.ToTokenSequence()) ApplyToken(logic, tt);
+                return item;
             }
-            else throw new ArgumentException($"ReferenceToken {rt.Write()} points to undefined logic.");
-        }
 
-        private void ApplyCoalescingToken(List<int> logic, CoalescingToken qt)
-        {
-            if (IsValidToken(qt.Left)) ApplyToken(logic, qt.Left);
-            else ApplyToken(logic, qt.Right);
-        }
-
-        private bool IsValidToken(LogicToken lt)
-        {
-            return lt switch
+            if (_source is null || !_source.ItemLookup.TryGetValue(reference, out ILogicItemTemplate t))
             {
-                OperatorToken => true,
-                SimpleToken st => IsTermOrVariable(st.Name),
-                ComparisonToken ct => IsTermOrVariable(ct.Left) && IsTermOrVariable(ct.Right),
-                ConstToken => true,
-                MacroToken mt => mt.Source?.GetMacro(mt.Name) is not null,
-                CoalescingToken qt => IsValidToken(qt.Left) || IsValidToken(qt.Right),
-                _ => false,
-            };
-        }
-
-        private bool IsTermOrVariable(string name)
-        {
-            return name != null && (Terms.IsTerm(name) || _variableIndices.ContainsKey(name) || VariableResolver.CanMatch(this, name));
-        }
-
-        private void ApplyTermOrVariable(List<int> logic, string name)
-        {
-            if (Terms.GetTerm(name) is Term t)
-            {
-                logic.Add(t.Id);
+                throw MissingItemReferenceError(source, reference);
             }
-            else if (GetVariableID(name) is int variableID)
+
+            _cycleDetector.PushItem(reference);
+            item = t.Create(this);
+            _items.Add(reference, item);
+            _cycleDetector.PopItem(reference);
+
+            return item;
+        }
+
+        private Exception MissingLogicReferenceError(string name, string reference)
+        {
+            return new ArgumentException($"Failed to parse LogicDef {name}: unknown reference to LogicDef {reference}.");
+        }
+
+        private Exception MissingItemReferenceError(string name, string reference)
+        {
+            return new ArgumentException($"Failed to parse item {name}: unknown reference to item {reference}.");
+        }
+
+        internal class CycleDetector
+        {
+            private readonly HashSet<string> itemCycleDetector = [];
+            private readonly HashSet<string> logicCycleDetector = [];
+
+            public void PushItem(string itemName)
             {
-                logic.Add(variableID);
+                if (!itemCycleDetector.Add(itemName)) throw CircularItemReferenceError(itemName);
             }
-            else throw new ArgumentException($"Unknown string {name} found as term.");
+
+            public void PopItem(string itemName)
+            {
+                itemCycleDetector.Remove(itemName);
+            }
+
+            public void PushLogic(string logicName)
+            {
+                if (!logicCycleDetector.Add(logicName)) throw CircularLogicReferenceError(logicName);
+            }
+
+            public void PopLogic(string logicName)
+            {
+                logicCycleDetector.Remove(logicName);
+            }
+
+            public void Reset()
+            {
+                itemCycleDetector.Clear();
+                logicCycleDetector.Clear();
+            }
+
+            private Exception CircularItemReferenceError(string reference)
+            {
+                string msg = $"Circular item reference detected:\n{string.Join(" -> ", itemCycleDetector.Append(reference))}";
+                return new ReferenceCycleException(msg);
+            }
+
+            private Exception CircularLogicReferenceError(string reference)
+            {
+                string msg = $"Circular logic reference detected:\n{string.Join(" -> ", logicCycleDetector.Append(reference))}";
+                return new ReferenceCycleException(msg);
+            }
         }
     }
 }
