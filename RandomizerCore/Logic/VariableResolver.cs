@@ -44,8 +44,13 @@ namespace RandomizerCore.Logic
                 case "NONE":
                     variable = new ConstantBool(term, false);
                     return true;
+                case "$ANY":
+                    variable = new ConstantStateProvider(term, StateUnion.Empty);
+                    return true;
+                case "$DEFAULTSTATE":
+                    variable = new ConstantStateProvider(term, lm.StateManager.DefaultStateSingleton);
+                    return true;
             }
-            if (DefaultStateProvider.TryMatch(lm, term, out variable)) return true;
             if (StateFieldAccessor.TryMatch(lm, term, out variable)) return true;
 
             #pragma warning disable CS0618 // Type or member is obsolete

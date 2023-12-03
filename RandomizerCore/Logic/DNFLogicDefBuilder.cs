@@ -67,6 +67,12 @@ namespace RandomizerCore.Logic
                     if (hasState && paths.Any(p => p.stateProvider is null))
                     {
                         Log($"Warning - DNF for {name} contains clause with missing state provider.");
+                        #if DEBUG
+                        foreach (var p in paths)
+                        {
+                            if (p.stateProvider is null) LogDebug($"        {Infix.ToInfix(p.ToTokenSequence().ToList())}");
+                        }
+                        #endif
                     }
 
                     return paths;

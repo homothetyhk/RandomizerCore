@@ -135,6 +135,7 @@ namespace RandomizerCore.StringLogic
                 {
                     phrases.Push((tt.Write(), null));
                 }
+                else if (t is null) throw new NullReferenceException("Null token");
                 else throw new ArgumentException($"Unknown token {t}");
             }
 

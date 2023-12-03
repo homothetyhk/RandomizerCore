@@ -19,9 +19,9 @@ namespace RandomizerCore.Logic
         internal DNFLogicDef(Func<DNFLogicDef, StatePath[]> pathGenerator, LogicManager lm, string name, string infixSource)
             : base(name, infixSource)
         {
+            this.lm = lm;
             this.paths = pathGenerator(this);
             Profiling.EmitMetric("DNFLogicDef.PathCount", paths.Length);
-            this.lm = lm;
         }
 
         protected DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)
@@ -178,8 +178,12 @@ namespace RandomizerCore.Logic
 
             public IEnumerable<TermToken> ToTermTokenSequence(LogicManager lm)
             {
-                return termReqs.Select(tv => tv.Value == 0 ? lm.LP.GetTermToken(tv.Term.Name) : lm.LP.GetComparisonToken(ComparisonType.GT, tv.Term.Name, tv.Value.ToString()))
-                    .Concat(varReqs.Select(li => lm.LP.GetTermToken(li.Name)));
+                foreach (TermValue tv in termReqs)
+                {
+                    if (tv.Value == 1) yield return lm.LP.GetTermToken(tv.Term.Name);
+                    else yield return lm.LP.GetComparisonToken(ComparisonType.GT, tv.Term.Name, (tv.Value - 1).ToString());
+                }
+                foreach (LogicInt li in varReqs) yield return lm.LP.GetTermToken(li.Name);
             }
         }
 
@@ -311,40 +315,39 @@ namespace RandomizerCore.Logic
                 foreach (StateModifier sm in stateModifiers) foreach (Term t in sm.GetTerms()) yield return t;
             }
 
+            private IEnumerable<TermToken> ClauseToTermTokenSequence(Reqs r) => ClauseToTermTokenSequence(r, stateModifiers.Select(s => parent.lm.LP.GetTermToken(s.Name)));
+
+            private IEnumerable<TermToken> ClauseToTermTokenSequence(Reqs r, IEnumerable<TermToken> suffix)
+            {
+                LogicManager lm = parent.lm;
+                IEnumerable<TermToken> tts = r.ToTermTokenSequence(lm).Concat(suffix);
+                if (stateProvider is not null) tts = tts.Prepend(lm.LP.GetTermToken(stateProvider.Name));
+                return tts;
+            }
+
             public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequence()
             {
                 LogicManager lm = parent.lm;
-                TermToken? prefix = stateProvider is not null ? lm.LP.GetTermToken(stateProvider.Name) : null;
                 List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
-                foreach (Reqs r in reqs)
-                {
-                    yield return r.ToTermTokenSequence(lm).Prepend(prefix).Concat(suffix);
-                }
+                return reqs.Select(r => ClauseToTermTokenSequence(r, suffix));
             }
 
             public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequence().Select(s => RPN.OperateOver(s, OperatorToken.AND)), OperatorToken.OR);
 
             public IEnumerable<TermToken> GetFirstSuccessfulConjunction(ProgressionManager pm)
             {
-                LogicManager lm = parent.lm;
-                TermToken? prefix = stateProvider is not null ? lm.LP.GetTermToken(stateProvider.Name) : null;
-                List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
                 int i = Array.FindIndex(reqs, r => r.Evaluate(parent, pm));
-                return reqs[i].ToTermTokenSequence(lm).Prepend(prefix).Concat(suffix);
+                return ClauseToTermTokenSequence(reqs[i]);
             }
 
             public IEnumerable<IEnumerable<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
             {
                 LogicManager lm = parent.lm;
-                TermToken? prefix = stateProvider is not null ? lm.LP.GetTermToken(stateProvider.Name) : null;
                 List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
-                foreach (Reqs r in reqs)
-                {
-                    if (r.Evaluate(parent, pm))
-                    {
-                        yield return r.ToTermTokenSequence(lm).Prepend(prefix).Concat(suffix);
-                    }
-                }
+
+                if (!EvaluateToBool(pm)) return Enumerable.Empty<IEnumerable<TermToken>>();
+
+                return reqs.Where(r => r.Evaluate(parent, pm)).Select(ClauseToTermTokenSequence);
             }
         }
     }
