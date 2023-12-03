@@ -134,11 +134,13 @@ namespace RandomizerCore.Updater
 
         void ILogicItem.AddTo(ProgressionManager pm)
         {
+            if (current is null) return;
+
             foreach (Term t in targets)
             {
                 StateUnion? orig = pm.GetState(t);
-                if (orig is null) pm.SetState(t, current!);
-                else pm.SetState(t, StateUnion.Union(orig, current!));
+                if (orig is null) pm.SetState(t, current);
+                else pm.SetState(t, StateUnion.Union(orig, current));
             }
         }
 

@@ -73,12 +73,12 @@ namespace RandomizerCore
                     il.Shared.Add(key, obj = hook = new GroupedStateTransmittingHook(il.Group.Label));
                     foreach (IRandoLocation rl in il.Group.Locations)
                     {
-                        if (rl is RandoTransition rt) hook.AddTarget(rt.lt.term);
+                        if (rl is RandoTransition rt) hook.AddSource(rt.lt.term);
                     }
                     pm.mu.AddPMHook(hook);
                 }
                 else hook = (GroupedStateTransmittingHook)obj;
-                hook.AddSource(lt.term);
+                hook.AddTarget(lt.term);
             }
             else if (location is LogicTransition lt2)
             {
