@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using RandomizerCore.Logic.StateLogic;
 
 namespace RandomizerCore.Logic
 {
@@ -9,19 +9,17 @@ namespace RandomizerCore.Logic
         State
     }
 
-    public class Term
+    public class Term : ILogicInt, IStateProvider
     {
         private const int bitFilter = 0b111_0000_0000_0000_0000_0000_0000_0000;
         private const int indexBits = 28;
         public static int TermTypeCount { get; } = 3;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetIndex(int id)
         {
             return id & ~bitFilter;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TermType GetTermType(int id)
         {
             return (TermType)(id >> indexBits);
@@ -31,8 +29,6 @@ namespace RandomizerCore.Logic
         {
             return ((int)type) << 28;
         }
-
-        // TODO: Figure out how to make old terms default to int, but new terms default to byte?
 
         public Term(int Id, string Name, TermType Type)
         {
@@ -61,6 +57,23 @@ namespace RandomizerCore.Logic
         public readonly int Index;
 
         public override string ToString() => Name;
+
+        string ILogicVariable.Name => Name;
+
+        int ILogicInt.GetValue(object? sender, ProgressionManager pm)
+        {
+            return pm.Get(this);
+        }
+
+        IEnumerable<Term> ILogicVariable.GetTerms()
+        {
+            yield return this;
+        }
+
+        StateUnion? IStateProvider.GetInputState(object? sender, ProgressionManager pm)
+        {
+            return pm.GetState(this);
+        }
 
         public static implicit operator int(Term term)
         {

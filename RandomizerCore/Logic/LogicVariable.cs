@@ -6,7 +6,7 @@ namespace RandomizerCore.Logic
     /// Terms in logic which require external computation. Cast to a derived class to evaluate.
     /// Main subclasses are currently <see cref="LogicInt"/> and <see cref="StateModifier"/>.
     /// </summary>
-    public abstract class LogicVariable
+    public abstract class LogicVariable : ILogicVariable
     {
         /// <summary>
         /// The name of the variable. Should match its usage in logic.
@@ -27,5 +27,11 @@ namespace RandomizerCore.Logic
         /// Return this to implement bool-like behavior in a <see cref="LogicVariable"/> constrained to returning int.
         /// </summary>
         public const int TRUE = 1;
+    }
+
+    public interface ILogicVariable
+    {
+        public string Name { get; }
+        public abstract IEnumerable<Term> GetTerms();
     }
 }
