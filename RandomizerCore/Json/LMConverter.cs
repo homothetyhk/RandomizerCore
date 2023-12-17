@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using RandomizerCore.Logic;
 using RandomizerCore.Logic.StateLogic;
+using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Json
@@ -34,6 +35,7 @@ namespace RandomizerCore.Json
                 lmb.DeserializeJson(LogicManagerBuilder.JsonType.Transitions, lm["Transitions"]!);
             }
             lmb.DeserializeJson(LogicManagerBuilder.JsonType.Items, lm["Items"]!);
+            if (lm["ItemStrings"] is JToken itemStringsList) lmb.DeserializeJson(LogicManagerBuilder.JsonType.ItemStrings, itemStringsList);
 
             return new(lmb);
         }
@@ -72,7 +74,10 @@ namespace RandomizerCore.Json
             serializer.Serialize(writer, value.LogicLookup.Values.Select(l => new RawLogicDef(l.Name, l.InfixSource)));
 
             writer.WritePropertyName("Items");
-            serializer.Serialize(writer, value.ItemLookup.Values);
+            serializer.Serialize(writer, value.ItemLookup.Values.Where(i => i is not StringItem));
+
+            writer.WritePropertyName("ItemStrings");
+            serializer.Serialize(writer, value.ItemLookup.Values.OfType<StringItem>().Select(s => new StringItemTemplate(s.Name, s.EffectString)));
 
             writer.WritePropertyName("Transitions");
             serializer.Serialize(writer, value.TransitionLookup.Keys);
