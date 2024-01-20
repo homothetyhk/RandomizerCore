@@ -144,7 +144,14 @@ namespace RandomizerCore.Logic
 
         public override IEnumerable<LogicToken> ToTokenSequence()
         {
+            if (paths.Length == 0) return [ConstToken.False];
             return RPN.OperateOver(Enumerable.Range(0, paths.Length).Select(j => paths[j].ToTokenSequence()), OperatorToken.OR);
+        }
+
+        public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
+        {
+            if (paths.Length == 0) return [[ConstToken.False]];
+            return paths.SelectMany(p => p.ToTermTokenSequences());
         }
 
         public override IEnumerable<Term> GetTerms()
@@ -322,17 +329,17 @@ namespace RandomizerCore.Logic
                 LogicManager lm = parent.lm;
                 IEnumerable<TermToken> tts = r.ToTermTokenSequence(lm).Concat(suffix);
                 if (stateProvider is not null) tts = tts.Prepend(lm.LP.GetTermToken(stateProvider.Name));
-                return tts;
+                return tts.DefaultIfEmpty(ConstToken.True);
             }
 
-            public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequence()
+            public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
             {
                 LogicManager lm = parent.lm;
                 List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
                 return reqs.Select(r => ClauseToTermTokenSequence(r, suffix));
             }
 
-            public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequence().Select(s => RPN.OperateOver(s, OperatorToken.AND)), OperatorToken.OR);
+            public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequences().Select(s => RPN.OperateOver(s, OperatorToken.AND)), OperatorToken.OR);
 
             public IEnumerable<TermToken> GetFirstSuccessfulConjunction(ProgressionManager pm)
             {

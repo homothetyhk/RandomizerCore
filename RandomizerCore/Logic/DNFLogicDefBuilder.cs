@@ -214,7 +214,15 @@ namespace RandomizerCore.Logic
             private void AddTermReq(Term t, int strictLowerBound) => termReqs.Add(new(t, strictLowerBound + 1));
             private void AddTermReq(Term t) => termReqs.Add(new(t, 1));
             private void AddVarReq(LogicInt li) => varReqs.Add(li);
-            private void AddStateModifier(StateModifier sm) => stateModifiers.Add(sm);
+            private void AddStateModifier(StateModifier sm)
+            {
+                if (stateProvider is null)
+                {
+                    WarnMisplacedStateModifier(sm);
+                }
+                stateModifiers.Add(sm);
+            }
+
             private void SetStateProvider(IStateProvider sp)
             {
                 if (stateProvider is null)
@@ -398,6 +406,11 @@ namespace RandomizerCore.Logic
             private void WarnDuplicateStateProvider(IStateProvider sp)
             {
                 Log($"Warning - DNF for {source} contains a clause with ambiguous state providers: {stateProvider.Name}, {sp.Name}");
+            }
+
+            private void WarnMisplacedStateModifier(StateModifier sm)
+            {
+                Log($"Warning - DNF for {source} contains a clause with state modifier {sm.Name} occurring before state provider.");
             }
         }
 
