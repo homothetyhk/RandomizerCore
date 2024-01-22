@@ -85,7 +85,7 @@ namespace RandomizerCore.Extensions
             if (ts.Count == 0) throw new ArgumentOutOfRangeException(nameof(ts));
             double d = rand.NextDouble();
             int i = GetIndexFromWeights(d, weights, cumulativeWeights);
-            if (i > ts.Count) throw new ArgumentOutOfRangeException(nameof(ts));
+            if (i >= ts.Count) throw new ArgumentOutOfRangeException(nameof(ts));
             return ts[i];
         }
 
@@ -119,7 +119,7 @@ namespace RandomizerCore.Extensions
             {
                 foreach (double weight in weights)
                 {
-                    if (d > weight) break;
+                    if (weight >= d) break;
                     ++i;
                 }
             }
@@ -130,7 +130,7 @@ namespace RandomizerCore.Extensions
                 foreach (double weight in weights)
                 {
                     cdf += weight / total;
-                    if (d > cdf) break;
+                    if (cdf >= d) break;
                     ++i;
                 }
             }
