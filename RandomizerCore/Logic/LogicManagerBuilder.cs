@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RandomizerCore.Json;
-using RandomizerCore.Logic.StateLogic;
+﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
-using RandomizerCore.LogicItems.Templates;
 using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
 
@@ -96,19 +92,6 @@ namespace RandomizerCore.Logic
         {
             AddItem((ILogicItemTemplate)item);
         }
-
-        [Obsolete("Use AddItem(ILogicItemTemplate)")]
-        public void AddTemplateItem(ILogicItemTemplate item)
-        {
-            AddItem(item);
-        }
-
-        [Obsolete("Use AddItem(ILogicItemTemplate)")]
-        public void AddUnparsedItem(JObject item)
-        {
-            AddItem(new JsonItemTemplate(item));
-        }
-
 
         /// <summary>
         /// Adds the RawLogicDef as a new waypoint. Overwrites any existing logic with the same name.
@@ -260,298 +243,177 @@ namespace RandomizerCore.Logic
             }
         }
 
-        public enum JsonType
-        {
-            Terms,
-            Waypoints,
-            Transitions,
-            Macros,
-            Items,
-            Locations,
-            LogicEdit,
-            MacroEdit,
-            LogicSubst,
-            ItemTemplates,
-            StateData,
-            ItemStrings,
-        }
 
-        public void DeserializeJson(JsonType type, string s)
-        {
-            using StringReader sr = new(s);
-            using JsonTextReader jtr = new(sr);
-            DeserializeJson(type, jtr);
-        }
-
-        public void DeserializeJson(JsonType type, Stream s)
-        {
-            using StreamReader sr = new(s);
-            using JsonTextReader jtr = new(sr);
-            DeserializeJson(type, jtr);
-        }
-
-        public void DeserializeJson(JsonType type, JsonTextReader jtr)
-        {
-            switch (type)
-            {
-                case JsonType.Terms:
-                    JToken termDoc = JToken.Load(jtr); // we need to JToken to identify which format the term doc is in
-                    DeserializeJson(type, termDoc);
-                    break;
-
-                case JsonType.Waypoints:
-                    foreach (RawWaypointDef def in JsonUtil.Deserialize<RawWaypointDef[]>(jtr) ?? Enumerable.Empty<RawWaypointDef>())
-                    {
-                        AddWaypoint(def);
-                    }
-                    break;
-
-                case JsonType.Transitions:
-                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        AddTransition(def);
-                    }
-                    break;
-
-                case JsonType.Macros:
-                    LP.SetMacro(JsonUtil.Deserialize<Dictionary<string, string>>(jtr));
-                    break;
-
-                case JsonType.Items:
-                    {
-                        DeserializeJson(type, JToken.Load(jtr));
-                    }
-                    break;
-
-                case JsonType.ItemStrings:
-                    foreach (StringItemTemplate t in JsonUtil.Deserialize<List<StringItemTemplate>>(jtr) ?? Enumerable.Empty<StringItemTemplate>())
-                    {
-                        AddItem(t);
-                    }
-                    break;
-
-                case JsonType.Locations:
-                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        AddLogicDef(def);
-                    }
-                    break;
-
-                case JsonType.LogicEdit:
-                    foreach (RawLogicDef def in JsonUtil.Deserialize<RawLogicDef[]>(jtr) ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        DoLogicEdit(def);
-                    }
-                    break;
-                case JsonType.MacroEdit:
-                    foreach (KeyValuePair<string, string> kvp in JsonUtil.Deserialize<Dictionary<string, string>>(jtr) ?? Enumerable.Empty<KeyValuePair<string, string>>())
-                    {
-                        DoMacroEdit(kvp);
-                    }
-                    break;
-
-                case JsonType.LogicSubst:
-                    foreach (RawSubstDef def in JsonUtil.Deserialize<List<RawSubstDef>>(jtr) ?? Enumerable.Empty<RawSubstDef>())
-                    {
-                        DoSubst(def);
-                    }
-                    break;
-                case JsonType.ItemTemplates:
-                    foreach (ILogicItemTemplate template in JsonUtil.Deserialize<IEnumerable<ILogicItemTemplate>>(jtr) ?? Enumerable.Empty<ILogicItemTemplate>())
-                    {
-                        AddItem(template);
-                    }
-                    break;
-                case JsonType.StateData:
-                    RawStateData rsd = JsonUtil.Deserialize<RawStateData>(jtr);
-                    StateManager.AppendRawStateData(rsd);
-                    break;
-            }
-        }
-
-        public void DeserializeJson(JsonType type, JToken t)
-        {
-            switch (type)
-            {
-                case JsonType.Terms:
-                    if (t.Type == JTokenType.Array)
-                    {
-                        foreach (string term in t.ToObject<List<string>>())
-                        {
-                            GetOrAddTerm(term, TermType.Int); // legacy format
-                        }
-                    }
-                    else
-                    {
-                        foreach (KeyValuePair<string, List<string>> kvp in t.ToObject<Dictionary<string, List<string>>>())
-                        {
-                            if (!Enum.TryParse(kvp.Key, true, out TermType termType))
-                            {
-                                Log($"Unable to parse {kvp.Key} as TermType, assuming Int...");
-                                termType = TermType.Int;
-                            }
-                            foreach (string term in kvp.Value)
-                            {
-                                GetOrAddTerm(term, termType);
-                            }
-                        }
-                    }
-                    break;
-
-                case JsonType.Waypoints:
-                    foreach (RawWaypointDef def in t?.ToObject<List<RawWaypointDef>>() ?? Enumerable.Empty<RawWaypointDef>())
-                    {
-                        AddWaypoint(def);
-                    }
-                    break;
-
-                case JsonType.Transitions:
-                    foreach (RawLogicDef def in t?.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        AddTransition(def);
-                    }
-                    break;
-
-                case JsonType.Macros:
-                    LP.SetMacro(t.ToObject<Dictionary<string, string>>());
-                    break;
-
-                case JsonType.Items:
-                    {
-                        foreach (JToken jt in (JArray)t)
-                        {
-                            AddItem(new JsonItemTemplate(jt));
-                        }
-                    }
-                    break;
-                case JsonType.ItemStrings:
-                    foreach (StringItemTemplate sit in t.ToObject<List<StringItemTemplate>>() ?? Enumerable.Empty<StringItemTemplate>())
-                    {
-                        AddItem(sit);
-                    }
-                    break;
-
-                case JsonType.Locations:
-                    foreach (RawLogicDef def in t?.ToObject<List<RawLogicDef>>() ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        AddLogicDef(def);
-                    }
-                    break;
-
-                case JsonType.LogicEdit:
-                    foreach (RawLogicDef def in t?.ToObject<RawLogicDef[]>() ?? Enumerable.Empty<RawLogicDef>())
-                    {
-                        DoLogicEdit(def);
-                    }
-                    break;
-                case JsonType.MacroEdit:
-                    foreach (KeyValuePair<string, string> kvp in t?.ToObject<Dictionary<string, string>>() ?? Enumerable.Empty<KeyValuePair<string, string>>())
-                    {
-                        DoMacroEdit(kvp);
-                    }
-                    break;
-                case JsonType.LogicSubst:
-                    foreach (RawSubstDef def in t?.ToObject<List<RawSubstDef>>() ?? Enumerable.Empty<RawSubstDef>())
-                    {
-                        DoSubst(def);
-                    }
-                    break;
-                case JsonType.ItemTemplates:
-                    foreach (ILogicItemTemplate template in t?.ToObject<IEnumerable<ILogicItemTemplate>>() ?? Enumerable.Empty<ILogicItemTemplate>())
-                    {
-                        AddItem(template);
-                    }
-                    break;
-                case JsonType.StateData:
-                    RawStateData rsd = t?.ToObject<RawStateData>();
-                    StateManager.AppendRawStateData(rsd);
-                    break;
-            }
-        }
-
-        public void DeserializeFile(JsonType type, ILogicFormat logicFormat, Stream s)
-
+        public void DeserializeFile(LogicFileType type, ILogicFormat logicFormat, Stream s)
         {
             switch(type)
             {
-                case JsonType.Terms:
+                case LogicFileType.Terms:
                     foreach ((string term, TermType termType) in logicFormat.LoadTerms(s))
                     {
                         GetOrAddTerm(term, termType);
                     }
                     break;
 
-                case JsonType.Waypoints:
+                case LogicFileType.Waypoints:
                     foreach (RawWaypointDef def in logicFormat.LoadWaypoints(s))
                     {
                         AddWaypoint(def);
                     }
                     break;
 
-                case JsonType.Transitions:
+                case LogicFileType.Transitions:
                     foreach (RawLogicDef def in logicFormat.LoadTransitions(s))
                     {
                         AddTransition(def);
                     }
                     break;
 
-                case JsonType.Macros:
+                case LogicFileType.Macros:
                     LP.SetMacro(logicFormat.LoadMacros(s));
                     break;
 
-                case JsonType.Items:
-                    foreach (object obj in logicFormat.LoadItems(s))
-                    {
-                        if (obj is ILogicItemTemplate templ)
-                        {
-                            AddItem(templ);
-                        }
-                        else
-                        {
-                            throw new FormatException($"Unexpected item of type {obj.GetType()} " +
-                                $"returned by logic format of type {logicFormat.GetType()}");
-                        }
-                    }
-                    break;
-
-                case JsonType.Locations:
+                case LogicFileType.Locations:
                     foreach (RawLogicDef def in logicFormat.LoadLocations(s))
                     {
                         AddLogicDef(def);
                     }
                     break;
 
-                case JsonType.LogicEdit:
+                case LogicFileType.LogicEdit:
                     foreach (RawLogicDef def in logicFormat.LoadLogicEdits(s))
                     {
                         DoLogicEdit(def);
                     }
                     break;
-                case JsonType.MacroEdit:
+                case LogicFileType.MacroEdit:
                     foreach (KeyValuePair<string, string> kvp in logicFormat.LoadMacroEdits(s))
                     {
                         DoMacroEdit(kvp);
                     }
                     break;
 
-                case JsonType.LogicSubst:
+                case LogicFileType.LogicSubst:
                     foreach (RawSubstDef def in logicFormat.LoadLogicSubstitutions(s))
                     {
                         DoSubst(def);
                     }
                     break;
-                case JsonType.ItemTemplates:
+                case LogicFileType.Items:
+                    foreach (ILogicItemTemplate template in logicFormat.LoadItems(s))
+                    {
+                        AddItem(template);
+                    }
+                    break;
+
+                case LogicFileType.ItemTemplates:
                     foreach (ILogicItemTemplate template in logicFormat.LoadItemTemplates(s))
                     {
                         AddItem(template);
                     }
                     break;
-                case JsonType.StateData:
+
+                case LogicFileType.ItemStrings:
+                    foreach (ILogicItemTemplate template in logicFormat.LoadItemStrings(s))
+                    {
+                        AddItem(template);
+                    }
+                    break;
+
+                case LogicFileType.StateData:
                     RawStateData rsd = logicFormat.LoadStateData(s);
                     StateManager.AppendRawStateData(rsd);
                     break;
             }
         }
+
+        /// <summary>
+        /// Applies the data to the LMB. The type of the data should match the output of ILogicFormat for the given LogicFileType.
+        /// </summary>
+        public void LoadData(LogicFileType type, object? data)
+        {
+            if (data is null) return;
+
+            switch (type)
+            {
+                case LogicFileType.Terms:
+                    foreach ((string term, TermType termType) in (IEnumerable<(string, TermType)>)data)
+                    {
+                        GetOrAddTerm(term, termType);
+                    }
+                    break;
+
+                case LogicFileType.Waypoints:
+                    foreach (RawWaypointDef def in (IEnumerable<RawWaypointDef>)data)
+                    {
+                        AddWaypoint(def);
+                    }
+                    break;
+
+                case LogicFileType.Transitions:
+                    foreach (RawLogicDef def in (IEnumerable<RawLogicDef>)data)
+                    {
+                        AddTransition(def);
+                    }
+                    break;
+
+                case LogicFileType.Macros:
+                    LP.SetMacro((Dictionary<string, string>)data);
+                    break;
+
+                case LogicFileType.Locations:
+                    foreach (RawLogicDef def in (IEnumerable<RawLogicDef>)data)
+                    {
+                        AddLogicDef(def);
+                    }
+                    break;
+
+                case LogicFileType.LogicEdit:
+                    foreach (RawLogicDef def in (IEnumerable<RawLogicDef>)data)
+                    {
+                        DoLogicEdit(def);
+                    }
+                    break;
+                case LogicFileType.MacroEdit:
+                    foreach (KeyValuePair<string, string> kvp in (IEnumerable<KeyValuePair<string, string>>)data)
+                    {
+                        DoMacroEdit(kvp);
+                    }
+                    break;
+
+                case LogicFileType.LogicSubst:
+                    foreach (RawSubstDef def in (IEnumerable<RawSubstDef>)data)
+                    {
+                        DoSubst(def);
+                    }
+                    break;
+                case LogicFileType.Items:
+                    foreach (ILogicItemTemplate template in (IEnumerable<ILogicItemTemplate>)data)
+                    {
+                        AddItem(template);
+                    }
+                    break;
+
+                case LogicFileType.ItemTemplates:
+                    foreach (ILogicItemTemplate template in (IEnumerable<ILogicItemTemplate>)data)
+                    {
+                        AddItem(template);
+                    }
+                    break;
+
+                case LogicFileType.ItemStrings:
+                    foreach (ILogicItemTemplate template in (IEnumerable<StringItemTemplate>)data)
+                    {
+                        AddItem(template);
+                    }
+                    break;
+
+                case LogicFileType.StateData:;
+                    StateManager.AppendRawStateData((RawStateData)data);
+                    break;
+            }
+        }
+
         public Term GetTerm(string term)
         {
             return Terms.TermLookup[term];

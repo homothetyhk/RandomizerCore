@@ -4,7 +4,6 @@ namespace RandomizerCore
 {
     public readonly struct TermValue
     {
-        [Newtonsoft.Json.JsonConstructor]
         public TermValue(Term Term, int Value)
         {
             this.Term = Term;

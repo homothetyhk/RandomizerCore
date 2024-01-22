@@ -358,13 +358,4 @@ namespace RandomizerCore.Logic
             }
         }
     }
-
-    [Obsolete]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class OptimizedLogicDef : DNFLogicDef
-    {
-        public OptimizedLogicDef(DNFLogicDef def) : base(def)
-        {
-        }
-    }
 }

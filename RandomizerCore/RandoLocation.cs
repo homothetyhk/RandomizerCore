@@ -1,5 +1,4 @@
 ﻿using RandomizerCore.Logic;
-using Newtonsoft.Json;
 
 namespace RandomizerCore
 {
@@ -8,7 +7,6 @@ namespace RandomizerCore
         public LogicDef logic;
         public List<LogicCost>? costs;
 
-        [JsonIgnore]
         public string Name => logic.Name;
 
         public float Priority { get ; set; }

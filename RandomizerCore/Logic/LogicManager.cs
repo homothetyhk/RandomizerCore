@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using RandomizerCore.Exceptions;
-using RandomizerCore.Json;
+﻿using RandomizerCore.Exceptions;
 using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringItems;
@@ -9,7 +7,6 @@ using System.Collections.ObjectModel;
 
 namespace RandomizerCore.Logic
 {
-    [JsonConverter(typeof(LMConverter))]
     public class LogicManager
     {
         public readonly TermCollection Terms;
@@ -91,7 +88,6 @@ namespace RandomizerCore.Logic
 
             // Items
             _items = new(source.ItemLookup.Count);
-            JsonSerializer js = JsonUtil.GetLogicSerializer(this);
             foreach (var kvp in source.ItemLookup)
             {
                 if (!_items.ContainsKey(kvp.Key)) // items may be created out of sequence due to references

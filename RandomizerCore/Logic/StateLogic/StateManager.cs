@@ -1,5 +1,5 @@
-﻿using RandomizerCore.Json;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Text;
 
 namespace RandomizerCore.Logic.StateLogic
 {
@@ -155,23 +155,45 @@ namespace RandomizerCore.Logic.StateLogic
 
         public string PrettyPrint<T>(T state) where T : IState
         {
-            _printer.Clear();
+            StringBuilder sb = new();
+            return PrettyPrint<T>(state, sb).ToString();
+        }
+
+        private StringBuilder PrettyPrint<T>(T state, StringBuilder sb) where T : IState
+        {
+            sb.Append('{');
             for (int i = 0; i < Bools.Count; i++)
             {
-                if (state.GetBool(i)) _printer.Add(_bools[i].Name, true);
+                if (state.GetBool(i))
+                {
+                    sb.Append(Bools[i].Name).Append(":T,");
+                }
             }
             for (int i = 0; i < Ints.Count; i++)
             {
                 int j = state.GetInt(i);
-                if (j > 0) _printer.Add(_ints[i].Name, j);
+                if (j != 0)
+                {
+                    sb.Append(Ints[i].Name).Append(':').Append(j).Append(',');
+                }
             }
-            return JsonUtil.SerializeNonindented(_printer);
+            if (sb[^1] == ',') sb[^1] = '}';
+            else sb.Append('}');
+            return sb;
         }
 
         public string PrettyPrint(StateUnion? states)
         {
             if (states is null) return "null";
-            return JsonUtil.SerializeNonindented(states.Select(s => PrettyPrint(s))).Replace("\"", "").Replace("\\", "");
+            StringBuilder sb = new();
+            sb.Append('[');
+            foreach (State state in states)
+            {
+                PrettyPrint(state, sb).Append(',');
+            }
+            if (sb[^1] == ',') sb[^1] = ']';
+            else sb.Append(']');
+            return sb.ToString();
         }
 
         public Dictionary<string, List<string>> GetFieldDefs()

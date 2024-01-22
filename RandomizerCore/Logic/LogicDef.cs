@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using RandomizerCore.StringLogic;
+﻿using RandomizerCore.StringLogic;
 
 namespace RandomizerCore.Logic
 {
@@ -16,7 +15,7 @@ namespace RandomizerCore.Logic
         /// <summary>
         /// The string logic from which the LogicDef was constructed.
         /// </summary>
-        [JsonProperty("Logic")] public string InfixSource { get; }
+        public string InfixSource { get; }
 
         public LogicDef(string name, string infixSource)
         {

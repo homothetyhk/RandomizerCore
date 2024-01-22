@@ -1,7 +1,7 @@
-﻿using RandomizerCore.Json;
-using RandomizerCore.Logic.StateLogic;
+﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace RandomizerCore.Logic
 {
@@ -96,46 +96,49 @@ namespace RandomizerCore.Logic
 
         public string Dump(LogicManager lm)
         {
-            Dictionary<string, object> o = new();
+            StringBuilder sb = new StringBuilder('{').AppendLine();
 
             IReadOnlyList<Term> termList = lm.Terms.GetTermList(TermType.SignedByte);
             for (int i = 0; i < Data.Length; i++)
             {
-                if (Data[i] != 0) o.Add(termList[i].Name, (int)Data[i]);
+                if (Data[i] != 0) sb.Append("  ").Append(termList[i].Name).Append(": ").Append(Data[i]).Append(',').AppendLine();
             }
 
             termList = lm.Terms.GetTermList(TermType.Int);
             for (int i = 0; i < LargeData.Length; i++)
             {
-                if (LargeData[i] != 0) o.Add(termList[i].Name, LargeData[i]);
+                if (LargeData[i] != 0) sb.Append("  ").Append(termList[i].Name).Append(": ").Append(LargeData[i]).Append(',').AppendLine();
             }
 
             termList = lm.Terms.GetTermList(TermType.State);
             for (int i = 0; i < StateData.Length; i++)
             {
-                if (StateData[i] is not null) o.Add(termList[i].Name, lm.StateManager.PrettyPrint(StateData[i]));
+                if (StateData[i] is not null) sb.Append("  ").Append(termList[i].Name).Append(": ").Append(lm.StateManager.PrettyPrint(StateData[i])).Append(',').AppendLine();
             }
 
-            return JsonUtil.Serialize(o);
+            sb.Remove(sb.Length - Environment.NewLine.Length - 1, Environment.NewLine.Length + 1); // e.g. trailing ,\n or {\n
+            return sb.Length != 0 ? sb.ToString() : "{}";
         }
 
         public static string Diff(ProgressionData left, ProgressionData right)
         {
-            Dictionary<string, object> o = new();
+            StringBuilder sb = new StringBuilder('{').AppendLine();
             LogicManager lm = left.LM;
 
             foreach (Term t in GetDiffTerms(left, right))
             {
                 if (t.Type == TermType.State)
                 {
-                    o.Add(t.Name, $"{lm.StateManager.PrettyPrint(left.GetState(t))} <> {lm.StateManager.PrettyPrint(right.GetState(t))}");
+                    sb.Append("  ").Append(t.Name).Append(": ").Append(lm.StateManager.PrettyPrint(left.GetState(t))).Append(" <> ").Append(lm.StateManager.PrettyPrint(right.GetState(t))).Append(',').AppendLine();
                 }
                 else
                 {
-                    o.Add(t.Name, $"{left.GetValue(t)} <> {right.GetValue(t)}");
+                    sb.Append("  ").Append(t.Name).Append(": ").Append(left.GetValue(t)).Append(" <> ").Append(right.GetValue(t)).Append(',').AppendLine();
                 }
             }
-            return JsonUtil.Serialize(o);
+
+            sb.Remove(sb.Length - Environment.NewLine.Length - 1, Environment.NewLine.Length + 1); // e.g. trailing ,\n or {\n
+            return sb.Length != 0 ? sb.ToString() : "{}";
         }
 
         public static List<Term> GetDiffTerms(ProgressionData left, ProgressionData right, ComparisonType type = ComparisonType.EQ)

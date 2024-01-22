@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
-using RandomizerCore.Json;
-using RandomizerCore.Logic;
+﻿using RandomizerCore.Logic;
 
 namespace RandomizerCore
 {
-    [JsonConverter(typeof(RandoContextConverter))]
     public abstract class RandoContext
     {
         public readonly LogicManager LM;

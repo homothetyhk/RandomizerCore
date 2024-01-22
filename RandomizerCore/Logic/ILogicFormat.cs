@@ -1,12 +1,13 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
+using RandomizerCore.StringItems;
 
 namespace RandomizerCore.Logic
 {
     /// <summary>
     /// Interface describing a strategy for loading a specific file format into a <see cref="LogicManagerBuilder"/>.
     /// </summary>
-    /// <seealso cref="LogicManagerBuilder.DeserializeFile(LogicManagerBuilder.JsonType, ILogicFormat, Stream)"/>
+    /// <seealso cref="LogicManagerBuilder.DeserializeFile(LogicFileType, ILogicFormat, Stream)"/>
     public interface ILogicFormat
     {
         /// <summary>
@@ -26,14 +27,10 @@ namespace RandomizerCore.Logic
         /// </summary>
         Dictionary<string, string> LoadMacros(Stream s);
         /// <summary>
-        /// Loads a collection of items from a file.
+        /// Loads a collection of items from a file. In general, some items cannot be constructed with a <see cref="LogicManager"/>. 
+        /// <br/>It is the repsonsibility of format implementations to forbid such items or wrap them in an appropriate template.
         /// </summary>
-        /// <returns>
-        ///     An IEnumerable which may contain any mix of <see cref="LogicItem"/>s and <see cref="ILogicItemTemplate"/>s.
-        ///     It is the responsibility of format implementations to either forbid the use of items which cannot be constructed
-        ///     without a <see cref="LogicManager"/>, or implicitly construct them as <see cref="ILogicItemTemplate"/>s.
-        /// </returns>
-        IEnumerable<object> LoadItems(Stream s);
+        IEnumerable<ILogicItemTemplate> LoadItems(Stream s);
         /// <summary>
         /// Loads a collection of locations from a file.
         /// </summary>
@@ -54,6 +51,11 @@ namespace RandomizerCore.Logic
         /// Loads a collection of item templates from a file.
         /// </summary>
         IEnumerable<ILogicItemTemplate> LoadItemTemplates(Stream s);
+        /// <summary>
+        /// Loads a collection of item strings from a file.
+        /// </summary>
+        IEnumerable<StringItemTemplate> LoadItemStrings(Stream s);
+
         /// <summary>
         /// Loads state data from a file.
         /// </summary>

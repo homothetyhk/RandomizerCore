@@ -10,24 +10,16 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>annotations</Nullable>
-        <References>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</References>
+        <PostBuildPath></PostBuildPath>
     </PropertyGroup>
 
     <Import Project="LocalOverrides.targets" Condition="Exists('LocalOverrides.targets')" />
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>$(References)\Newtonsoft.Json.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+    <ItemGroup Condition="'$(TargetFramework)' != 'net6.0' And '$(TargetFramework)' != 'net8.0'">
         <PackageReference Include="PolySharp" Version="1.13.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -41,7 +33,7 @@
         <NoWarn>1701;1702;CS1591</NoWarn>
     </PropertyGroup>
     
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net472'">
-        <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).xml" DestinationFolder="$(References)\Mods\$(TargetName)" SkipUnchangedFiles="true" />
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net472' And '$(PostBuildPath)' != ''">
+        <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)$(TargetName).xml" DestinationFolder="$(PostBuildPath)" SkipUnchangedFiles="true" />
     </Target>
 </Project>
