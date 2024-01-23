@@ -2,8 +2,8 @@
     <PropertyGroup>
         <ProjectGuid>ae78b8e8-a733-44a2-be63-d264c82118b7</ProjectGuid>
         <AssemblyTitle>RandomizerCore</AssemblyTitle>
-        <AssemblyVersion>1.1.2.0</AssemblyVersion>
-        <FileVersion>1.1.2.0</FileVersion>
+        <VersionPrefix>2.0.0</VersionPrefix>
+        <VersionSuffix></VersionSuffix>
         <TargetFrameworks>netstandard2.1;net472;net6.0;net8.0</TargetFrameworks>
         <Deterministic>true</Deterministic>
         <LangVersion>latest</LangVersion>
