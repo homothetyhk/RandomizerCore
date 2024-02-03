@@ -44,6 +44,11 @@
             return expressionFactory.CreateInfixExpression(argL, op, argR);
         }
 
+        public IExpression<T> ApplyInfixOperatorLeftAssoc(IEnumerable<IExpression<T>> args, OperatorToken op)
+        {
+            return args.Aggregate((expr, operand) => ApplyInfixOperator(expr, op, operand));
+        }
+
         public IExpression<T> ApplyPrefixOperator(OperatorToken op, IExpression<T> operand)
         {
             int? pOperand = GetBindingPower(operand, true);

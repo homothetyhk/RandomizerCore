@@ -1,5 +1,6 @@
 ﻿using RandomizerCore.Logic;
 using RandomizerCore.LogicItems;
+using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.StringItems
 {
@@ -39,6 +40,17 @@ namespace RandomizerCore.StringItems
         public abstract bool AddTo(ProgressionManager pm);
         public abstract bool CheckForEffect(ProgressionManager pm);
         public abstract IEnumerable<Term> GetAffectedTerms();
+        /// <summary>
+        /// Converts the effect to an expression tree, with standardized formatting. May differ from the expression implied by <see cref="StringItem.EffectString"/>.
+        /// </summary>
+        public abstract IExpression<ItemExpressionType> ToExpression();
+        /// <summary>
+        /// Converts the effect to an effect string. By default, this prints the result of <see cref="ToExpression"/>, and may differ from <see cref="StringItem.EffectString"/>.
+        /// </summary>
+        public virtual string ToEffectString() => ToExpression().Print();
+        internal static ItemExpressionFactory ExpressionFactory { get; } = new ItemExpressionFactory();
+        internal static ItemOperatorProvider OperatorProvider { get; } = new ItemOperatorProvider();
+        internal static ExpressionBuilder<ItemExpressionType> ExpressionBuilder { get; } = new(OperatorProvider, ExpressionFactory);
     }
 
     public sealed record EmptyEffect : StringItemEffect
@@ -47,6 +59,7 @@ namespace RandomizerCore.StringItems
         public override bool AddTo(ProgressionManager pm) => false;
         public override bool CheckForEffect(ProgressionManager pm) => false;
         public override IEnumerable<Term> GetAffectedTerms() => Enumerable.Empty<Term>();
+        public override IExpression<ItemExpressionType> ToExpression() => ExpressionBuilder.NameAtom(ItemExpressionFactory.EmptyEffect);
     }
 
     public record AllOfEffect : StringItemEffect
@@ -74,6 +87,21 @@ namespace RandomizerCore.StringItems
         {
             return Effects.SelectMany(e => e.GetAffectedTerms());
         }
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            return ExpressionBuilder.ApplyInfixOperatorLeftAssoc(Effects.Select(e => e.ToExpression()), ExpressionBuilder.Op(ItemOperatorProvider.Chaining));
+        }
+
+        public virtual bool Equals(AllOfEffect? other)
+        {
+            return other is not null && other.Effects.SequenceEqual(Effects);
+        }
+
+        public override int GetHashCode()
+        {
+            return Effects[0].GetHashCode() ^ Effects.Length;
+        }
     }
 
     public record FirstOfEffect : StringItemEffect
@@ -100,6 +128,22 @@ namespace RandomizerCore.StringItems
         {
             return Effects.SelectMany(e => e.GetAffectedTerms());
         }
+
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            return ExpressionBuilder.ApplyInfixOperatorLeftAssoc(Effects.Select(e => e.ToExpression()), ExpressionBuilder.Op(ItemOperatorProvider.ShortCircuitChaining));
+        }
+
+        public virtual bool Equals(FirstOfEffect? other)
+        {
+            return other is not null && other.Effects.SequenceEqual(Effects);
+        }
+
+        public override int GetHashCode()
+        {
+            return Effects[0].GetHashCode() ^ Effects.Length;
+        }
     }
 
     public record IncrementEffect(int Value, Term Term) : StringItemEffect
@@ -118,6 +162,18 @@ namespace RandomizerCore.StringItems
         public override IEnumerable<Term> GetAffectedTerms()
         {
             yield return Term;
+        }
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            if (Value == 1)
+            {
+                return ExpressionBuilder.ApplyPostfixOperator(ExpressionBuilder.NameAtom(Term.Name), ExpressionBuilder.Op(ItemOperatorProvider.Increment));
+            }
+            else
+            {
+                return ExpressionBuilder.ApplyInfixOperator(ExpressionBuilder.NameAtom(Term.Name), ExpressionBuilder.Op(ItemOperatorProvider.AdditionAssignment), ExpressionBuilder.NumberAtom(Value));
+            }
         }
     }
 
@@ -142,6 +198,11 @@ namespace RandomizerCore.StringItems
         {
             yield return Term;
         }
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            return ExpressionBuilder.ApplyInfixOperator(ExpressionBuilder.NameAtom(Term.Name), ExpressionBuilder.Op(ItemOperatorProvider.MaxAssignment), ExpressionBuilder.NumberAtom(Value));
+        }
     }
 
     public record ConditionalEffect(LogicDef Logic, StringItemEffect Effect, bool Negated = false) : StringItemEffect
@@ -163,6 +224,13 @@ namespace RandomizerCore.StringItems
         public override IEnumerable<Term> GetAffectedTerms()
         {
             return Effect.GetAffectedTerms();
+        }
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            IExpression<ItemExpressionType> logicExpr = ExpressionBuilder.StringAtom(Logic.InfixSource);
+            if (Negated) logicExpr = ExpressionBuilder.ApplyPrefixOperator(ExpressionBuilder.Op(ItemOperatorProvider.Negation), logicExpr);
+            return ExpressionBuilder.ApplyInfixOperator(logicExpr, ExpressionBuilder.Op(ItemOperatorProvider.Conditional), Effect.ToExpression());
         }
     }
 
@@ -190,6 +258,11 @@ namespace RandomizerCore.StringItems
         public override IEnumerable<Term> GetAffectedTerms()
         {
             return Item.GetAffectedTerms();
+        }
+
+        public override IExpression<ItemExpressionType> ToExpression()
+        {
+            return ExpressionBuilder.ApplyPrefixOperator(ExpressionBuilder.Op(ItemOperatorProvider.Reference), ExpressionBuilder.NameAtom(Item.Name));
         }
     }
 }
