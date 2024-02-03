@@ -47,5 +47,6 @@ namespace RandomizerCore.Logic
         /// The string representation of the LogicDef. Must be logically equivalent to InfixSource, but generally does not contain macros and may be expanded or simplified in other ways.
         /// </summary>
         public virtual string ToInfix() => ToLogicClauseBuilder().ToInfix();
+        public override string ToString() => $"{Name}: {InfixSource}";
     }
 }
