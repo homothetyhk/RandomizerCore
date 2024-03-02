@@ -310,6 +310,22 @@ namespace RandomizerCore.StringLogic
         }
 
         /// <summary>
+        /// Replaces CoalescingTokens with their result as determined by the delegate. If the delegate returns null, the CoalescingToken is left in place. 
+        /// Acts recursively on nested coalescing expressions, provided the delegate returns nonnull.
+        /// </summary>
+        public void PartialCoalesce(Func<TermToken, bool?> tokenValidator)
+        {
+            for (int i = 0; i < _tokens.Count; i++)
+            {
+                if (_tokens[i] is CoalescingToken qt && tokenValidator(qt.Left) is bool b)
+                {
+                    _tokens[i] = b ? qt.Left : qt.Right;
+                    i--;
+                }
+            }
+        }
+
+        /// <summary>
         /// Applies the delegate to each term in the expression. If the result of the delegate is not null, replaces the term at that position with the result.
         /// <br/>Returns the number of modified tokens.
         /// </summary>

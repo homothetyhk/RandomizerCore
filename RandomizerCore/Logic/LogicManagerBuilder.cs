@@ -164,9 +164,11 @@ namespace RandomizerCore.Logic
                 throw new InvalidOperationException($"Logic edit \"{def.logic}\" for {def.name} is malformed.", e);
             }
 
+            bool exists = LogicLookup.TryGetValue(def.name, out LogicClause orig);
+            lcb.PartialCoalesce(tt => tt is SimpleToken { Name: "ORIG" } ? exists : null);
             if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
             {
-                if (!LogicLookup.TryGetValue(def.name, out LogicClause orig))
+                if (!exists)
                 {
                     throw new ArgumentException($"ORIG edit requested for nonexistent logic def {def.name}: {def.logic}");
                 }
@@ -191,10 +193,12 @@ namespace RandomizerCore.Logic
             {
                 throw new InvalidOperationException($"Logic edit \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
             }
-            
+
+            bool exists = LP.IsMacro(kvp.Key);
+            lcb.PartialCoalesce(tt => tt is SimpleToken { Name: "ORIG" } ? exists : null);
             if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
             {
-                if (!LP.IsMacro(kvp.Key))
+                if (!exists)
                 {
                     throw new ArgumentException($"ORIG edit requested for nonexistent macro {kvp.Key}: {kvp.Value}");
                 }
@@ -242,7 +246,6 @@ namespace RandomizerCore.Logic
                 throw new ArgumentException($"RawSubstDef {def} does not correspond to any known macro or logic.");
             }
         }
-
 
         public void DeserializeFile(LogicFileType type, ILogicFormat logicFormat, Stream s)
         {
