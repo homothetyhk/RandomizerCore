@@ -62,6 +62,17 @@ namespace RandomizerCoreTests
             l1.CanGet(pm).Should().BeTrue();
         }
 
+        [Fact]
+        public void OrigCoalesceTest()
+        {
+            LogicManagerBuilder lmb = new();
+            lmb.GetOrAddTerm("A");
+            lmb.DoLogicEdit(new("L1", "ORIG?A"));
+            lmb.LogicLookup["L1"].ToInfix().Should().Be("A");
+            lmb.AddTransition(new("T", "A"));
+            lmb.DoLogicEdit(new("L2", "ORIG?*T"));
+            lmb.LogicLookup["L2"].ToInfix().Should().Be("*T");
+        }
 
     }
 }
