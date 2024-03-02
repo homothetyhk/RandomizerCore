@@ -74,6 +74,10 @@ namespace RandomizerCore.Logic
                         }
                         #endif
                     }
+                    if (paths.Any(p => p.stateProvider is null && p.stateModifiers.Length > 0))
+                    {
+                        throw new ArgumentException("Found state modifiers without an associated state provider.");
+                    }
 
                     return paths;
                 }
@@ -138,6 +142,7 @@ namespace RandomizerCore.Logic
                         break;
                     case CoalescingToken qt:
                         tokens[index] = IsValidToken(qt.Left) ? qt.Left : qt.Right;
+                        ExpandToken(index);
                         break;
                 }
             }
