@@ -232,6 +232,16 @@ namespace RandomizerCore.StringItems
             if (Negated) logicExpr = ExpressionBuilder.ApplyPrefixOperator(ExpressionBuilder.Op(ItemOperatorProvider.Negation), logicExpr);
             return ExpressionBuilder.ApplyInfixOperator(logicExpr, ExpressionBuilder.Op(ItemOperatorProvider.Conditional), Effect.ToExpression());
         }
+
+        public virtual bool Equals(ConditionalEffect? other)
+        {
+            return other is not null && other.Negated == Negated && other.Logic.GetType() == Logic.GetType() && other.Logic.InfixSource == Logic.InfixSource;
+        }
+
+        public override int GetHashCode()
+        {
+            return Logic.InfixSource.GetHashCode() * (Negated ? 2 : 1);
+        }
     }
 
     public record ReferenceEffect(LogicItem Item) : StringItemEffect
