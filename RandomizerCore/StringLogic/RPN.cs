@@ -154,7 +154,11 @@ namespace RandomizerCore.StringLogic
                             {
                                 for (int j = 0; j < andLeft.Count; j++)
                                 {
+#if NETSTANDARD2_0
+                                    HashSet<TermToken> c = new();
+#else
                                     HashSet<TermToken> c = new(andRight[i].Count + andLeft[j].Count);
+#endif
                                     c.UnionWith(andLeft[j]);
                                     c.UnionWith(andRight[i]);
                                     and.Add(c);
