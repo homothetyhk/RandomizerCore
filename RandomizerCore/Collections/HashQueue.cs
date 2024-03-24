@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using RandomizerCore.Extensions;
 
 namespace RandomizerCore.Logic
@@ -20,14 +20,15 @@ namespace RandomizerCore.Logic
         public HashQueue(int capacity)
         {
             queue = new Queue<T>(capacity);
+#if NETSTANDARD2_0
+            set = new HashSet<T>();
+#else
             set = new HashSet<T>(capacity);
+#endif
         }
 
         public HashQueue(IEnumerable<T> ts)
         {
-            queue = new Queue<T>();
-            set = new HashSet<T>();
-
             set = new HashSet<T>(ts);
             queue = new Queue<T>(set);
         }
