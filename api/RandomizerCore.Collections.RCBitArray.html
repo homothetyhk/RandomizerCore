@@ -1,0 +1,547 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class RCBitArray
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class RCBitArray
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Collections.RCBitArray">
+  
+  
+  <h1 id="RandomizerCore_Collections_RCBitArray" data-uid="RandomizerCore.Collections.RCBitArray" class="text-break">Class RCBitArray
+  </h1>
+  <div class="markdown level0 summary"><p>A BitArray with efficient partial order comparison.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">RCBitArray</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.Collections.html">RandomizerCore.Collections</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_Collections_RCBitArray_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class RCBitArray : IReadOnlyList&lt;bool&gt;</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray__ctor_RandomizerCore_Collections_RCBitArray_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.%23ctor(RandomizerCore.Collections.RCBitArray)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L19">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray__ctor_" data-uid="RandomizerCore.Collections.RCBitArray.#ctor*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray__ctor_RandomizerCore_Collections_RCBitArray_" data-uid="RandomizerCore.Collections.RCBitArray.#ctor(RandomizerCore.Collections.RCBitArray)">RCBitArray(RCBitArray)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RCBitArray(RCBitArray array)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Collections.RCBitArray.html">RCBitArray</a></td>
+        <td><span class="parametername">array</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray__ctor_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.%23ctor(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L13">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray__ctor_" data-uid="RandomizerCore.Collections.RCBitArray.#ctor*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray__ctor_System_Int32_" data-uid="RandomizerCore.Collections.RCBitArray.#ctor(System.Int32)">RCBitArray(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RCBitArray(int length)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">length</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_BlockCount.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.BlockCount%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L68">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_BlockCount_" data-uid="RandomizerCore.Collections.RCBitArray.BlockCount*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_BlockCount" data-uid="RandomizerCore.Collections.RCBitArray.BlockCount">BlockCount</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int BlockCount { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_Item_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.Item(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L27">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_Item_" data-uid="RandomizerCore.Collections.RCBitArray.Item*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_Item_System_Int32_" data-uid="RandomizerCore.Collections.RCBitArray.Item(System.Int32)">Item[Int32]</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool this[int i] { get; set; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">i</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_Length.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.Length%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L25">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_Length_" data-uid="RandomizerCore.Collections.RCBitArray.Length*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_Length" data-uid="RandomizerCore.Collections.RCBitArray.Length">Length</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Length { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_GetBlock_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.GetBlock(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L72">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_GetBlock_" data-uid="RandomizerCore.Collections.RCBitArray.GetBlock*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_GetBlock_System_Int32_" data-uid="RandomizerCore.Collections.RCBitArray.GetBlock(System.Int32)">GetBlock(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint GetBlock(int i)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">i</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_GetEnumerator.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L75">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_GetEnumerator_" data-uid="RandomizerCore.Collections.RCBitArray.GetEnumerator*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_GetEnumerator" data-uid="RandomizerCore.Collections.RCBitArray.GetEnumerator">GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerator&lt;bool&gt; GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span>&lt;<span class="xref">System.Boolean</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_IsAllFalse.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.IsAllFalse%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L48">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_IsAllFalse_" data-uid="RandomizerCore.Collections.RCBitArray.IsAllFalse*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_IsAllFalse" data-uid="RandomizerCore.Collections.RCBitArray.IsAllFalse">IsAllFalse()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsAllFalse()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_IsBitwiseLE_RandomizerCore_Collections_RCBitArray_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.IsBitwiseLE(RandomizerCore.Collections.RCBitArray)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L59">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_IsBitwiseLE_" data-uid="RandomizerCore.Collections.RCBitArray.IsBitwiseLE*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_IsBitwiseLE_RandomizerCore_Collections_RCBitArray_" data-uid="RandomizerCore.Collections.RCBitArray.IsBitwiseLE(RandomizerCore.Collections.RCBitArray)">IsBitwiseLE(RCBitArray)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsBitwiseLE(RCBitArray other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Collections.RCBitArray.html">RCBitArray</a></td>
+        <td><span class="parametername">other</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_SetAllFalse.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.SetAllFalse%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L54">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_SetAllFalse_" data-uid="RandomizerCore.Collections.RCBitArray.SetAllFalse*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_SetAllFalse" data-uid="RandomizerCore.Collections.RCBitArray.SetAllFalse">SetAllFalse()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetAllFalse()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_SetBlock_System_Int32_System_UInt32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.SetBlock(System.Int32%2CSystem.UInt32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L73">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_SetBlock_" data-uid="RandomizerCore.Collections.RCBitArray.SetBlock*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_SetBlock_System_Int32_System_UInt32_" data-uid="RandomizerCore.Collections.RCBitArray.SetBlock(System.Int32,System.UInt32)">SetBlock(Int32, UInt32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetBlock(int i, uint value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">i</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="eii">Explicit Interface Implementations
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray_System_Collections_IEnumerable_GetEnumerator.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray.System%23Collections%23IEnumerable%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L80">View Source</a>
+  </span>
+  <a id="RandomizerCore_Collections_RCBitArray_System_Collections_IEnumerable_GetEnumerator_" data-uid="RandomizerCore.Collections.RCBitArray.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="RandomizerCore_Collections_RCBitArray_System_Collections_IEnumerable_GetEnumerator" data-uid="RandomizerCore.Collections.RCBitArray.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Collections_RCBitArray.md&amp;value=---%0Auid%3A%20RandomizerCore.Collections.RCBitArray%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Collections/RCBitArray.cs/#L9" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

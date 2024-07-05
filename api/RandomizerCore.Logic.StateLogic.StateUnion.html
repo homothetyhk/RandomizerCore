@@ -1,0 +1,715 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class StateUnion
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class StateUnion
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Logic.StateLogic.StateUnion">
+  
+  
+  <h1 id="RandomizerCore_Logic_StateLogic_StateUnion" data-uid="RandomizerCore.Logic.StateLogic.StateUnion" class="text-break">Class StateUnion
+  </h1>
+  <div class="markdown level0 summary"><p>A collection of mutually incomparable states, representing a disjunction of possible states.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">StateUnion</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.Logic.StateLogic.html">RandomizerCore.Logic.StateLogic</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_Logic_StateLogic_StateUnion_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class StateUnion : IReadOnlyList&lt;State&gt;</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion__ctor.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L14">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion__ctor_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion__ctor" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor">StateUnion()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StateUnion()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion__ctor_List_RandomizerCore_Logic_StateLogic_State__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.%23ctor(List%7BRandomizerCore.Logic.StateLogic.State%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L24">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion__ctor_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion__ctor_List_RandomizerCore_Logic_StateLogic_State__" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor(List{RandomizerCore.Logic.StateLogic.State})">StateUnion(List&lt;State&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StateUnion(List&lt;State&gt; states)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">List</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>&gt;</td>
+        <td><span class="parametername">states</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion__ctor_RandomizerCore_Logic_StateLogic_State_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.%23ctor(RandomizerCore.Logic.StateLogic.State)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L19">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion__ctor_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion__ctor_RandomizerCore_Logic_StateLogic_State_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.#ctor(RandomizerCore.Logic.StateLogic.State)">StateUnion(State)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StateUnion(State state)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td><span class="parametername">state</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Count.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Count%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L235">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Count_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Count*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Count" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Count">Count</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Count { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Empty.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Empty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L12">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Empty_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Empty*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Empty" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Empty">Empty</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static StateUnion Empty { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Item_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Item(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L237">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Item_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Item*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Item_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Item(System.Int32)">Item[Int32]</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public State this[int index] { get; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyEqual_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyEqual(RandomizerCore.Logic.StateLogic.StateUnion%2CRandomizerCore.Logic.StateLogic.StateUnion)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L64">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyEqual_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyEqual*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyEqual_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyEqual(RandomizerCore.Logic.StateLogic.StateUnion,RandomizerCore.Logic.StateLogic.StateUnion)">IsProgressivelyEqual(StateUnion, StateUnion)</h4>
+  <div class="markdown level1 summary"><p>Returns true if the two state unions are equivalent under the partial order of <a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html#RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyLE_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_">IsProgressivelyLE(StateUnion, StateUnion)</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsProgressivelyEqual(StateUnion left, StateUnion right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyLE_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyLE(RandomizerCore.Logic.StateLogic.StateUnion%2CRandomizerCore.Logic.StateLogic.StateUnion)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L40">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyLE_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_IsProgressivelyLE_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.IsProgressivelyLE(RandomizerCore.Logic.StateLogic.StateUnion,RandomizerCore.Logic.StateLogic.StateUnion)">IsProgressivelyLE(StateUnion, StateUnion)</h4>
+  <div class="markdown level1 summary"><p>A partial ordering which holds if the right union represents equal or better progression than the left union.
+Returns true if left is null, or else both are not null and there is a map from left to right which takes each state in left to a <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html#RandomizerCore_Logic_StateLogic_State_IsComparablyLE_RandomizerCore_Logic_StateLogic_State_RandomizerCore_Logic_StateLogic_State_">IsComparablyLE(State, State)</a> state in right.
+Note: this ordering is reversed from the natural ordering induced by the ordering on State.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsProgressivelyLE(StateUnion left, StateUnion right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Reduce_List_RandomizerCore_Logic_StateLogic_State__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Reduce(List%7BRandomizerCore.Logic.StateLogic.State%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L210">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Reduce_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Reduce*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Reduce_List_RandomizerCore_Logic_StateLogic_State__" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Reduce(List{RandomizerCore.Logic.StateLogic.State})">Reduce(List&lt;State&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void Reduce(List&lt;State&gt; states)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">List</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>&gt;</td>
+        <td><span class="parametername">states</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_RandomizerCore_Logic_StateLogic_StateUnion_List_RandomizerCore_Logic_StateLogic_State__RandomizerCore_Logic_StateLogic_StateUnion__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.TryUnion(RandomizerCore.Logic.StateLogic.StateUnion%2CList%7BRandomizerCore.Logic.StateLogic.State%7D%2CRandomizerCore.Logic.StateLogic.StateUnion%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L71">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.TryUnion*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_RandomizerCore_Logic_StateLogic_StateUnion_List_RandomizerCore_Logic_StateLogic_State__RandomizerCore_Logic_StateLogic_StateUnion__" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.TryUnion(RandomizerCore.Logic.StateLogic.StateUnion,List{RandomizerCore.Logic.StateLogic.State},RandomizerCore.Logic.StateLogic.StateUnion@)">TryUnion(StateUnion, List&lt;State&gt;, out StateUnion)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool TryUnion(StateUnion left, List&lt;State&gt; states, out StateUnion result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">List</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>&gt;</td>
+        <td><span class="parametername">states</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">result</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.TryUnion(RandomizerCore.Logic.StateLogic.StateUnion%2CRandomizerCore.Logic.StateLogic.StateUnion%2CRandomizerCore.Logic.StateLogic.StateUnion%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L125">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.TryUnion*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_TryUnion_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion__" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.TryUnion(RandomizerCore.Logic.StateLogic.StateUnion,RandomizerCore.Logic.StateLogic.StateUnion,RandomizerCore.Logic.StateLogic.StateUnion@)">TryUnion(StateUnion, StateUnion, out StateUnion)</h4>
+  <div class="markdown level1 summary"><p>Returns true and outputs a result if the union operation would not result in the left argument.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool TryUnion(StateUnion left, StateUnion right, out StateUnion result)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">result</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Union_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Union(RandomizerCore.Logic.StateLogic.StateUnion%2CRandomizerCore.Logic.StateLogic.StateUnion)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L178">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Union_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Union*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Union_RandomizerCore_Logic_StateLogic_StateUnion_RandomizerCore_Logic_StateLogic_StateUnion_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Union(RandomizerCore.Logic.StateLogic.StateUnion,RandomizerCore.Logic.StateLogic.StateUnion)">Union(StateUnion, StateUnion)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static StateUnion Union(StateUnion left, StateUnion right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_Union_RandomizerCore_Logic_StateLogic_StateUnion_System_Collections_IEnumerable_RandomizerCore_Logic_StateLogic_State__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.Union(RandomizerCore.Logic.StateLogic.StateUnion%2CSystem.Collections.IEnumerable%7BRandomizerCore.Logic.StateLogic.State%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L95">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_Union_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Union*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_Union_RandomizerCore_Logic_StateLogic_StateUnion_System_Collections_IEnumerable_RandomizerCore_Logic_StateLogic_State__" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.Union(RandomizerCore.Logic.StateLogic.StateUnion,System.Collections.IEnumerable{RandomizerCore.Logic.StateLogic.State})">Union(StateUnion, IEnumerable&lt;State&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static StateUnion Union(StateUnion left, IEnumerable&lt;State&gt; lazyRight)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>&gt;</td>
+        <td><span class="parametername">lazyRight</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="eii">Explicit Interface Implementations
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion_System_Collections_IEnumerable_GetEnumerator.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion.System%23Collections%23IEnumerable%23GetEnumerator%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L230">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateUnion_System_Collections_IEnumerable_GetEnumerator_" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateUnion_System_Collections_IEnumerable_GetEnumerator" data-uid="RandomizerCore.Logic.StateLogic.StateUnion.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateUnion.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateUnion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateUnion.cs/#L8" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

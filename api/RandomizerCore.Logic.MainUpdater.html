@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class MainUpdater
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class MainUpdater
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Logic.MainUpdater">
+  
+  
+  <h1 id="RandomizerCore_Logic_MainUpdater" data-uid="RandomizerCore.Logic.MainUpdater" class="text-break">Class MainUpdater
+  </h1>
+  <div class="markdown level0 summary"><p>Class which indexes subscribers by their dependency on progression terms to optimize updating in response to new progression.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">MainUpdater</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.Logic.html">RandomizerCore.Logic</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_Logic_MainUpdater_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MainUpdater</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater__ctor_RandomizerCore_Logic_LogicManager_RandomizerCore_Logic_ProgressionManager_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.%23ctor(RandomizerCore.Logic.LogicManager%2CRandomizerCore.Logic.ProgressionManager)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L70">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater__ctor_" data-uid="RandomizerCore.Logic.MainUpdater.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater__ctor_RandomizerCore_Logic_LogicManager_RandomizerCore_Logic_ProgressionManager_" data-uid="RandomizerCore.Logic.MainUpdater.#ctor(RandomizerCore.Logic.LogicManager,RandomizerCore.Logic.ProgressionManager)">MainUpdater(LogicManager, ProgressionManager)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MainUpdater(LogicManager lm, ProgressionManager pm)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.LogicManager.html">LogicManager</a></td>
+        <td><span class="parametername">lm</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.ProgressionManager.html">ProgressionManager</a></td>
+        <td><span class="parametername">pm</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_Current.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.Current%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L26">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_Current_" data-uid="RandomizerCore.Logic.MainUpdater.Current*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_Current" data-uid="RandomizerCore.Logic.MainUpdater.Current">Current</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public object Current { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_HasCustomLongTermRevertPoint.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.HasCustomLongTermRevertPoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L25">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_HasCustomLongTermRevertPoint_" data-uid="RandomizerCore.Logic.MainUpdater.HasCustomLongTermRevertPoint*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_HasCustomLongTermRevertPoint" data-uid="RandomizerCore.Logic.MainUpdater.HasCustomLongTermRevertPoint">HasCustomLongTermRevertPoint</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasCustomLongTermRevertPoint { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddEntries_IEnumerable_RandomizerCore_Logic_UpdateEntry__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddEntries(IEnumerable%7BRandomizerCore.Logic.UpdateEntry%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L222">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddEntries_" data-uid="RandomizerCore.Logic.MainUpdater.AddEntries*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddEntries_IEnumerable_RandomizerCore_Logic_UpdateEntry__" data-uid="RandomizerCore.Logic.MainUpdater.AddEntries(IEnumerable{RandomizerCore.Logic.UpdateEntry})">AddEntries(IEnumerable&lt;UpdateEntry&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddEntries(IEnumerable&lt;UpdateEntry&gt; entries)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.UpdateEntry.html">UpdateEntry</a>&gt;</td>
+        <td><span class="parametername">entries</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddEntry_RandomizerCore_Logic_UpdateEntryBase_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddEntry(RandomizerCore.Logic.UpdateEntryBase)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L142">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddEntry_" data-uid="RandomizerCore.Logic.MainUpdater.AddEntry*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddEntry_RandomizerCore_Logic_UpdateEntryBase_" data-uid="RandomizerCore.Logic.MainUpdater.AddEntry(RandomizerCore.Logic.UpdateEntryBase)">AddEntry(UpdateEntryBase)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddEntry(UpdateEntryBase entry)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.UpdateEntryBase.html">UpdateEntryBase</a></td>
+        <td><span class="parametername">entry</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddManagedStates_IEnumerable_System_ValueTuple_RandomizerCore_Logic_Term_RandomizerCore_Logic_StateLogic_StateLogicDef___.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddManagedStates(IEnumerable%7BSystem.ValueTuple%7BRandomizerCore.Logic.Term%2CRandomizerCore.Logic.StateLogic.StateLogicDef%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L199">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddManagedStates_" data-uid="RandomizerCore.Logic.MainUpdater.AddManagedStates*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddManagedStates_IEnumerable_System_ValueTuple_RandomizerCore_Logic_Term_RandomizerCore_Logic_StateLogic_StateLogicDef___" data-uid="RandomizerCore.Logic.MainUpdater.AddManagedStates(IEnumerable{System.ValueTuple{RandomizerCore.Logic.Term,RandomizerCore.Logic.StateLogic.StateLogicDef}})">AddManagedStates(IEnumerable&lt;(Term, StateLogicDef)&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adds entries which manage the state term according to its paired logic.
+<br>Nonstate terms in the sequence are ignored.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddManagedStates(IEnumerable&lt;(Term, StateLogicDef)&gt; ts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">System.ValueTuple</span>&lt;<a class="xref" href="RandomizerCore.Logic.Term.html">Term</a>, <a class="xref" href="RandomizerCore.Logic.StateLogic.StateLogicDef.html">StateLogicDef</a>&gt;&gt;</td>
+        <td><span class="parametername">ts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddPlacements_IEnumerable_RandomizerCore_GeneralizedPlacement__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddPlacements(IEnumerable%7BRandomizerCore.GeneralizedPlacement%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L212">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddPlacements_" data-uid="RandomizerCore.Logic.MainUpdater.AddPlacements*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddPlacements_IEnumerable_RandomizerCore_GeneralizedPlacement__" data-uid="RandomizerCore.Logic.MainUpdater.AddPlacements(IEnumerable{RandomizerCore.GeneralizedPlacement})">AddPlacements(IEnumerable&lt;GeneralizedPlacement&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddPlacements(IEnumerable&lt;GeneralizedPlacement&gt; ps)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.GeneralizedPlacement.html">GeneralizedPlacement</a>&gt;</td>
+        <td><span class="parametername">ps</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddPlacements_IEnumerable_RandomizerCore_RandoPlacement__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddPlacements(IEnumerable%7BRandomizerCore.RandoPlacement%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L217">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddPlacements_" data-uid="RandomizerCore.Logic.MainUpdater.AddPlacements*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddPlacements_IEnumerable_RandomizerCore_RandoPlacement__" data-uid="RandomizerCore.Logic.MainUpdater.AddPlacements(IEnumerable{RandomizerCore.RandoPlacement})">AddPlacements(IEnumerable&lt;RandoPlacement&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddPlacements(IEnumerable&lt;RandoPlacement&gt; ps)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">RandomizerCore.RandoPlacement</span>&gt;</td>
+        <td><span class="parametername">ps</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddPMHook_RandomizerCore_Logic_PMHook_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddPMHook(RandomizerCore.Logic.PMHook)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L157">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddPMHook_" data-uid="RandomizerCore.Logic.MainUpdater.AddPMHook*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddPMHook_RandomizerCore_Logic_PMHook_" data-uid="RandomizerCore.Logic.MainUpdater.AddPMHook(RandomizerCore.Logic.PMHook)">AddPMHook(PMHook)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddPMHook(PMHook hook)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.PMHook.html">PMHook</a></td>
+        <td><span class="parametername">hook</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddTransitions_IEnumerable_RandomizerCore_Logic_LogicTransition__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddTransitions(IEnumerable%7BRandomizerCore.Logic.LogicTransition%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L184">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddTransitions_" data-uid="RandomizerCore.Logic.MainUpdater.AddTransitions*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddTransitions_IEnumerable_RandomizerCore_Logic_LogicTransition__" data-uid="RandomizerCore.Logic.MainUpdater.AddTransitions(IEnumerable{RandomizerCore.Logic.LogicTransition})">AddTransitions(IEnumerable&lt;LogicTransition&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adds entries which manage state for each transition.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddTransitions(IEnumerable&lt;LogicTransition&gt; ts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.LogicTransition.html">LogicTransition</a>&gt;</td>
+        <td><span class="parametername">ts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_AddWaypoints_IEnumerable_RandomizerCore_Logic_LogicWaypoint__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.AddWaypoints(IEnumerable%7BRandomizerCore.Logic.LogicWaypoint%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L166">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_AddWaypoints_" data-uid="RandomizerCore.Logic.MainUpdater.AddWaypoints*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_AddWaypoints_IEnumerable_RandomizerCore_Logic_LogicWaypoint__" data-uid="RandomizerCore.Logic.MainUpdater.AddWaypoints(IEnumerable{RandomizerCore.Logic.LogicWaypoint})">AddWaypoints(IEnumerable&lt;LogicWaypoint&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adds entries with default waypoint behavior, inferring bool- or state-behavior based on term type.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AddWaypoints(IEnumerable&lt;LogicWaypoint&gt; ps)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.LogicWaypoint.html">LogicWaypoint</a>&gt;</td>
+        <td><span class="parametername">ps</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_Clear.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L300">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_Clear_" data-uid="RandomizerCore.Logic.MainUpdater.Clear*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_Clear" data-uid="RandomizerCore.Logic.MainUpdater.Clear">Clear()</h4>
+  <div class="markdown level1 summary"><p>Removes all update entries from the updater, and clears its events.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Clear()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_DoUpdate_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.DoUpdate(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L247">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_DoUpdate_" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdate*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_DoUpdate_System_Int32_" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdate(System.Int32)">DoUpdate(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DoUpdate(int term)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">term</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_DoUpdateAll.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.DoUpdateAll%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L256">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_DoUpdateAll_" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdateAll*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_DoUpdateAll" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdateAll">DoUpdateAll()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DoUpdateAll()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_DoUpdates.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.DoUpdates%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L239">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_DoUpdates_" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdates*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_DoUpdates" data-uid="RandomizerCore.Logic.MainUpdater.DoUpdates">DoUpdates()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DoUpdates()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_EnqueueUpdates_IEnumerable_RandomizerCore_ILogicItem__.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.EnqueueUpdates(IEnumerable%7BRandomizerCore.ILogicItem%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L233">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_EnqueueUpdates_" data-uid="RandomizerCore.Logic.MainUpdater.EnqueueUpdates*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_EnqueueUpdates_IEnumerable_RandomizerCore_ILogicItem__" data-uid="RandomizerCore.Logic.MainUpdater.EnqueueUpdates(IEnumerable{RandomizerCore.ILogicItem})">EnqueueUpdates(IEnumerable&lt;ILogicItem&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EnqueueUpdates(IEnumerable&lt;ILogicItem&gt; items)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.ILogicItem.html">ILogicItem</a>&gt;</td>
+        <td><span class="parametername">items</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_EnqueueUpdates_RandomizerCore_ILogicItem_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.EnqueueUpdates(RandomizerCore.ILogicItem)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L227">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_EnqueueUpdates_" data-uid="RandomizerCore.Logic.MainUpdater.EnqueueUpdates*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_EnqueueUpdates_RandomizerCore_ILogicItem_" data-uid="RandomizerCore.Logic.MainUpdater.EnqueueUpdates(RandomizerCore.ILogicItem)">EnqueueUpdates(ILogicItem)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EnqueueUpdates(ILogicItem item)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.ILogicItem.html">ILogicItem</a></td>
+        <td><span class="parametername">item</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_LinkState_RandomizerCore_Logic_Term_RandomizerCore_Logic_Term_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.LinkState(RandomizerCore.Logic.Term%2CRandomizerCore.Logic.Term)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L207">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_LinkState_" data-uid="RandomizerCore.Logic.MainUpdater.LinkState*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_LinkState_RandomizerCore_Logic_Term_RandomizerCore_Logic_Term_" data-uid="RandomizerCore.Logic.MainUpdater.LinkState(RandomizerCore.Logic.Term,RandomizerCore.Logic.Term)">LinkState(Term, Term)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void LinkState(Term source, Term target)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.Term.html">Term</a></td>
+        <td><span class="parametername">source</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.Term.html">Term</a></td>
+        <td><span class="parametername">target</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_LogAll.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.LogAll%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L113">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_LogAll_" data-uid="RandomizerCore.Logic.MainUpdater.LogAll*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_LogAll" data-uid="RandomizerCore.Logic.MainUpdater.LogAll">LogAll()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void LogAll()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_OnEndTemp_System_Boolean_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.OnEndTemp(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L278">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_OnEndTemp_" data-uid="RandomizerCore.Logic.MainUpdater.OnEndTemp*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_OnEndTemp_System_Boolean_" data-uid="RandomizerCore.Logic.MainUpdater.OnEndTemp(System.Boolean)">OnEndTemp(Boolean)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OnEndTemp(bool saved)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">saved</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_Reset.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.Reset%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L287">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_Reset_" data-uid="RandomizerCore.Logic.MainUpdater.Reset*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_Reset" data-uid="RandomizerCore.Logic.MainUpdater.Reset">Reset()</h4>
+  <div class="markdown level1 summary"><p>Resets each update entry in the updater.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Reset()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_RevertLong.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.RevertLong%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L135">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_RevertLong_" data-uid="RandomizerCore.Logic.MainUpdater.RevertLong*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_RevertLong" data-uid="RandomizerCore.Logic.MainUpdater.RevertLong">RevertLong()</h4>
+  <div class="markdown level1 summary"><p>Resets the MU and rolls back entry list to the long term revert point.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RevertLong()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_SetLongTermRevertPoint.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.SetLongTermRevertPoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L125">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_SetLongTermRevertPoint_" data-uid="RandomizerCore.Logic.MainUpdater.SetLongTermRevertPoint*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_SetLongTermRevertPoint" data-uid="RandomizerCore.Logic.MainUpdater.SetLongTermRevertPoint">SetLongTermRevertPoint()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetLongTermRevertPoint()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_StartUpdating.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.StartUpdating%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L82">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_StartUpdating_" data-uid="RandomizerCore.Logic.MainUpdater.StartUpdating*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_StartUpdating" data-uid="RandomizerCore.Logic.MainUpdater.StartUpdating">StartUpdating()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void StartUpdating()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_StopUpdating.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.StopUpdating%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L100">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_MainUpdater_StopUpdating_" data-uid="RandomizerCore.Logic.MainUpdater.StopUpdating*"></a>
+  <h4 id="RandomizerCore_Logic_MainUpdater_StopUpdating" data-uid="RandomizerCore.Logic.MainUpdater.StopUpdating">StopUpdating()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void StopUpdating()</code></pre>
+  </div>
+  <h3 id="events">Events
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater_OnReset.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater.OnReset%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L12">View Source</a>
+  </span>
+  <h4 id="RandomizerCore_Logic_MainUpdater_OnReset" data-uid="RandomizerCore.Logic.MainUpdater.OnReset">OnReset</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Action? OnReset</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Action</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_MainUpdater.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.MainUpdater%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Updater/MainUpdater.cs/#L10" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

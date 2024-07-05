@@ -1,0 +1,1646 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class LogicClauseBuilder
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class LogicClauseBuilder
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder">
+  
+  
+  <h1 id="RandomizerCore_StringLogic_LogicClauseBuilder" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder" class="text-break">Class LogicClauseBuilder
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">LogicClauseBuilder</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.StringLogic.html">RandomizerCore.StringLogic</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_StringLogic_LogicClauseBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class LogicClauseBuilder</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L15">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor">LogicClauseBuilder()</h4>
+  <div class="markdown level1 summary"><p>Initializes an empty LCB. The only valid operation on an empty LCB is Append with a TermToken.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor_IEnumerable_RandomizerCore_StringLogic_LogicToken__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor(IEnumerable%7BRandomizerCore.StringLogic.LogicToken%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L21">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_IEnumerable_RandomizerCore_StringLogic_LogicToken__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor(IEnumerable{RandomizerCore.StringLogic.LogicToken})">LogicClauseBuilder(IEnumerable&lt;LogicToken&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder(IEnumerable&lt;LogicToken&gt; lts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a>&gt;</td>
+        <td><span class="parametername">lts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L42">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor(RandomizerCore.StringLogic.LogicClause)">LogicClauseBuilder(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L49">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor(RandomizerCore.StringLogic.LogicClauseBuilder)">LogicClauseBuilder(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L35">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor(RandomizerCore.StringLogic.TermToken)">LogicClauseBuilder(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder(TermToken t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">t</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder__ctor_System_String_RandomizerCore_StringLogic_ITokenSource_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.%23ctor(System.String%2CRandomizerCore.StringLogic.ITokenSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L56">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder__ctor_System_String_RandomizerCore_StringLogic_ITokenSource_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.#ctor(System.String,RandomizerCore.StringLogic.ITokenSource)">LogicClauseBuilder(String, ITokenSource)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LogicClauseBuilder(string infix, ITokenSource tokenSource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.ITokenSource.html">ITokenSource</a></td>
+        <td><span class="parametername">tokenSource</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="fields">Fields
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Tokens.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Tokens%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L8">View Source</a>
+  </span>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Tokens" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Tokens">Tokens</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public readonly ReadOnlyCollection&lt;LogicToken&gt; Tokens</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.ObjectModel.ReadOnlyCollection</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Arguments.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Arguments%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L10">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Arguments_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Arguments*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Arguments" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Arguments">Arguments</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Arguments { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Complete.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Complete%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L9">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Complete_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Complete*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Complete" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Complete">Complete</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Complete { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_IEnumerable_RandomizerCore_StringLogic_LogicToken__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(IEnumerable%7BRandomizerCore.StringLogic.LogicToken%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L87">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_IEnumerable_RandomizerCore_StringLogic_LogicToken__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(IEnumerable{RandomizerCore.StringLogic.LogicToken})">AndWith(IEnumerable&lt;LogicToken&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWith(IEnumerable&lt;LogicToken&gt; ts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a>&gt;</td>
+        <td><span class="parametername">ts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L100">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.LogicClause)">AndWith(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWith(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L107">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.LogicClauseBuilder)">AndWith(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWith(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L93">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(RandomizerCore.StringLogic.TermToken)">AndWith(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWith(TermToken t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">t</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_System_String_RandomizerCore_StringLogic_ITokenSource_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(System.String%2CRandomizerCore.StringLogic.ITokenSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L114">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWith_System_String_RandomizerCore_StringLogic_ITokenSource_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWith(System.String,RandomizerCore.StringLogic.ITokenSource)">AndWith(String, ITokenSource)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWith(string infix, ITokenSource tokenSource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.ITokenSource.html">ITokenSource</a></td>
+        <td><span class="parametername">tokenSource</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L123">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.LogicClause)">AndWithLeft(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWithLeft(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L130">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.LogicClauseBuilder)">AndWithLeft(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWithLeft(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L116">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(RandomizerCore.StringLogic.TermToken)">AndWithLeft(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWithLeft(TermToken t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">t</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_System_String_RandomizerCore_StringLogic_ITokenSource_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(System.String%2CRandomizerCore.StringLogic.ITokenSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L137">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_AndWithLeft_System_String_RandomizerCore_StringLogic_ITokenSource_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.AndWithLeft(System.String,RandomizerCore.StringLogic.ITokenSource)">AndWithLeft(String, ITokenSource)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void AndWithLeft(string infix, ITokenSource tokenSource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.ITokenSource.html">ITokenSource</a></td>
+        <td><span class="parametername">tokenSource</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_IEnumerable_RandomizerCore_StringLogic_LogicToken__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(IEnumerable%7BRandomizerCore.StringLogic.LogicToken%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L191">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_IEnumerable_RandomizerCore_StringLogic_LogicToken__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(IEnumerable{RandomizerCore.StringLogic.LogicToken})">Append(IEnumerable&lt;LogicToken&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(IEnumerable&lt;LogicToken&gt; lts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a>&gt;</td>
+        <td><span class="parametername">lts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L196">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicClause)">Append(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L202">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicClauseBuilder)">Append(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L162">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_LogicToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.LogicToken)">Append(LogicToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(LogicToken lt)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a></td>
+        <td><span class="parametername">lt</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_OperatorToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.OperatorToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L175">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_OperatorToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.OperatorToken)">Append(OperatorToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(OperatorToken ot)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.OperatorToken.html">OperatorToken</a></td>
+        <td><span class="parametername">ot</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L185">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(RandomizerCore.StringLogic.TermToken)">Append(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(TermToken tt)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">tt</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Append_System_String_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Append(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L208">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Append_System_String_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Append(System.String)">Append(String)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Append(string infix)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Clear.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Clear%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L543">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Clear_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Clear*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Clear" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Clear">Clear()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Clear()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Coalesce_Func_RandomizerCore_StringLogic_TermToken_System_Boolean__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Coalesce(Func%7BRandomizerCore.StringLogic.TermToken%2CSystem.Boolean%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L300">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Coalesce_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Coalesce*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Coalesce_Func_RandomizerCore_StringLogic_TermToken_System_Boolean__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Coalesce(Func{RandomizerCore.StringLogic.TermToken,System.Boolean})">Coalesce(Func&lt;TermToken, Boolean&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces CoalescingTokens with their result as determined by the delegate. Acts recursively on nested coalescing expressions.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Coalesce(Func&lt;TermToken, bool&gt; tokenValidator)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a>, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">tokenValidator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_IEnumerable_RandomizerCore_StringLogic_LogicToken__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(IEnumerable%7BRandomizerCore.StringLogic.LogicToken%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L58">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_IEnumerable_RandomizerCore_StringLogic_LogicToken__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(IEnumerable{RandomizerCore.StringLogic.LogicToken})">OrWith(IEnumerable&lt;LogicToken&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWith(IEnumerable&lt;LogicToken&gt; ts)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.LogicToken.html">LogicToken</a>&gt;</td>
+        <td><span class="parametername">ts</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L71">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.LogicClause)">OrWith(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWith(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L78">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.LogicClauseBuilder)">OrWith(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWith(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L64">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(RandomizerCore.StringLogic.TermToken)">OrWith(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWith(TermToken t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">t</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_System_String_RandomizerCore_StringLogic_ITokenSource_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(System.String%2CRandomizerCore.StringLogic.ITokenSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L85">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWith_System_String_RandomizerCore_StringLogic_ITokenSource_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWith(System.String,RandomizerCore.StringLogic.ITokenSource)">OrWith(String, ITokenSource)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWith(string infix, ITokenSource tokenSource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.ITokenSource.html">ITokenSource</a></td>
+        <td><span class="parametername">tokenSource</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L146">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.LogicClause)">OrWithLeft(LogicClause)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWithLeft(LogicClause c)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">c</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_LogicClauseBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.LogicClauseBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L153">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_LogicClauseBuilder_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.LogicClauseBuilder)">OrWithLeft(LogicClauseBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWithLeft(LogicClauseBuilder lcb)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClauseBuilder.html">LogicClauseBuilder</a></td>
+        <td><span class="parametername">lcb</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L139">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(RandomizerCore.StringLogic.TermToken)">OrWithLeft(TermToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWithLeft(TermToken t)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">t</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_System_String_RandomizerCore_StringLogic_ITokenSource_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(System.String%2CRandomizerCore.StringLogic.ITokenSource)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L160">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_OrWithLeft_System_String_RandomizerCore_StringLogic_ITokenSource_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.OrWithLeft(System.String,RandomizerCore.StringLogic.ITokenSource)">OrWithLeft(String, ITokenSource)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void OrWithLeft(string infix, ITokenSource tokenSource)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">infix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.ITokenSource.html">ITokenSource</a></td>
+        <td><span class="parametername">tokenSource</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_PartialCoalesce_Func_RandomizerCore_StringLogic_TermToken_System_Nullable_System_Boolean___.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.PartialCoalesce(Func%7BRandomizerCore.StringLogic.TermToken%2CSystem.Nullable%7BSystem.Boolean%7D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L316">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_PartialCoalesce_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PartialCoalesce*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_PartialCoalesce_Func_RandomizerCore_StringLogic_TermToken_System_Nullable_System_Boolean___" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PartialCoalesce(Func{RandomizerCore.StringLogic.TermToken,System.Nullable{System.Boolean}})">PartialCoalesce(Func&lt;TermToken, Nullable&lt;Boolean&gt;&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces CoalescingTokens with their result as determined by the delegate. If the delegate returns null, the CoalescingToken is left in place.
+Acts recursively on nested coalescing expressions, provided the delegate returns nonnull.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void PartialCoalesce(Func&lt;TermToken, bool?&gt; tokenValidator)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a>, <span class="xref">System.Nullable</span>&lt;<span class="xref">System.Boolean</span>&gt;&gt;</td>
+        <td><span class="parametername">tokenValidator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_PushOut_Func_RandomizerCore_StringLogic_TermToken_System_Boolean__RandomizerCore_StringLogic_OperatorToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.PushOut(Func%7BRandomizerCore.StringLogic.TermToken%2CSystem.Boolean%7D%2CRandomizerCore.StringLogic.OperatorToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L436">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_PushOut_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PushOut*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_PushOut_Func_RandomizerCore_StringLogic_TermToken_System_Boolean__RandomizerCore_StringLogic_OperatorToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PushOut(Func{RandomizerCore.StringLogic.TermToken,System.Boolean},RandomizerCore.StringLogic.OperatorToken)">PushOut(Func&lt;TermToken, Boolean&gt;, OperatorToken)</h4>
+  <div class="markdown level1 summary"><p>Distributes nested occurences of the inner operation acting on the specified tokens.
+<br>That is, if innerOp is OperatorToken.OR, then the result will decompose as a disjunction of clauses, such that within each clause, any disjunction does not contain any specified tokens.
+<br>For example, if we push out token D, operator OR in &quot;A | B + (C | D + (E | F) | G) | H&quot;, the result is &quot;A | B + (C | G) | B + D + (E | F) | H&quot;.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void PushOut(Func&lt;TermToken, bool&gt; predicate, OperatorToken innerOp)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a>, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="parametername">predicate</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.OperatorToken.html">OperatorToken</a></td>
+        <td><span class="parametername">innerOp</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_PushOut__1_RandomizerCore_StringLogic_OperatorToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.PushOut%60%601(RandomizerCore.StringLogic.OperatorToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L351">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_PushOut_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PushOut*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_PushOut__1_RandomizerCore_StringLogic_OperatorToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.PushOut``1(RandomizerCore.StringLogic.OperatorToken)">PushOut&lt;T&gt;(OperatorToken)</h4>
+  <div class="markdown level1 summary"><p>Distributes nested occurences of the inner operation acting on tokens of the type parameter.
+<br>That is, if innerOp is OperatorToken.OR, then the result will decompose as a disjunction of clauses, such that within each clause, any disjunction does not contain any specified tokens.
+<br>For example, if we push out token D, operator OR in &quot;A | B + (C | D + (E | F) | G) | H&quot;, the result is &quot;A | B + (C | G) | B + D + (E | F) | H&quot;.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void PushOut&lt;T&gt;(OperatorToken innerOp)
+    where T : TermToken</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.OperatorToken.html">OperatorToken</a></td>
+        <td><span class="parametername">innerOp</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Simpl.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Simpl%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L213">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Simpl_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Simpl*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Simpl" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Simpl">Simpl()</h4>
+  <div class="markdown level1 summary"><p>Reduces ConstTokens from the expression.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Simpl()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Subst_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_LogicClause_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Subst(RandomizerCore.StringLogic.TermToken%2CRandomizerCore.StringLogic.LogicClause)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L530">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Subst_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Subst*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Subst_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_LogicClause_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Subst(RandomizerCore.StringLogic.TermToken,RandomizerCore.StringLogic.LogicClause)">Subst(TermToken, LogicClause)</h4>
+  <div class="markdown level1 summary"><p>Replaces all occurences that match the old token with the new clause. Is not recursive--it is safe to reference the old token inside the new clause.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Subst(TermToken oldToken, LogicClause newClause)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">oldToken</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a></td>
+        <td><span class="parametername">newClause</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Subst_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_TermToken_.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Subst(RandomizerCore.StringLogic.TermToken%2CRandomizerCore.StringLogic.TermToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L519">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Subst_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Subst*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Subst_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_TermToken_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Subst(RandomizerCore.StringLogic.TermToken,RandomizerCore.StringLogic.TermToken)">Subst(TermToken, TermToken)</h4>
+  <div class="markdown level1 summary"><p>Replaces all occurences that match the old token with the new token.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Subst(TermToken oldToken, TermToken newToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">oldToken</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a></td>
+        <td><span class="parametername">newToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_ToInfix.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.ToInfix%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L549">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_ToInfix_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.ToInfix*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_ToInfix" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.ToInfix">ToInfix()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ToInfix()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Transform_Func_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_TermToken__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Transform(Func%7BRandomizerCore.StringLogic.TermToken%2CRandomizerCore.StringLogic.TermToken%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L332">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Transform_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Transform*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Transform_Func_RandomizerCore_StringLogic_TermToken_RandomizerCore_StringLogic_TermToken__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Transform(Func{RandomizerCore.StringLogic.TermToken,RandomizerCore.StringLogic.TermToken})">Transform(Func&lt;TermToken, TermToken&gt;)</h4>
+  <div class="markdown level1 summary"><p>Applies the delegate to each term in the expression. If the result of the delegate is not null, replaces the term at that position with the result.
+<br>Returns the number of modified tokens.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Transform(Func&lt;TermToken, TermToken&gt; transformer)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a>, <a class="xref" href="RandomizerCore.StringLogic.TermToken.html">TermToken</a>&gt;</td>
+        <td><span class="parametername">transformer</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Unfold.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Unfold%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L262">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Unfold_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Unfold*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Unfold" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Unfold">Unfold()</h4>
+  <div class="markdown level1 summary"><p>Replaces MacroTokens with the clauses they represent. Acts recursively on the inserted clauses.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Unfold()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder_Unfold_Func_System_String_RandomizerCore_StringLogic_LogicClause__.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder.Unfold(Func%7BSystem.String%2CRandomizerCore.StringLogic.LogicClause%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L278">View Source</a>
+  </span>
+  <a id="RandomizerCore_StringLogic_LogicClauseBuilder_Unfold_" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Unfold*"></a>
+  <h4 id="RandomizerCore_StringLogic_LogicClauseBuilder_Unfold_Func_System_String_RandomizerCore_StringLogic_LogicClause__" data-uid="RandomizerCore.StringLogic.LogicClauseBuilder.Unfold(Func{System.String,RandomizerCore.StringLogic.LogicClause})">Unfold(Func&lt;String, LogicClause&gt;)</h4>
+  <div class="markdown level1 summary"><p>Replaces MacroTokens and ReferenceTokens with the clauses they represent. Acts recursively on the inserted clauses.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Unfold(Func&lt;string, LogicClause&gt; referenceResolver)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Func</span>&lt;<span class="xref">System.String</span>, <a class="xref" href="RandomizerCore.StringLogic.LogicClause.html">LogicClause</a>&gt;</td>
+        <td><span class="parametername">referenceResolver</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_StringLogic_LogicClauseBuilder.md&amp;value=---%0Auid%3A%20RandomizerCore.StringLogic.LogicClauseBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/StringLogic/LogicClauseBuilder.cs/#L5" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

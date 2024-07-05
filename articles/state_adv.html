@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Defining State Fields </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Defining State Fields ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h2 id="defining-state-fields">Defining State Fields</h2>
+
+<p>State fields can be defined by using the StateManagerBuilder attached to a LogicManagerBuilder, or by defining them in a Json file and feeding the file into the LogicManagerBuilder. Once defined, the type and name of a state field cannot be changed. Custom properties can be assigned to the state field via the StateManagerBuilder; this mechanism, for example, allows specifying the default value of the field and many other things.</p>
+<p>When adding a state field, it is essential to carefully consider how it will interact with the State ordering. For example, by default, state bools default to false, and can be set true. This is ideal for representing a consumable resource which one starts with, and can be spent once. States which have spent the resource will be discarded if there is a strictly better alternative which has not spent the resource. On the other hand, to represent a resource which one does not start with, but can be obtained once later, the state bool should be created to default to true, and be set false once the resource is obtained, so that states with the resource will not be pruned.</p>
+<h2 id="defining-logicvariables-to-interact-with-state">Defining LogicVariables to Interact with State</h2>
+<p>A LogicVariable is a token in logic which has special effects defined in code. To define any LogicVariable, one needs to define a VariableResolver which can identify it by name. The VR is attached to the LogicManagerBuilder and to the LogicManager. To extend the strings recognized by a VR, first make a class deriving from VariableResolver which overrides TryMatch, then when replacing the old VariableResolver, assign the old VR to the Inner property of the new VR. Then calls which the outer VR cannot handle will be passed to the inner VR.</p>
+<h3 id="statemodifier">StateModifier</h3>
+<p>StateModifiers take an input state and produce a sequence of output states, through the ModifyState method. They also can produce a sequence of output states with no input, through the ProvideState method. In a conjunction, StateModifiers act left-to-right sequentially, modifying the output of the previous modifier and providing any additional states. StateModifiers work in the general setting by first converting logic to disjunctive normal form and determining the input state for each conjunction in the DNF, then working as described for conjunctions.</p>
+<p>Note: since StateModifiers do not derive from LogicInt, they cannot be used in comparisons (i.e. expressions with '&lt;','=', or '&gt;').</p>
+<p>To define a StateModifier, one must implement ModifyState to return a non-null sequence of states. ModifyState should return an empty sequence if the input fails.</p>
+<p>ProvideState can be optionally overriden, to express when the StateModifier is able to succeed regardless of its input. Here, ProvideState should return a null sequence if the input fails, and its default implementation is to always return null. The empty sequence expresses that ProvideState succeeded with indeterminate output.</p>
+<h3 id="stateprovider">StateProvider</h3>
+<p>Ordinarily, input state is determined by the first state-valued term (e.g. transition or waypoint) which appears in a conjunction. However, a StateProvider variable can be defined to supply a state determined in code, if it appears before any other state provider terms or variables in the conjunction. For example, <code>$DEFAULTSTATE</code> provides a StateUnion containing the state which has all fields at their default values. <code>$ANY</code> provides an empty StateUnion.</p>
+<p>A StateProvider is additionally a LogicInt. Its <code>LogicInt.GetValue</code> returns 1 if the provided state is non-null, and 0 otherwise.</p>
+<h3 id="stateaccessvariable">StateAccessVariable</h3>
+<p>A StateAccessVariable receives progression data and a state, and produces an int. These can be used in comparisons (i.e. expressions with '&lt;','=', or '&gt;'), and can be seen as a special type of StateModifier which filters out states that fail the comparison. In other words, ModifyState returns its state input as a singleton sequence if the comparison succeeds, and returns an empty sequence if the comparison fails. ProvideState always return null, since we cannot say that the comparison would succeed for an indeterminate state.</p>
+<p>RandomizerCore has a builtin class of StateAccessVariables which are recognized by the default VariableResolver: StateFieldAccessors. These are represented in logic by the exact name of a state field, when used in a comparison. For a state int, the StateFieldAccessor retrieves the value of the int from its input state. For a state bool, the StateFieldAccessor retrieves 1 if the bool is true, and 0 otherwise.</p>
+<h2 id="integration-with-the-progressionmanager-and-mainupdater">Integration with the ProgressionManager and MainUpdater</h2>
+<p>When evaluating bool logic, all terms are interpreted as int-valued. The int value of a state-valued term is 0 if its state is null, and 1 otherwise. This is the value returned by pm.Get(id) if id is the id of a state-valued term, and the value used for derived computations such as pm.Has, etc. Use pm.GetState to retrieve the full StateUnion associated with the term.</p>
+<p>The MainUpdater automatically manages logic-derived state updates for state-valued waypoints and transitions. Use mu.AddManagedStates to give a state-valued term logic-derived state updates. Often, the effect of an item may be to trigger an ongoing state modification. This can be done by modifying the MainUpdater attached to the ProgressionManager. If the state effect depends on the item's location, this can further be done within an ILocationDependentItem implementation for the item.</p>
+<h2 id="warnings-in-state-logic-generation">Warnings in State Logic Generation</h2>
+<h3 id="dnf-clause-count">DNF Clause Count</h3>
+<p>A warning is generated when the expansion of logic into disjunctive normal form produces a large number of clauses. To avoid degraded performance:</p>
+<ul>
+<li>Avoid adding redundant branches to logic. When adding disjunctions as in <code>(A1 | B1) + (A2 | B2) + ... + (An | Bn)</code>, the number of clauses grows exponentially as <code>2^n</code>, so eliminating branches can yield large savings. Note that these disjunctions may be hidden from view through macros or logic references, but are still costly.</li>
+<li>Consider moving part of the logic into a waypoint. Waypoints can potentially be more efficient as they do not have to recompute logic as often.</li>
+</ul>
+<h3 id="ambiguous-state-provider">Ambiguous State Provider</h3>
+<p>A warning is generated when a clause in the disjunctive normal form contains multiple state providers (state-valued terms or StateProvider variables). To avoid the warning, one can add a trailing <code>/</code> to the non-provider, as in <code>Room[left] + Room[right]/</code>. However, if the situation requires the state from both providers (for example, the first one provides the state that should propagate forward, but the other needs to satisfy a state condition), then the logic for the second state provider should be moved to a new logic def or waypoint, and changed to a reference or waypoint term accordingly.</p>
+<h3 id="missing-state-provider">Missing State Provider</h3>
+<p>A warning is generated when logic in disjunctive normal form contains some clauses with state providers and some clauses without. To avoid the warning, do one of the following:</p>
+<ul>
+<li>Move the state-valued logic to a stateless waypoint, and use the waypoint in the stateless logic.</li>
+<li>Use the trailing <code>/</code> to suppress the state providers in the relevant clauses. Note that this does not work if state modifiers are present.</li>
+<li>Add a state provider to the stateless logic. Common choices would be <code>$ANY</code> or <code>$DEFAULTSTATE</code>.</li>
+</ul>
+<h3 id="state-modifier-occurring-before-state-provider">State Modifier occurring before State Provider</h3>
+<p>A warning is generated when logic in disjunctive normal form contains a conjunctive clause with a state modifier occurring to the left of the state provider. To avoid the warning, move the state provider to occur before any state modifiers. For example, replace <code>$StateModifier + Transition</code> with <code>Transition + $StateModifier</code>. These clauses are equivalent in meaning, but it is preferred to list the state provider first to avoid confusion regarding order of application.</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/docs_source/articles/state_adv.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

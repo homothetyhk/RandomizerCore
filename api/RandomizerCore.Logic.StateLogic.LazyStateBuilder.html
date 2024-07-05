@@ -1,0 +1,918 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Struct LazyStateBuilder
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Struct LazyStateBuilder
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder">
+  
+  
+  <h1 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder" class="text-break">Struct LazyStateBuilder
+  </h1>
+  <div class="markdown level0 summary"><p>Struct wrapper for a <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a> or <a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a>, which delays creating a <a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a> until a mutating operation is requested.
+Note that this is a mutable struct. Pass it by ref to or return it from methods which perform mutating operations to ensure the effects of those operations are not lost.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="RandomizerCore.Logic.StateLogic.IState.html">IState</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.ValueType.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.ValueType.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.ValueType.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.Logic.StateLogic.html">RandomizerCore.Logic.StateLogic</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public struct LazyStateBuilder : IState</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.%23ctor(RandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L30">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor(RandomizerCore.Logic.StateLogic.LazyStateBuilder)">LazyStateBuilder(LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"><p>Clones the other LazyStateBuilder. If the other wraps a StateBuilder, then the inner StateBuilder is also cloned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LazyStateBuilder(LazyStateBuilder other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">other</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_State_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.%23ctor(RandomizerCore.Logic.StateLogic.State)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L14">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_State_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor(RandomizerCore.Logic.StateLogic.State)">LazyStateBuilder(State)</h4>
+  <div class="markdown level1 summary"><p>Wraps the State as a LazyStateBuilder, which delays creating a StateBuilder until a mutating operation is requested.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LazyStateBuilder(State orig)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td><span class="parametername">orig</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_StateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.%23ctor(RandomizerCore.Logic.StateLogic.StateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L22">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder__ctor_RandomizerCore_Logic_StateLogic_StateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.#ctor(RandomizerCore.Logic.StateLogic.StateBuilder)">LazyStateBuilder(StateBuilder)</h4>
+  <div class="markdown level1 summary"><p>Clones the StateBuilder and wraps it as a LazyStateBuilder.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public LazyStateBuilder(StateBuilder current)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a></td>
+        <td><span class="parametername">current</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetBool_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetBool(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L35">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetBool_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetBool*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetBool_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetBool(System.Int32)">GetBool(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public readonly bool GetBool(int id)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetInt_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetInt(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L36">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetInt_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetInt*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetInt_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetInt(System.Int32)">GetInt(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public readonly int GetInt(int id)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetState.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetState%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L106">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetState_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetState*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_GetState" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.GetState">GetState()</h4>
+  <div class="markdown level1 summary"><p>If the instance wraps a <a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a>, creates a <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a> from the builder. If the instance wraps a <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>, returns that state.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public State GetState()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_Increment_System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.Increment(System.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L67">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_Increment_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.Increment*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_Increment_System_Int32_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.Increment(System.Int32,System.Int32)">Increment(Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Increments the specified field.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Increment(int id, int incr)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">incr</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder%2CRandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L137">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder,RandomizerCore.Logic.StateLogic.LazyStateBuilder)">IsComparablyLE(LazyStateBuilder, LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsComparablyLE(LazyStateBuilder left, LazyStateBuilder right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_State_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder%2CRandomizerCore.Logic.StateLogic.State)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L117">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_State_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder,RandomizerCore.Logic.StateLogic.State)">IsComparablyLE(LazyStateBuilder, State)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsComparablyLE(LazyStateBuilder left, State right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_StateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder%2CRandomizerCore.Logic.StateLogic.StateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L122">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_LazyStateBuilder_RandomizerCore_Logic_StateLogic_StateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.LazyStateBuilder,RandomizerCore.Logic.StateLogic.StateBuilder)">IsComparablyLE(LazyStateBuilder, StateBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsComparablyLE(LazyStateBuilder left, StateBuilder right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_State_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.State%2CRandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L127">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_State_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.State,RandomizerCore.Logic.StateLogic.LazyStateBuilder)">IsComparablyLE(State, LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsComparablyLE(State left, LazyStateBuilder right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_StateBuilder_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.StateBuilder%2CRandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L132">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_IsComparablyLE_RandomizerCore_Logic_StateLogic_StateBuilder_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.IsComparablyLE(RandomizerCore.Logic.StateLogic.StateBuilder,RandomizerCore.Logic.StateLogic.LazyStateBuilder)">IsComparablyLE(StateBuilder, LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool IsComparablyLE(StateBuilder left, LazyStateBuilder right)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a></td>
+        <td><span class="parametername">left</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">right</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetBool_System_Int32_System_Boolean_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetBool(System.Int32%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L49">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetBool_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetBool*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetBool_System_Int32_System_Boolean_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetBool(System.Int32,System.Boolean)">SetBool(Int32, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Sets the specified field.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetBool(int id, bool value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetInt_System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetInt(System.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L58">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetInt_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetInt*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetInt_System_Int32_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.SetInt(System.Int32,System.Int32)">SetInt(Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Sets the specified field.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SetInt(int id, int value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_TryIncrement_System_Int32_System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.TryIncrement(System.Int32%2CSystem.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L85">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TryIncrement_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TryIncrement*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TryIncrement_System_Int32_System_Int32_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TryIncrement(System.Int32,System.Int32,System.Int32)">TryIncrement(Int32, Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Returns false if the increment would cause the field to exceed the max value. Otherwise, performs <a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html#RandomizerCore_Logic_StateLogic_LazyStateBuilder_Increment_System_Int32_System_Int32_">Increment(Int32, Int32)</a> and returns true.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TryIncrement(int id, int incr, int maxValue)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">incr</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">maxValue</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetBoolTrue_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetBoolTrue(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L75">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetBoolTrue_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetBoolTrue*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetBoolTrue_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetBoolTrue(System.Int32)">TrySetBoolTrue(Int32)</h4>
+  <div class="markdown level1 summary"><p>If the field is false, sets it true and returns true. Otherwise, returns false.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TrySetBoolTrue(int id)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetIntToValue_System_Int32_System_Int32_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetIntToValue(System.Int32%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L96">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetIntToValue_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetIntToValue*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_LazyStateBuilder_TrySetIntToValue_System_Int32_System_Int32_" data-uid="RandomizerCore.Logic.StateLogic.LazyStateBuilder.TrySetIntToValue(System.Int32,System.Int32)">TrySetIntToValue(Int32, Int32)</h4>
+  <div class="markdown level1 summary"><p>Returns false if <code data-dev-comment-type="paramref" class="paramref">value</code> is less than the field value. Otherwise, performs <a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html#RandomizerCore_Logic_StateLogic_LazyStateBuilder_SetInt_System_Int32_System_Int32_">SetInt(Int32, Int32)</a> and returns true.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool TrySetIntToValue(int id, int value)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">value</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="RandomizerCore.Logic.StateLogic.IState.html">IState</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_LazyStateBuilder.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.LazyStateBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/LazyStateBuilder.cs/#L7" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

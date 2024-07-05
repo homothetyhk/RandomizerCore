@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title> </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content=" ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+
+<p>The following symbols are reserved for use in infix logic:</p>
+<ul>
+<li>Left parens <code>(</code>, right parens <code>)</code>, plus <code>+</code>, and vertical bar <code>|</code> (used for basic operations)</li>
+<li>Less than <code>&lt;</code>, equals <code>=</code>, and greater than <code>&gt;</code> (used for comparison operations)</li>
+<li>Asterisk <code>*</code> (used to create reference tokens)</li>
+<li>Question mark <code>?</code> (used to create coallescing tokens)</li>
+<li>Forward slash <code>/</code> (used for projecting state providers to bool values)</li>
+<li>Additionally, <code>!</code> and <code>`</code> are used in item strings</li>
+<li>Some symbols are not currently used, but are reserved for future use: <code>!</code>, <code>~</code>, <code>\</code>, <code>@</code>, <code>#</code>, <code>%</code>, <code>^</code>, <code>&amp;</code>, <code>.</code></li>
+</ul>
+<p>The following symbols are safe to include in logic:</p>
+<ul>
+<li>Underscore <code>_</code></li>
+<li>Hyphen <code>-</code></li>
+<li>Square brackets <code>[</code> and <code>]</code></li>
+<li>Curly brackets <code>{</code> and <code>}</code></li>
+<li>Apostrophe <code>'</code></li>
+<li>Comma <code>,</code></li>
+<li>Semicolon <code>;</code></li>
+<li>Colon <code>:</code></li>
+<li>Dollar sign <code>$</code></li>
+</ul>
+<p>Also, it should be noted that leading and trailing white space is stripped from tokens when an infix expression is tokenized. Internal white space should be avoided.</p>
+<p>Names which contain illegal symbols can be used to create tokens and logic in code, but will result in infix expressions which do not correctly deserialize. Thus, names of terms, macros, and logic variables should not use illegal symbols. Names of logic defs are encouraged to avoid illegal symbols, or else they will be unusable in reference tokens.</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/docs_source/articles/safe_naming.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

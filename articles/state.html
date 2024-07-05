@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Introduction </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Introduction ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h2 id="introduction">Introduction</h2>
+
+<p>At a very high level, the randomizer consists of locations which have certain requirements and items which combine to fulfill those requirements. In RandomizerCore, these requirements are expressed through terms that appear in both logic and item definitions. Terms must represent permanent abilities or events; one of the core assumptions of the randomizer is that items only expand (and never restrict) the class of reachable locations, so items cannot have a temporary effect on terms.</p>
+<p>The purpose of state logic is to allow representation of temporary effects (whether from items or pathing) in logic. Instead of partitioning locations into a binary reachable/unreachable, state logic allows a location to produce a list of alternative states that characterize its reachability. States may contain information regarding consumable resources, equipment which can't be swapped out in certain locations, and other types of decisions which might be made on a path-dependent basis. In what follows, some of the basic concepts of state logic are explored, including what exactly RandomizerCore allows in a state and how they can be created and modified using logic.</p>
+<h2 id="background">Background</h2>
+<p>When Hollow Knight's Randomizer 2 was first released, state logic would have been completely unnecessary. Back then, logic for every location was written painstakingly in terms of every manner to reach that part of the world from the start of the game in King's Pass. As Randomizer 2 developed into Randomizer 3, and start locations and room transitions became randomizable, more and more indirection had to be used in logic to make things still work. The result is that the logic became <em>relative</em>--instead of just listing combinations of items to unlock a location, it started to list combinations of items, along with points of the world that had to be &quot;reachable&quot;. A location in King's Pass which previously had logic which always evaluated true, now had logic which evaluated true when King's Pass was &quot;reachable&quot;, which might be always if the game started in King's Pass, but might mean something very different if the game started elsewhere.</p>
+<p>One problem with this system is that &quot;reachable&quot; may not have a single clear definition. In Hollow Knight, different paths to the same location may require equipping different charms, spending soul (MP), or taking damage. To get around this originally, we wrote the randomizer logic with very stringent restrictions on &quot;nonterminal&quot; logic: basically, we required transitions and waypoints to never make those kinds of decisions. Only &quot;terminal&quot; logic, meaning logic for actual locations, could require charms or soul or anything along those lines. In practice, these guidelines were overly limiting and had to be repeatedly broken. State logic was introduced to handle path-dependent information in an automatic, consistent, and decentralized fashion.</p>
+<h2 id="state-mechanics">State Mechanics</h2>
+<p>The State class consists of a collection of Bool values and a collection of Int values. These fields are accessed through IDs which can be retrieved by name (as StateFields) in the StateManager, which is attached to the LogicManager.</p>
+<p>The most important aspect of State is its ordering. First, the type Bool is totally ordered by false &lt; true, and the type Int is totally ordered by its usual ordering. Then, State is <em>partially</em> ordered by the ordering on each of its fields. That is, for two states s1 and s2, we have s1 &lt;= s2 if and only if for every state field f, s1.f &lt;= s2.f. This is very important, because when the randomizer determines that a list of states can access a location, it reduces the list by removing states which are not minimal in the list with respect to the partial order.</p>
+<p>The StateUnion class represents a collection of states which have been reduced by the process above. In other words, the states in a StateUnion are always pairwise incomparable with respect to the partial order, and a StateUnion is formed from a list of states by discarding states which compare as greater or equal to some other state in the list. Generally speaking, State should be interpreted as a particular combination of resources, and StateUnion should be interpreted as an alternative of possible states. StateUnion has two special values. A null StateUnion represents nonaccessibility. An empty StateUnion represents indeterminate (or minimum) accessibility. This notion is useful for example when randomizing transitions: for a given target transition, until its source is known, its state is unknown. By giving it the empty StateUnion, it can succeed at trivial state checks, though not nontrivial state checks. When the transition is finally placed at a source, the ILocationDependentItem implementation of RandoTransition or LogicTransition updates the state of the target to include the state of its source.</p>
+<h2 id="state-logic">State Logic</h2>
+<p>The StateLogicDef class is the base class for logic defs which support state calculations. DNFLogicDef is the RandomizerCore implementation of StateLogicDef.</p>
+<p>Before evaluating state logic, the logic has to be put in disjunctive normal form. What this means is that all nested &quot;or&quot; operations are expanded out, so that the expression becomes an &quot;or&quot; of subexpressions which only contain &quot;and&quot; (a disjunction of conjunctions). For example, the disjunctive normal form of &quot;A + (B | (C + D) | E)&quot; is &quot;(A + B) | (A + C + D) | (A + E)&quot;. The state modifiers in each conjunction then act sequentially left-to-right to perform state modifications. For more information, see the article on <a href="state_adv.html">implementing state logic</a>.</p>
+<h2 id="basic-state-model">Basic State Model</h2>
+<p>We examine a toy model to illustrate how state logic works. We suppose we have a LogicManager with the following terms:</p>
+<ul>
+<li><code>Item1</code> of type Int</li>
+<li><code>Item2</code> of type Int</li>
+<li><code>Room[left]</code> of type State (representing a doorway, transition, etc into the room)</li>
+</ul>
+<p>and a StateManager with the following fields:</p>
+<ul>
+<li><code>SBool1</code> of type Bool</li>
+<li><code>SBool2</code> of type Bool</li>
+<li><code>SInt1</code> of type Int</li>
+</ul>
+<p>We also assume that we have defined a custom VariableResolver to provide the following StateModifiers:</p>
+<ul>
+<li><code>$TryIncrement[INTNAME,CAP]</code> (increments the named StateInt, fails if the result exceeds the cap)</li>
+<li><code>$TrySetBool[BOOLNAME]</code> (sets the named bool true, fails if the bool is already true)</li>
+</ul>
+<p>(Note that the <code>$</code> in front of variables in logic is only a convention; the <code>$</code> does not have any special role here.)</p>
+<p>Then, given the above, a fragment of state logic might look like:</p>
+<p><code>Room[left] + Item1 + Item2 + $TryIncrement[SInt1,2] + $TrySetBool[SBool1]</code></p>
+<p>This fragment breaks down into</p>
+<ul>
+<li>a state provider (the state-valued term <code>Room[left]</code>)</li>
+<li>a stateless requirement (the non-state terms <code>Item1</code> and <code>Item2</code>)</li>
+<li>a requirement on the provided state (given by the statemodifiers <code>$TryIncrement[SInt1,2]</code> and <code>$TrySetBool[SBool1]</code>)</li>
+</ul>
+<p>The entire fragment can be interpreted as: &quot;Require <code>Item1</code> and <code>Item2</code>, and also require that <code>Room[left]</code> can be reached with a state with <code>SInt1 &lt; 2</code> and <code>SBool1 = false</code>.&quot;</p>
+<p>For a more complicated example, we could add another state-valued term <code>Room[right]</code> and then consider the following logic:</p>
+<p><code>(Room[left] | Room[right]) + (Item1 | Item2) + ($TrySetBool[SBool1] | $TryIncrement[SInt1,1]) + ($TrySetBool[SBool1] | $TryIncrement[SInt1,2])</code></p>
+<p>The disjunctive normal form of this expression, given by distributing all of the operations, results in 16 clauses:</p>
+<pre><code>  Room[left] + Item1 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+| Room[left] + Item1 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+| Room[left] + Item1 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+| Room[left] + Item1 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+| Room[left] + Item2 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+| Room[left] + Item2 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+| Room[left] + Item2 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+| Room[left] + Item2 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+| Room[right] + Item1 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+| Room[right] + Item1 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+| Room[right] + Item1 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+| Room[right] + Item1 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+| Room[right] + Item2 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+| Room[right] + Item2 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+| Room[right] + Item2 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+| Room[right] + Item2 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+</code></pre>
+<p>In each clause, the state-valued term <code>Room[left]</code> or <code>Room[right]</code> provides a state; there are then requirements from nonstate terms which are independent of the provided state, and requirements from the state modifiers which act on the provided state sequentially. A few remarks:</p>
+<ul>
+<li>Some of the clauses above are impossible to satisfy. For example, anything with <code>$TrySetBool[SBool1] + $TrySetBool[SBool1]</code> can never be satisfied, since the first <code>$TrySetBool[SBool1]</code> sets <code>SBool1</code> to <code>true</code>, and the second <code>$TrySetBool[SBool1]</code> subsequently fails.</li>
+<li>The left-to-right application of state modifiers is essential: <code>$TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]</code> succeeds on a state which initially has <code>SInt1 = 0</code>, since neither increment causes <code>SInt1</code> to exceed either cap. On the other hand, <code>$TryIncrement[SInt1,2] + $TryIncrement[SInt1,1]</code> fails, since after 2 increments we have <code>SInt1 = 2</code>, which exceeds the cap for the second increment.</li>
+</ul>
+<p>The location represented by the logic is reachable if any of the 16 clauses is satisfied. A state union representing the states that can reach the location could be created by accumulating the state-valued results of the satisfied clauses, and then reducing according to the state partial order. For example, suppose we evaluate with the following term values:</p>
+<pre><code>Item1: 1
+Item2: 0
+Room[left]: [{ SBool1: false, SBool2: true, SInt1: 0 }]
+Room[right]: [{ SBool1: false, SBool2: false, SInt1: 1 }, { SBool1: true, SBool2: false, SInt1: 0 }]
+</code></pre>
+<p>Then clause-by-clause evaluation yields:</p>
+<pre><code>Room[left] + Item1 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+   fails
+Room[left] + Item1 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+   produces [{ SBool1: true, SBool2: true, SInt1: 1 }]
+Room[left] + Item1 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+   produces [{ SBool1: true, SBool2: true, SInt1: 1 }]
+Room[left] + Item1 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+   produces [{ SBool1: false, SBool2: true, SInt1: 2 }]
+Room[left] + Item2 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+   fails
+Room[left] + Item2 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+   fails
+Room[left] + Item2 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+   fails
+Room[left] + Item2 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+   fails
+Room[right] + Item1 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+   fails
+Room[right] + Item1 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+   [{ SBool1: true, SBool2: false, SInt1: 2}]
+Room[right] + Item1 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+   fails
+Room[right] + Item1 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+   fails
+Room[right] + Item2 + $TrySetBool[SBool1] + $TrySetBool[SBool1]
+   fails
+Room[right] + Item2 + $TrySetBool[SBool1] + $TryIncrement[SInt1,2]
+   fails
+Room[right] + Item2 + $TryIncrement[SInt1,1] + $TrySetBool[SBool1]
+   fails
+Room[right] + Item2 + $TryIncrement[SInt1,1] + $TryIncrement[SInt1,2]
+   fails
+</code></pre>
+<p>The list of states produced is</p>
+<pre><code>[{ SBool1: true, SBool2: true, SInt1: 1 }, { SBool1: true, SBool2: true, SInt1: 1 }, { SBool1: false, SBool2: true, SInt1: 2 }, { SBool1: true, SBool2: false, SInt1: 2}]
+</code></pre>
+<p>Reducing along the partial order, the resulting StateUnion is</p>
+<pre><code>[{ SBool1: true, SBool2: true, SInt1: 1 }, { SBool1: false, SBool2: true, SInt1: 2 }, { SBool1: true, SBool2: false, SInt1: 2}]
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/docs_source/articles/state.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

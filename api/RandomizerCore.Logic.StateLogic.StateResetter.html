@@ -1,0 +1,509 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class StateResetter
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class StateResetter
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Logic.StateLogic.StateResetter">
+  
+  
+  <h1 id="RandomizerCore_Logic_StateLogic_StateResetter" data-uid="RandomizerCore.Logic.StateLogic.StateResetter" class="text-break">Class StateResetter
+  </h1>
+  <div class="markdown level0 summary"><p>Modifier which outputs a specified state, with options to conditionally leave some fields unmodified.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="RandomizerCore.Logic.LogicVariable.html">LogicVariable</a></div>
+    <div class="level2"><a class="xref" href="RandomizerCore.Logic.StateLogic.StateModifier.html">StateModifier</a></div>
+    <div class="level3"><span class="xref">StateResetter</span></div>
+  </div>
+  <div class="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="RandomizerCore.Logic.ILogicVariable.html">ILogicVariable</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="RandomizerCore.Logic.StateLogic.StateModifier.html#RandomizerCore_Logic_StateLogic_StateModifier_ModifyAll_System_Object_RandomizerCore_Logic_ProgressionManager_List_RandomizerCore_Logic_StateLogic_LazyStateBuilder__">StateModifier.ModifyAll(Object, ProgressionManager, List&lt;LazyStateBuilder&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="RandomizerCore.Logic.LogicVariable.html#RandomizerCore_Logic_LogicVariable_Name">LogicVariable.Name</a>
+    </div>
+    <div>
+      <a class="xref" href="RandomizerCore.Logic.LogicVariable.html#RandomizerCore_Logic_LogicVariable_ToString">LogicVariable.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="RandomizerCore.Logic.LogicVariable.html#RandomizerCore_Logic_LogicVariable_FALSE">LogicVariable.FALSE</a>
+    </div>
+    <div>
+      <a class="xref" href="RandomizerCore.Logic.LogicVariable.html#RandomizerCore_Logic_LogicVariable_TRUE">LogicVariable.TRUE</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="RandomizerCore.Logic.StateLogic.html">RandomizerCore.Logic.StateLogic</a></h6>
+  <h6><strong>Assembly</strong>: RandomizerCore.dll</h6>
+  <h5 id="RandomizerCore_Logic_StateLogic_StateResetter_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class StateResetter : StateModifier, ILogicVariable</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter__ctor_RandomizerCore_Logic_LogicManager_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.%23ctor(RandomizerCore.Logic.LogicManager)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L23">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter__ctor_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.#ctor*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter__ctor_RandomizerCore_Logic_LogicManager_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.#ctor(RandomizerCore.Logic.LogicManager)">StateResetter(LogicManager)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected StateResetter(LogicManager lm)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.LogicManager.html">LogicManager</a></td>
+        <td><span class="parametername">lm</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_OptIn.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.OptIn%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L19">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_OptIn_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.OptIn*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_OptIn" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.OptIn">OptIn</h4>
+  <div class="markdown level1 summary"><p>By default, is false, and fields which do not declare reset logic are reset. If true, fields which do not declare reset logic are not reset.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual bool OptIn { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_ResetLogicProperty.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.ResetLogicProperty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L15">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_ResetLogicProperty_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetLogicProperty*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_ResetLogicProperty" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetLogicProperty">ResetLogicProperty</h4>
+  <div class="markdown level1 summary"><p>If not null, the name of a state field property which stores infix logic, which evaluates to true when the state field should be modified by the resetter.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract string ResetLogicProperty { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_ResetState.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.ResetState%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L11">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_ResetState_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetState*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_ResetState" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetState">ResetState</h4>
+  <div class="markdown level1 summary"><p>The state which the resetter resets toward.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract State ResetState { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_GetTerms.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.GetTerms%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L107">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_GetTerms_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.GetTerms*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_GetTerms" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.GetTerms">GetTerms()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IEnumerable&lt;Term&gt; GetTerms()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.Term.html">Term</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="RandomizerCore.Logic.LogicVariable.html#RandomizerCore_Logic_LogicVariable_GetTerms">LogicVariable.GetTerms()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_ModifyState_System_Object_RandomizerCore_Logic_ProgressionManager_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.ModifyState(System.Object%2CRandomizerCore.Logic.ProgressionManager%2CRandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L50">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_ModifyState_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ModifyState*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_ModifyState_System_Object_RandomizerCore_Logic_ProgressionManager_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ModifyState(System.Object,RandomizerCore.Logic.ProgressionManager,RandomizerCore.Logic.StateLogic.LazyStateBuilder)">ModifyState(Object, ProgressionManager, LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"><p>For a StateResetter, returns a singleton containing the result of ResetSingle, unless overridden by a derived class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IEnumerable&lt;LazyStateBuilder&gt; ModifyState(object sender, ProgressionManager pm, LazyStateBuilder state)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">sender</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.ProgressionManager.html">ProgressionManager</a></td>
+        <td><span class="parametername">pm</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">state</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="RandomizerCore.Logic.StateLogic.StateModifier.html#RandomizerCore_Logic_StateLogic_StateModifier_ModifyState_System_Object_RandomizerCore_Logic_ProgressionManager_RandomizerCore_Logic_StateLogic_LazyStateBuilder_">StateModifier.ModifyState(Object, ProgressionManager, LazyStateBuilder)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_ProvideState_System_Object_RandomizerCore_Logic_ProgressionManager_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.ProvideState(System.Object%2CRandomizerCore.Logic.ProgressionManager)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L42">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_ProvideState_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ProvideState*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_ProvideState_System_Object_RandomizerCore_Logic_ProgressionManager_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ProvideState(System.Object,RandomizerCore.Logic.ProgressionManager)">ProvideState(Object, ProgressionManager)</h4>
+  <div class="markdown level1 summary"><p>For a StateResetter, returns the empty sequence, unless overridden by a derived class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override IEnumerable&lt;LazyStateBuilder&gt;? ProvideState(object sender, ProgressionManager pm)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">sender</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.ProgressionManager.html">ProgressionManager</a></td>
+        <td><span class="parametername">pm</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a>&gt;&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="RandomizerCore.Logic.StateLogic.StateModifier.html#RandomizerCore_Logic_StateLogic_StateModifier_ProvideState_System_Object_RandomizerCore_Logic_ProgressionManager_">StateModifier.ProvideState(Object, ProgressionManager)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter_ResetSingle_RandomizerCore_Logic_ProgressionManager_RandomizerCore_Logic_StateLogic_LazyStateBuilder_.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter.ResetSingle(RandomizerCore.Logic.ProgressionManager%2CRandomizerCore.Logic.StateLogic.LazyStateBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L58">View Source</a>
+  </span>
+  <a id="RandomizerCore_Logic_StateLogic_StateResetter_ResetSingle_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetSingle*"></a>
+  <h4 id="RandomizerCore_Logic_StateLogic_StateResetter_ResetSingle_RandomizerCore_Logic_ProgressionManager_RandomizerCore_Logic_StateLogic_LazyStateBuilder_" data-uid="RandomizerCore.Logic.StateLogic.StateResetter.ResetSingle(RandomizerCore.Logic.ProgressionManager,RandomizerCore.Logic.StateLogic.LazyStateBuilder)">ResetSingle(ProgressionManager, LazyStateBuilder)</h4>
+  <div class="markdown level1 summary"><p>Applies the result of resetting the state towards the ResetState, accounting for the OptIn and conditional reset properties for this resetter.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected LazyStateBuilder ResetSingle(ProgressionManager pm, LazyStateBuilder state)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.ProgressionManager.html">ProgressionManager</a></td>
+        <td><span class="parametername">pm</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td><span class="parametername">state</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="RandomizerCore.Logic.ILogicVariable.html">ILogicVariable</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/new/master/apiSpec/new?filename=RandomizerCore_Logic_StateLogic_StateResetter.md&amp;value=---%0Auid%3A%20RandomizerCore.Logic.StateLogic.StateResetter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/master/RandomizerCore/Logic/StateLogic/StateResetter.cs/#L6" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
