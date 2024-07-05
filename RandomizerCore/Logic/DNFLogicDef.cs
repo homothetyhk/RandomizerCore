@@ -211,6 +211,8 @@ namespace RandomizerCore.Logic
 
             public bool EvaluateStateChange(ProgressionManager pm, List<State> result)
             {
+                if (stateProvider is null && stateModifiers.Length == 0) return EvaluateToBool(pm); // stateless case
+
                 StateUnion? input = stateProvider?.GetInputState(parent, pm);
                 if (input is null || !EvaluateReqs(pm)) return false;
                 if (stateModifiers.Length == 0)
