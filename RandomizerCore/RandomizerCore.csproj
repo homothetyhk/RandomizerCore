@@ -4,7 +4,7 @@
         <AssemblyTitle>RandomizerCore</AssemblyTitle>
         <VersionPrefix>2.0.2</VersionPrefix>
         <VersionSuffix></VersionSuffix>
-        <TargetFrameworks>netstandard2.1;net472;net6.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netstandard2.1;net472;net6.0;net8.0</TargetFrameworks>
         <Deterministic>true</Deterministic>
         <LangVersion>latest</LangVersion>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
