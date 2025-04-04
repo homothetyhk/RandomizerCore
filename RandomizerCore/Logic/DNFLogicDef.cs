@@ -60,6 +60,19 @@ namespace RandomizerCore.Logic
             return succeedsOnEmpty;
         }
 
+        public bool EvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, List<State> states)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            bool succeedOnEmpty = false;
+            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
+            {
+                succeedOnEmpty |= path.EvaluateStateChange(pm, states);
+            }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.EvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+            return succeedOnEmpty;
+        }
+
         private void CreateTermPathLookup()
         {
             termPathLookup = new();
