@@ -60,7 +60,7 @@ namespace RandomizerCore.Logic
             return succeedsOnEmpty;
         }
 
-        public bool EvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, List<State> states)
+        public override bool EvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, List<State> states)
         {
             Stopwatch sw = Stopwatch.StartNew();
             bool succeedOnEmpty = false;
@@ -71,6 +71,11 @@ namespace RandomizerCore.Logic
             sw.Stop();
             Profiling.EmitMetric("DNFLogicDef.EvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
             return succeedOnEmpty;
+        }
+
+        public override IEnumerable<IStateProvider> GetStateProviders()
+        {
+            return paths.Select(p => p.stateProvider).Distinct().OfType<IStateProvider>();
         }
 
         /// <summary>
