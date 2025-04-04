@@ -79,11 +79,15 @@
     internal sealed class LogicDefVariable : LogicInt
     {
         private readonly LogicDef logic;
+        private readonly bool projected;
 
-        public LogicDefVariable(LogicDef logic)
+        /// <param name="logic"></param>
+        /// <param name="projected">Indicates whether the variable name should include a projection operator. No effect on behavior.</param>
+        public LogicDefVariable(LogicDef logic, bool projected = false)
         {
             this.logic = logic;
-            this.Name = $"*{logic.Name}";
+            this.projected = projected;
+            this.Name = $"*{logic.Name}{(projected ? "/" : "")}";
         }
 
         public override string Name { get; }

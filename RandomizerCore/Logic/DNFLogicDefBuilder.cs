@@ -1,7 +1,6 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using OperatorToken = RandomizerCore.StringLogic.OperatorToken;
 
 namespace RandomizerCore.Logic
@@ -357,7 +356,7 @@ namespace RandomizerCore.Logic
             {
                 if (pt.Inner is ReferenceToken rt)
                 {
-                    AddVarReq(new LogicDefVariable(lm.GetLogicDefStrict(rt.Target)));
+                    AddVarReq(new LogicDefVariable(lm.GetLogicDefStrict(rt.Target), projected: true));
                 }
                 else if (pt.Inner is SimpleToken st)
                 {
