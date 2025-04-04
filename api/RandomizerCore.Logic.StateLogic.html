@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Namespace RandomizerCore.Logic.StateLogic
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Namespace RandomizerCore.Logic.StateLogic
+   ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="RandomizerCore.Logic.StateLogic">
+  
+  <h1 id="RandomizerCore_Logic_StateLogic" data-uid="RandomizerCore.Logic.StateLogic" class="text-break">Namespace RandomizerCore.Logic.StateLogic
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
+  </h3>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.ConstantStateProvider.html">ConstantStateProvider</a></h4>
+      <section><p>A <a class="xref" href="RandomizerCore.Logic.StateLogic.StateProvider.html">StateProvider</a> which provides a fixed state union.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.PreState.html">PreState</a></h4>
+      <section><p>Class which acts as a string-based StateBuilder before the StateManager exists.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.RawStateData.html">RawStateData</a></h4>
+      <section><p>Serializable form of StateManager/StateManagerBuilder.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.SingleStateLogic.html">SingleStateLogic</a></h4>
+      <section><p>Base class for logic which can be evaluated with a <a class="xref" href="RandomizerCore.Logic.ProgressionManager.html">ProgressionManager</a> and a state as input.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a></h4>
+      <section><p>Immutable representation of path-dependent accessibility constraints. Consists of bool fields and nonnegative integer fields.
+<br>States are partially ordered via the bool and integer orderings for each field.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateAccessVariable.html">StateAccessVariable</a></h4>
+      <section><p>A LogicVariable which produces an int depending on progression data and a state input.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateBool.html">StateBool</a></h4>
+      <section></section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a></h4>
+      <section><p>Object used to create <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a>.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateField.html">StateField</a></h4>
+      <section></section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateFieldAccessor.html">StateFieldAccessor</a></h4>
+      <section></section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateInt.html">StateInt</a></h4>
+      <section></section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateLogicDef.html">StateLogicDef</a></h4>
+      <section><p>A LogicDef which also supports state calculation.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateManager.html">StateManager</a></h4>
+      <section><p>Object which manages the list of fields which <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a> should represent.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateManagerBuilder.html">StateManagerBuilder</a></h4>
+      <section><p>Object used to create <a class="xref" href="RandomizerCore.Logic.StateLogic.StateManager.html">StateManager</a>.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateModifier.html">StateModifier</a></h4>
+      <section><p>Variable which acts on a state and yields a sequence of result states. Can also produce input-independent state.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateProvider.html">StateProvider</a></h4>
+      <section><p>A LogicInt which can provide an input state to its logic branch, if not preceded by any state-valued terms.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateResetter.html">StateResetter</a></h4>
+      <section><p>Modifier which outputs a specified state, with options to conditionally leave some fields unmodified.</p>
+</section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateUnion.html">StateUnion</a></h4>
+      <section><p>A collection of mutually incomparable states, representing a disjunction of possible states.</p>
+</section>
+    <h3 id="structs">Structs
+  </h3>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.LazyStateBuilder.html">LazyStateBuilder</a></h4>
+      <section><p>Struct wrapper for a <a class="xref" href="RandomizerCore.Logic.StateLogic.State.html">State</a> or <a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a>, which delays creating a <a class="xref" href="RandomizerCore.Logic.StateLogic.StateBuilder.html">StateBuilder</a> until a mutating operation is requested.
+Note that this is a mutable struct. Pass it by ref to or return it from methods which perform mutating operations to ensure the effects of those operations are not lost.</p>
+</section>
+    <h3 id="interfaces">Interfaces
+  </h3>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.IState.html">IState</a></h4>
+      <section></section>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.IStateProvider.html">IStateProvider</a></h4>
+      <section></section>
+    <h3 id="enums">Enums
+  </h3>
+      <h4><a class="xref" href="RandomizerCore.Logic.StateLogic.StateFieldType.html">StateFieldType</a></h4>
+      <section></section>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
