@@ -1,6 +1,5 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -59,6 +58,41 @@ namespace RandomizerCore.Logic
             sw.Stop();
             Profiling.EmitMetric("DNFLogicDef.EvaluateState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
             return succeedsOnEmpty;
+        }
+
+        public override bool EvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, List<State> states)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            bool succeedOnEmpty = false;
+            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
+            {
+                succeedOnEmpty |= path.EvaluateStateChange(pm, states);
+            }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.EvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+            return succeedOnEmpty;
+        }
+
+        public override IEnumerable<IStateProvider> GetStateProviders()
+        {
+            return paths.Select(p => p.stateProvider).Distinct().OfType<IStateProvider>();
+        }
+
+        /// <summary>
+        /// Keeps states from true StatePaths separated, along with their corresponding true conjunctions.
+        /// API for "explaining" a state evaluation.
+        /// </summary>
+        public bool DetailedEvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, bool firstConjunctionsOnly, List<StatePathResult> results)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            bool succeedOnEmpty = false;
+            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
+            {
+                succeedOnEmpty |= path.DetailedEvaluateStateChange(pm, firstConjunctionsOnly, results);
+            }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.DetailedEvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+            return succeedOnEmpty;
         }
 
         private void CreateTermPathLookup()
@@ -129,7 +163,7 @@ namespace RandomizerCore.Logic
         {
             for (int j = 0; j < paths.Length; j++)
             {
-                if (paths[j].EvaluateToBool(pm)) return paths[j].GetFirstSuccessfulConjunction(pm);
+                if (paths[j].GetFirstSuccessfulConjunction(pm) is IEnumerable<TermToken> c) return c;
             }
             return null;
         }
@@ -138,7 +172,7 @@ namespace RandomizerCore.Logic
         {
             for (int j = 0; j < paths.Length; j++)
             {
-                if (paths[j].EvaluateToBool(pm)) foreach (IEnumerable<TermToken> c in paths[j].GetAllSuccessfulConjunctions(pm)) yield return c;
+                foreach (IEnumerable<TermToken> c in paths[j].GetAllSuccessfulConjunctions(pm)) yield return c;
             }
         }
 
@@ -214,41 +248,74 @@ namespace RandomizerCore.Logic
                 if (stateProvider is null && stateModifiers.Length == 0) return EvaluateToBool(pm); // stateless case
 
                 StateUnion? input = stateProvider?.GetInputState(parent, pm);
-                if (input is null || !EvaluateReqs(pm)) return false;
-                if (stateModifiers.Length == 0)
+                if (input is null || !EvaluateAnyReqs(pm, out _)) return false;
+                return EvaluateStateModifiersChangeRec(pm, input, result);
+            }
+
+            public bool DetailedEvaluateStateChange(ProgressionManager pm, bool firstConjunctionOnly, List<StatePathResult> results)
+            {
+                if (stateProvider is null && stateModifiers.Length == 0) return EvaluateToBool(pm); // stateless case
+
+                if (stateProvider?.GetInputState(parent, pm) is not StateUnion input) return false;
+
+                List<State> states = new();
+                if (!firstConjunctionOnly && EvaluateAllReqs(pm, out IEnumerable<Reqs> reqs)
+                    && EvaluateStateModifiersChangeRec(pm, input, states))
                 {
-                    for (int k = 0; k < input.Count; k++) result.Add(input[k]);
+                    results.Add(new StatePathResult(states, reqs.Select(ClauseToTermTokenSequence)));
                     return true;
                 }
-                else
+
+                if (firstConjunctionOnly && EvaluateAnyReqs(pm, out Reqs req)
+                    && EvaluateStateModifiersChangeRec(pm, input, states))
                 {
-                    for (int k = 0; k < input.Count; k++)
-                    {
-                        EvaluateStateChangeRec(0, pm, result, new(input[k]));
-                    }
-                    return EmptyEvaluateStateChangeRec(0, pm, result);
+                    results.Add(new StatePathResult(states, [ClauseToTermTokenSequence(req)]));
+                    return true;
                 }
+
+                return false;
             }
 
             public bool EvaluateToBool(ProgressionManager pm)
             {
                 StateUnion? input = stateProvider?.GetInputState(parent, pm);
-                if (input is null && stateProvider is not null || !EvaluateReqs(pm)) return false;
+                if (input is null && stateProvider is not null || !EvaluateAnyReqs(pm, out _)) return false;
+                return EvaluateStateModifiersDiscardRec(pm, input);
+            }
+
+            private bool EvaluateAnyReqs(ProgressionManager pm, out Reqs result)
+            {
+                foreach (Reqs r in reqs)
+                {
+                    if (r.Evaluate(parent, pm))
+                    {
+                        result = r;
+                        return true;
+                    }
+                }
+                result = default;
+                return false;
+            }
+
+            private bool EvaluateAllReqs(ProgressionManager pm, out IEnumerable<Reqs> result)
+            {
+                result = reqs.Where(r => r.Evaluate(parent, pm));
+                return result.Any();
+            }
+
+            private bool EvaluateStateModifiersDiscardRec(ProgressionManager pm, StateUnion? input)
+            {
                 if (stateModifiers.Length == 0)
                 {
                     return true;
                 }
+
                 for (int k = 0; k < input.Count; k++)
                 {
                     if (EvaluateStateDiscardRec(0, pm, new LazyStateBuilder(input[k]))) return true;
                 }
+                
                 return EmptyEvaluateStateDiscardRec(0, pm);
-            }
-
-            private bool EvaluateReqs(ProgressionManager pm)
-            {
-                foreach (Reqs r in reqs) if (r.Evaluate(parent, pm)) return true;
-                return false;
             }
 
             private bool EvaluateStateDiscardRec(int i, ProgressionManager pm, LazyStateBuilder lsb)
@@ -283,6 +350,23 @@ namespace RandomizerCore.Logic
                 }
 
                 return false;
+            }
+
+            private bool EvaluateStateModifiersChangeRec(ProgressionManager pm, StateUnion? input, List<State> result)
+            {
+                if (stateModifiers.Length == 0)
+                {
+                    for (int k = 0; k < input.Count; k++) result.Add(input[k]);
+                    return true;
+                }
+                else
+                {
+                    for (int k = 0; k < input.Count; k++)
+                    {
+                        EvaluateStateChangeRec(0, pm, result, new(input[k]));
+                    }
+                    return EmptyEvaluateStateChangeRec(0, pm, result);
+                }
             }
 
             private void EvaluateStateChangeRec(int i, ProgressionManager pm, List<State> states, LazyStateBuilder lsb)
@@ -343,20 +427,38 @@ namespace RandomizerCore.Logic
 
             public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequences().Select(s => RPN.OperateOver(s, OperatorToken.AND)), OperatorToken.OR);
 
-            public IEnumerable<TermToken> GetFirstSuccessfulConjunction(ProgressionManager pm)
+            public IEnumerable<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
             {
-                int i = Array.FindIndex(reqs, r => r.Evaluate(parent, pm));
-                return ClauseToTermTokenSequence(reqs[i]);
+                if (stateProvider?.GetInputState(parent, pm) is StateUnion input
+                    && EvaluateAnyReqs(pm, out Reqs result)
+                    && EvaluateStateModifiersDiscardRec(pm, input))
+                {
+                    return ClauseToTermTokenSequence(result);
+                }
+                return null;
             }
 
             public IEnumerable<IEnumerable<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
             {
-                LogicManager lm = parent.lm;
-                List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
+                if (stateProvider?.GetInputState(parent, pm) is StateUnion input
+                    && EvaluateAllReqs(pm, out IEnumerable<Reqs> result)
+                    && EvaluateStateModifiersDiscardRec(pm, input))
+                {
+                    return result.Select(ClauseToTermTokenSequence);
+                }
+                return Enumerable.Empty<IEnumerable<TermToken>>();
+            }
+        }
 
-                if (!EvaluateToBool(pm)) return Enumerable.Empty<IEnumerable<TermToken>>();
+        public readonly struct StatePathResult
+        {
+            public readonly List<State> states;
+            public readonly IEnumerable<IEnumerable<TermToken>> conjunctions;
 
-                return reqs.Where(r => r.Evaluate(parent, pm)).Select(ClauseToTermTokenSequence);
+            internal StatePathResult(List<State> states, IEnumerable<IEnumerable<TermToken>> conjunctions)
+            {
+                this.states = states;
+                this.conjunctions = conjunctions;
             }
         }
     }
