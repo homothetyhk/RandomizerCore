@@ -26,6 +26,7 @@ namespace RandomizerCore.Logic
         public object? Current { get; private set; }
 
         bool active;
+        bool updating; // guards against deep recursion
 
         private class RevertPoint
         {
@@ -231,19 +232,21 @@ namespace RandomizerCore.Logic
         public void EnqueueUpdates(ILogicItem item)
         {
             updates.Enqueue(item.GetAffectedTerms().Select(term => term.Id));
-            DoUpdates();
+            if (!updating) DoUpdates();
         }
 
         public void EnqueueUpdates(IEnumerable<ILogicItem> items)
         {
             updates.Enqueue(items.SelectMany(item => item.GetAffectedTerms()).Select(t => t.Id));
-            DoUpdates();
+            if (!updating) DoUpdates();
         }
 
         public void DoUpdates()
         {
             Stopwatch sw = Stopwatch.StartNew();
+            updating = true;
             while (updates.TryDequeue(out int term)) DoUpdate(term);
+            updating = false;
             sw.Stop();
             Profiling.EmitMetric("MainUpdater.DoUpdate.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
         }
@@ -259,10 +262,13 @@ namespace RandomizerCore.Logic
 
         public void DoUpdateAll()
         {
+            updating = true;
             for (int i = 0; i < individualEntries.Count; i++)
             {
                 DoUpdate(individualEntries[i]);
             }
+            updating = false;
+            DoUpdates();
         }
 
         private void DoUpdate(UpdateEntryBase e)
