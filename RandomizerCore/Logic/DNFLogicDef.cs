@@ -64,56 +64,13 @@ namespace RandomizerCore.Logic
         {
             Stopwatch sw = Stopwatch.StartNew();
             bool succeedOnEmpty = false;
-            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
+            foreach (StatePath path in paths.Where(p => ReferenceEquals(p.stateProvider, stateProvider)))
             {
                 succeedOnEmpty |= path.EvaluateStateChange(pm, states);
             }
             sw.Stop();
             Profiling.EmitMetric("DNFLogicDef.EvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
             return succeedOnEmpty;
-        }
-
-        public override IEnumerable<IStateProvider> GetStateProviders()
-        {
-            return paths.Select(p => p.stateProvider).Distinct().OfType<IStateProvider>();
-        }
-
-        /// <summary>
-        /// Keeps states from true StatePaths separated, along with their corresponding true conjunctions.
-        /// API for "explaining" a state evaluation.
-        /// </summary>
-        public bool DetailedEvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, bool firstConjunctionsOnly, List<StatePathResult> results)
-        {
-            Stopwatch sw = Stopwatch.StartNew();
-            bool succeedOnEmpty = false;
-            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
-            {
-                succeedOnEmpty |= path.DetailedEvaluateStateChange(pm, firstConjunctionsOnly, results);
-            }
-            sw.Stop();
-            Profiling.EmitMetric("DNFLogicDef.DetailedEvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
-            return succeedOnEmpty;
-        }
-
-        private void CreateTermPathLookup()
-        {
-            termPathLookup = new();
-            HashSet<int> termHelper = new();
-            foreach (StatePath sp in paths)
-            {
-                termHelper.Clear();
-                foreach (Term t in sp.GetTerms())
-                {
-                    if (termHelper.Add(t))
-                    {
-                        if (!termPathLookup.TryGetValue(t, out List<StatePath> sps))
-                        {
-                            termPathLookup.Add(t, sps = new());
-                        }
-                        sps.Add(sp);
-                    }
-                }
-            }
         }
 
         public override bool CheckForUpdatedState(ProgressionManager pm, StateUnion? current, List<State> newStates, int modifiedTerm, [MaybeNullWhen(false)] out StateUnion result)
@@ -156,6 +113,49 @@ namespace RandomizerCore.Logic
                 sw.Stop();
                 Profiling.EmitMetric("DNFLogicDef.CheckForUpdatedState.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
                 return succeeded;
+            }
+        }
+
+        public override IEnumerable<IStateProvider> GetStateProviders()
+        {
+            return paths.Select(p => p.stateProvider).Distinct();
+        }
+
+        /// <summary>
+        /// Keeps states from true StatePaths separated, along with their corresponding true conjunctions.
+        /// API for "explaining" a state evaluation.
+        /// </summary>
+        public bool DetailedEvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, bool firstConjunctionsOnly, List<StatePathResult> results)
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            bool succeedOnEmpty = false;
+            foreach (StatePath path in paths.Where(p => p.stateProvider.Name == stateProvider.Name))
+            {
+                succeedOnEmpty |= path.DetailedEvaluateStateChange(pm, firstConjunctionsOnly, results);
+            }
+            sw.Stop();
+            Profiling.EmitMetric("DNFLogicDef.DetailedEvaluateStateFrom.RuntimeUs", sw.Elapsed.TotalMilliseconds * 1000);
+            return succeedOnEmpty;
+        }
+
+        private void CreateTermPathLookup()
+        {
+            termPathLookup = new();
+            HashSet<int> termHelper = new();
+            foreach (StatePath sp in paths)
+            {
+                termHelper.Clear();
+                foreach (Term t in sp.GetTerms())
+                {
+                    if (termHelper.Add(t))
+                    {
+                        if (!termPathLookup.TryGetValue(t, out List<StatePath> sps))
+                        {
+                            termPathLookup.Add(t, sps = new());
+                        }
+                        sps.Add(sp);
+                    }
+                }
             }
         }
 

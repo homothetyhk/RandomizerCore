@@ -15,9 +15,12 @@ namespace RandomizerCore.Logic.StateLogic
         /// </summary>
         public abstract bool EvaluateState(ProgressionManager pm, List<State> result);
         /// <summary>
-        /// Uses the current progression data and input state(s) from a state provider to determine under what state(s) the logic is satisfiable.
+        /// Uses the current progression data what state(s) the logic is satisfiable, only allowing input states from the given state provider (recognized by reference equality).
         /// </summary>
         public abstract bool EvaluateStateFrom(ProgressionManager pm, IStateProvider stateProvider, List<State> result);
+        /// <summary>
+        /// Gets a sequence of unique state providers the LogicDef may depend on, for use with <see cref="EvaluateStateFrom(ProgressionManager, IStateProvider, List{State})"/>.
+        /// </summary>
         public abstract IEnumerable<IStateProvider> GetStateProviders();
         /// <summary>
         /// Runs EvaluateState, and returns true if any new states are added to the state union, or if current is null and the result is empty.

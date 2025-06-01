@@ -229,8 +229,10 @@ namespace RandomizerCore.Logic
         public string Dump() => obtained.Dump(lm);
         public static string Diff(ProgressionManager left, ProgressionManager right) => ProgressionData.Diff(left.obtained, right.obtained);
         public static string Diff(ProgressionManager left, ProgressionData right) => ProgressionData.Diff(left.obtained, right);
+        public string DiffTemp() => ProgressionData.Diff(obtained, backup);
         public static List<Term> GetDiffTerms(ProgressionManager left, ProgressionData right, ComparisonType type = ComparisonType.EQ) => ProgressionData.GetDiffTerms(left.obtained, right, type);
-
+        public List<Term> GetDiffTempTerms(ComparisonType type = ComparisonType.EQ) => ProgressionData.GetDiffTerms(obtained, backup, type);
         public ProgressionData GetSnapshot() => obtained.DeepClone();
+        public ProgressionData GetBackupSnapshot() => backup.DeepClone();
     }
 }
