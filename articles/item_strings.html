@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Item Strings </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Item Strings ">
+    <meta name="generator" content="docfx 2.59.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h2 id="item-strings">Item Strings</h2>
+
+<p>Item strings provide a simple grammar for defining items that act on the terms which represent the player's permanent abilities and progression. Item strings consist of primitive effects, which can be chained together and controlled via conditionals depending on current progression. The primitive effects are:</p>
+<ul>
+<li>Addition assignment <code>+=</code> (<code>Term += Int</code>) and increment (<code>Term++</code>, equivalent to <code>Term += 1</code>), which add the specified amount to the term.</li>
+<li>Max assignment <code>=/</code> (<code>Term =/ Int</code>), which raises the term to the specified value if it is below that value.</li>
+</ul>
+<p>Effects can be combined via</p>
+<ul>
+<li>Conditional <code>=&gt;</code> (<code>Bool =&gt; Effect</code>), which performs the effect if the bool test evaluates true. The bool test should be standard logic, wrapped in backticks.</li>
+<li>Chaining (<code>Effect &gt;&gt; Effect</code>), which performs the effects in sequence.</li>
+<li>Short-circuit chaining (<code>Effect &gt;|&gt; Effect</code>), which attempts to perform the first effect, and performs the second effect only if the first failed (e.g. if the first effect were a conditional and the bool test evaluated false).</li>
+</ul>
+<p>There are also a few miscellaneous meta-symbols.</p>
+<ul>
+<li>Negation: a logic statement can be preceded by <code>!</code> to invert the test.</li>
+<li>Reference expressions: <code>*</code> followed by text resolves to the effect of the item with that name. This can be used to introduce effects which cannot otherwise be expressed in terms of item strings.</li>
+<li>Coalescing expressions: In expressions which expect a term, a <code>?</code> can be added after the term name. When the item string is converted to an item, if the term with that name was not defined, the expression directly containing the term is replaced with an empty (no-op) effect. This can be useful for compatibility between third party logic edits.</li>
+</ul>
+<h2 id="order-of-operations">Order of Operations</h2>
+<p>Item effects are always applied left to right. Parenthesization is important however for understanding how conditional and chaining expressions interact. Operators are bound to their arguments in the following order:</p>
+<ul>
+<li>Addition assignment, increment, max assignment, negation, reference, and coalescing expressions</li>
+<li>Conditionals</li>
+<li>Short-circuit chains</li>
+<li>Chains</li>
+</ul>
+<p>Also, it should be noted that the chaining operators have higher right binding power (thus, are left associative). In particular, the order of operations ensures that</p>
+<pre><code>A++ &gt;&gt; `A&gt;0` =&gt; B++
+</code></pre>
+<p>is well-formed without parentheses, and can be interpreted as &quot;increment A, then if A is now positive, increment B&quot;.</p>
+<p>We give a few examples of parenthesizations (equivalence denoted with <code>===</code>):</p>
+<pre><code>`A` =&gt; B++ &gt;|&gt; C++ &gt;&gt; D++ === (((`A` =&gt; B++) &gt;|&gt; C++) &gt;&gt; D++)
+`A` =&gt; B++ &gt;|&gt; C++ &gt;|&gt; D++ === (((`A` =&gt; B++) &gt;|&gt; C++) &gt;|&gt; D++)
+</code></pre>
+<p>For a more complex example:</p>
+<pre><code>`A` =&gt; (`B` =&gt; (C++ &gt;&gt; D++) &gt;|&gt; `E` =&gt; F += 2 &gt;|&gt; G++)
+</code></pre>
+<p>is interpreted as</p>
+<pre><code>`A` =&gt; (((`B` =&gt; (C++ &gt;&gt; D++)) &gt;|&gt; (`E` =&gt; F += 2)) &gt;|&gt; G++)
+</code></pre>
+<p>or rather</p>
+<pre><code>`A` =&gt; (`B` =&gt; (C++ &gt;&gt; D++) 
+            &gt;|&gt; `E` =&gt; F += 2 
+            &gt;|&gt; G++)
+</code></pre>
+<p>where the indentation matches short-circuit operators with the corresponding conditionals (in other words, the <code>E</code> branch is reached if <code>A</code> succeeds and <code>B</code> fails, while the final branch <code>G++</code> is reached only if <code>A</code> succeeds and <code>B</code> and <code>E</code> both fail). Note that the parentheses around <code>(C++ &gt;&gt; D++)</code> are needed or else it would bind as <code>(`B` =&gt; C++) &gt;&gt; D++</code>. The outermost parentheses are also needed, or else we would get</p>
+<pre><code>((`A` =&gt; (`B` =&gt; (C++ &gt;&gt; D++))) &gt;|&gt; (`E` =&gt; F += 2)) &gt;|&gt; G++
+</code></pre>
+<p>In this case, <code>G</code> is reached only if <code>E</code> fails and one of <code>A</code> or <code>B</code> fails.</p>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/homothetyhk/RandomizerCore/blob/docs_source/articles/item_strings.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
