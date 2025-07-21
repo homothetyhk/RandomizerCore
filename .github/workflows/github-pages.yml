@@ -9,6 +9,11 @@ permissions:
   pages: write
   id-token: write
 
+# cancels any pending pages deployments so there is only one workflow running at any given time
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   generate-docs:
     runs-on: windows-latest
