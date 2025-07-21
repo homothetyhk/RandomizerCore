@@ -1,1 +1,0 @@
-This is the landing page for RandomizerCore articles and tutorials.
