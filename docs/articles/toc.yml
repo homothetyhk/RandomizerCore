@@ -2,6 +2,7 @@
 - href: ../index.md
 
 - name: Logic Model
+- href: logic_model.md
 - href: safe_naming.md
 - href: item_strings.md
 

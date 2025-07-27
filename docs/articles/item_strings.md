@@ -1,3 +1,7 @@
+---
+uid: item_strings
+---
+
 # Item Strings
 
 Item strings provide a simple grammar for defining items that act on the terms which represent the player's 

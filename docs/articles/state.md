@@ -1,3 +1,7 @@
+---
+uid: state
+---
+
 # Intro to State Logic
 
 At a very high level, the randomizer consists of locations which have certain requirements and items which 

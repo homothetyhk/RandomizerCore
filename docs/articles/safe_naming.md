@@ -12,7 +12,8 @@ The following symbols are reserved for use in infix logic:
 
 
 
-The following symbols are safe to include in logic:
+The following symbols are safe to include in logic (this list may not be exhaustive):
+- Alphanumeric characters
 - Underscore `_`
 - Hyphen `-`
 - Square brackets `[` and `]`
