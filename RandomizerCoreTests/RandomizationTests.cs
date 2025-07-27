@@ -22,8 +22,13 @@ namespace RandomizerCoreTests
             lmb.AddTransition(new("T4[top]", "T4[top] | T4[right]"));
             lmb.AddTransition(new("T4[right]", "T4[right] | T4[top]"));
             lmb.AddTransition(new("T5[left]", "T5[left]"));
-            lmb.VariableResolver = new TestVariableResolver();
-            StateInt si1 = lmb.StateManager.GetOrAddInt("SI1");
+            lmb.VariableResolver = new TestVariableResolver(new RawStateData
+            {
+                Fields = new Dictionary<string, List<string>>
+                {
+                    { "Int", ["SI1"] }
+                }
+            });
             LogicManager lm = new(lmb);
 
             CoupledRandomizationGroup RightToLeft = new()
@@ -114,6 +119,7 @@ namespace RandomizerCoreTests
             // the state of T2[right] is modified and propagated to T2[onewaysource] through logic
             // the worse-than-start state of T2[onewaysource] is propagated to T3[onewaytarget] through the indeterminate location
 
+            StateInt si1 = lm.StateManager.GetIntStrict("SI1");
             pm.GetState("T1[left]").Should().Satisfy(s => s.GetInt(si1) == 0);
             pm.GetState("T2[right]").Should().Satisfy(s => s.GetInt(si1) == 0);
             pm.GetState("T2[onewaysource]").Should().Satisfy(s => s.GetInt(si1) == 1);
@@ -191,9 +197,15 @@ namespace RandomizerCoreTests
             lmb.AddTransition(new("T2[right]", "T2[right] | T2[left] + $I[SI1]"));
             lmb.AddTransition(new("T2[left]", "T2[left] | T2[right] + $I[SI1]"));
             lmb.AddTransition(new("T3[right]", "T3[right]"));
-            lmb.VariableResolver = new TestVariableResolver();
-            StateInt si1 = lmb.StateManager.GetOrAddInt("SI1");
+            lmb.VariableResolver = new TestVariableResolver(new RawStateData
+            {
+                Fields = new Dictionary<string, List<string>>
+                {
+                    { "Int", ["SI1"] }
+                }
+            });
             LogicManager lm = new(lmb);
+            StateInt si1 = lm.StateManager.GetIntStrict("SI1");
 
             CoupledRandomizationGroup RightToLeft = new()
             {

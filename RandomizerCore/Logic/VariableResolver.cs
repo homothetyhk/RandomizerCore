@@ -15,6 +15,14 @@ namespace RandomizerCore.Logic
         public VariableResolver? Inner { get; init; }
 
         /// <summary>
+        /// Returns a StateManagerBuilder with the elements needed to support the VR's variables.
+        /// </summary>
+        public virtual StateManagerBuilder GetStateModel()
+        {
+            return Inner?.GetStateModel() ?? new();
+        }
+
+        /// <summary>
         /// Returns true if the term can be matched to a LogicVariable.
         /// </summary>
         public bool CanMatch(LogicManager lm, string term) => TryMatch(lm, term, out LogicVariable _);

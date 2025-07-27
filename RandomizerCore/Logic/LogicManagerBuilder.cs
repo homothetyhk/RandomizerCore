@@ -16,7 +16,6 @@ namespace RandomizerCore.Logic
             LogicLookup = new();
             Waypoints = new();
             Transitions = new();
-            StateManager = new();
         }
 
         public LogicManagerBuilder(LogicManagerBuilder source)
@@ -28,7 +27,6 @@ namespace RandomizerCore.Logic
             LogicLookup = new(source.LogicLookup);
             Waypoints = new(source.Waypoints);
             Transitions = new(source.Transitions);
-            StateManager = new(source.StateManager);
         }
 
         public LogicManagerBuilder(LogicManager source)
@@ -41,7 +39,6 @@ namespace RandomizerCore.Logic
             foreach (KeyValuePair<string, LogicDef> kvp in source.LogicLookup) AddLogicDef(new(kvp.Key, kvp.Value.InfixSource));
             Waypoints = new(source.Waypoints.Select(w => w.Name));
             Transitions = new(source.TransitionLookup.Values.Select(lt => lt.Name));
-            StateManager = new(source.StateManager);
         }
 
 
@@ -52,7 +49,6 @@ namespace RandomizerCore.Logic
         public readonly Dictionary<string, LogicClause> LogicLookup;
         public readonly HashSet<string> Waypoints;
         public readonly HashSet<string> Transitions;
-        public readonly StateManagerBuilder StateManager;
 
         /// <summary>
         /// Returns whether the string is a key in the term lookup.
@@ -322,11 +318,6 @@ namespace RandomizerCore.Logic
                         AddItem(template);
                     }
                     break;
-
-                case LogicFileType.StateData:
-                    RawStateData rsd = logicFormat.LoadStateData(s);
-                    StateManager.AppendRawStateData(rsd);
-                    break;
             }
         }
 
@@ -412,8 +403,7 @@ namespace RandomizerCore.Logic
                     break;
 
                 case LogicFileType.StateData:;
-                    StateManager.AppendRawStateData((RawStateData)data);
-                    break;
+                    throw new NotSupportedException("State data can no longer be loaded into the LogicManagerBuilder.");
             }
         }
 

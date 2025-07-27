@@ -41,7 +41,7 @@ namespace RandomizerCore.Logic
             _source = source;
             LP = source.LP;
             VariableResolver = source.VariableResolver;
-            StateManager = new(source.StateManager);
+            StateManager = new(VariableResolver.GetStateModel());
             _cycleDetector = new();
             _stringItemBuilder = new(this);
             _dnfLogicBuilder = new(this);

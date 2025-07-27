@@ -6,6 +6,20 @@ namespace RandomizerCoreTests.Util
 {
     internal class TestVariableResolver : VariableResolver
     {
+        private readonly RawStateData rsd;
+
+        public TestVariableResolver(RawStateData rsd) 
+        {
+            this.rsd = rsd;
+        }
+
+        public override StateManagerBuilder GetStateModel()
+        {
+            StateManagerBuilder smb = base.GetStateModel();
+            smb.AppendRawStateData(rsd);
+            return smb;
+        }
+
         public override bool TryMatch(LogicManager lm, string term, [MaybeNullWhen(false)] out LogicVariable variable)
         {
             if (TryMatchPrefix(term, "$I", out string[]? ps) && ps.Length >= 1 && lm.StateManager.FieldLookup.TryGetValue(ps[0], out StateField? sf) && sf is StateInt si)
