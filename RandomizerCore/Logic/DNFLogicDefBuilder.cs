@@ -264,7 +264,8 @@ namespace RandomizerCore.Logic
                     case ProjectedToken pt:
                         ApplyProjectedToken(pt);
                         break;
-                    default: throw new NotSupportedException();
+                    case null: throw new NullReferenceException("Null term token found in DNFLogicDefBuilder.ApplyToken.");
+                    default: throw new NotSupportedException($"Unrecognized term token {tt} of type {tt.GetType().Name} found in DNFLogicDefBuilder.ApplyToken.");
                 }
             }
 
