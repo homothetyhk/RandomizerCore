@@ -126,3 +126,21 @@ and transitions are as follows:
 * When a transition location becomes accessible in logic, the corresponding item is granted automatically (similar
   to a waypoint). In other words, once you "can reach" that transition, you also "have" it available for use in
   logic strings.
+
+## Constructing a LogicManager
+
+To be able to initialize logic in code, there are 2 simple high-level steps:
+
+* Add terms, waypoints, macros, items, locations, and transitions to a @RandomizerCore.Logic.LogicManagerBuilder
+* Use the LogicManagerBuilder to initialize a @RandomizerCore.Logic.LogicManager
+
+A LogicManagerBuilder is used to construct the logic model from your data. The various methods on the class allow
+you to add all logic objects individually, but it is more common to use
+@"RandomizerCore.Logic.LogicManagerBuilder.DeserializeFile(RandomizerCore.Logic.LogicFileType,RandomizerCore.Logic.ILogicFormat,System.IO.Stream)"
+to load logic in bulk from files. Currently the only publicly available @RandomizerCore.Logic.ILogicFormat
+implementation is defined in [RandomizerCore.Json](https://www.nuget.org/packages/RandomizerCore.Json), which
+allows specifying the logic in a JSON format. However, custom logic formats can also be defined if desired.
+
+Once constructed, a LogicManager contains all the compiled logic and item definitions, which are used during
+randomization. You can also use the LogicManager to statically analyze the logic of locations or the effects of
+items, which has various practical applications outside of the randomization process.
