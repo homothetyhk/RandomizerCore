@@ -22,8 +22,8 @@ The logic language has a few operators, seen in the table below
 
 | Operator | Name | Example | Read as | Note |
 | --- | --- | --- | --- | --- |
-| `+` | Boolean AND | `Foo + Bar` | Foo and Bar | |
-| `|` | Boolean OR | `Foo | Bar` | Foo or Bar | |
+| `+` | Conjunction (boolean AND) | `Foo + Bar` | Foo and Bar | |
+| `|` | Disjunction (boolean OR) | `Foo | Bar` | Foo or Bar | |
 | `>` | Term comparison | `Foo>1` | Foo is greater than 1 | |
 | `?` | Coalescing | `Foo ? Bar` | Foo if Foo is defined, otherwise Bar | Useful for compatibility between third party logic edits |
 | `*` | Reference | `*Location` | Copy the logic of Location | Reduces logic duplication when 2 locations are very near each other |
@@ -37,12 +37,12 @@ of logic later, which is not allowed.
 
 Operators are applied in the following order:
 
-* Term comparison
-* Coalesing
 * Reference
 * Projection
-* Boolean AND
-* Boolean OR
+* Term comparison
+* Coalesing
+* Conjunction
+* Disjunction
 
 This means that an (unlikely) expression like the following:
 
@@ -57,7 +57,7 @@ Is implicitly parenthesized as:
 
 Most notably, this operator precedence order allows listing complex alternatives without needing parentheses, for
 example `A + B | C + D | E + F + G + H | ...` is interpreted as `(A + B) | (C + D) | (E + F + G + H) | ...` and
-thinking about logic as different sets of alternative requirements is a very natural way to approach logic.
+thinking about logic as different sets of alternative requirements is a very natural way to approach writing logic.
 
 ## Terms
 
@@ -95,8 +95,9 @@ part of the logic.
 ## Macros
 
 Macros are another way to create reusable logic. Logic macros are substituted in-place, which can be desirable
-in some situations, particular when state logic is involved. In most cases, it is currently recommended to use
-waypoints instead of macros where possible for performance reasons.
+in some situations, particular when state logic is involved. They are also an efficient way to create aliases for
+terms or short snippets. However for more complex logic, using a waypoint is recommended in most cases for performance
+reasons.
 
 ## Items
 
