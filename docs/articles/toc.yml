@@ -9,3 +9,6 @@
 - name: State Logic
 - href: state.md
 - href: state_adv.md
+
+- name: Randomizer
+- href: randomizer.md
