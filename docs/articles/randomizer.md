@@ -121,11 +121,13 @@ swap elements, just assign new priorities. The general rule is that lower
 priority items and locations are placed earlier.
 
 > [!TIP]  
-> The randomizer's forward fill uses lexicographic order on the item list to
-> select progression items, so there is a direct correspondence between priority
-> and intended progression. However, since the placement strategy allows the
-> caller to customize how the final placement is chosen, the use of location
-> priority order is not rigidly enforced.
+> The randomizer provides a deterministic guarantee in how the priority order is
+> used to select progression steps; see the article on the
+> [forward fill](xref:forward_fill) for specific details. As a result, there is
+> a direct correspondence between priority and intended progression, with higher
+> priority items generally being used later for progression. By contrast, since
+> the placement strategy allows the caller to customize how the final placement
+> is chosen, the use of location priority order is not rigidly enforced.
 
 Typical uses of OnPermute are to make a specific item much more likely to occur
 early or late in progression. For example, by setting priority `p` to
@@ -197,10 +199,10 @@ example above means that the transform advances locations by 3 percentiles in
 priority order, per step. This is initially a minor effect, but makes locations
 unlocked in step 20 or 40 much more likely to be selected.
 
-The implementation of "ought to be placed earlier than the location" is involved,
-and is explained in the next section. Roughly speaking, it says that items with
-small priority (early in priority order) should not receive a boost toward being
-placed at locations unlocked late in progression order.
+The implementation of "ought to be placed earlier than the location" is
+involved, and is explained in the next section. Roughly speaking, it says that
+items with small priority (early in priority order) should not receive a boost
+toward being placed at locations unlocked late in progression order.
 
 There are many settings for PriorityTransformUtil, so the task of choosing a
 transform may seem overwhelming. It is recommended to experiment with different
@@ -248,5 +250,5 @@ In general, the idea is that a larger location depth results in a larger
 adjustment to priority. Locations are ordered by priority after all transforms
 run, and the first location by priority is selected for placement. To balance
 somewhat with the original priorities, the ItemPriorityDepthEffect allows
-reducing or eliminating the adjustment when the location was unlocked in a
-later step than the item priority implies the item should be placed in.
+reducing or eliminating the adjustment when the location was unlocked in a later
+step than the item priority implies the item should be placed in.
