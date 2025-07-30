@@ -6,9 +6,10 @@
 - href: safe_naming.md
 - href: item_strings.md
 
+- name: Randomizer
+- href: randomizer.md
+- href: forward_fill.md
+
 - name: State Logic
 - href: state.md
 - href: state_adv.md
-
-- name: Randomizer
-- href: randomizer.md

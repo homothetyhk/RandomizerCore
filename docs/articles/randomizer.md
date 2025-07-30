@@ -1,62 +1,16 @@
 # About the Randomizer
 
-## The forward fill algorithm
+This article introduces commonly used elements of the
+@RandomizerCore.Randomization.Randomizer API. The randomizer is a forward fill
+algorithm which places items iteratively in progression steps, each of which
+contains one or more items needed to unlock new locations. For more advanced
+discussion of the algorithm used by the randomizer, see <xref:forward_fill>.
+This article does not require detailed knowledge of the algorithm, but in some
+places it may mention things that depend on the steps of the forward fill.
 
-RandomizerCore uses forward fill, an algorithm which starts with no items
-placed, and then iteratively identifies items to place to unlock new locations.
-Each step of the forward fill proceeds by:
+## Stages and Groups
 
-1. Add unplaced items cumulatively to progression until a new location is
-   unlocked.
-2. Then, traverse the items that were added backwards. Remove any item which is
-   not necessary to maintain that at least one new location is unlocked.
-3. Obtain a list of items which, when all placed, unlock at least one location.
-   Place the items at locations that were previously reachable and update the
-   lists of reachable locations, unplaced items, and unfilled locations.
-
-Once all locations are unlocked, items not used for progression can be placed
-arbitrarily.
-
-### Notes on Step 1
-
-- We assume the order in which items are added does not matter. This is a
-  fundamental assumption of the randomizer.
-- This step always finds new progression, except in the case that there is a
-  location which cannot be unlocked by adding all items. Typically, this
-  indicates erroneous logic, but it can occur legitimately when randomizing
-  items with location-dependent effects on state logic (such as transitions).
-
-### Notes on Step 2
-
-- Testing each item is done by reverting to the progression state at the start
-  of the step, and then adding the current list of candidate items excluding the
-  item currently being tested.
-- The list of items produced by this step is minimal in the _lexicographic
-  order_ on the list of unplaced items, among all sublists that unlock new
-  locations.
-
-### Notes on Step 3
-
-- Item placement is handled by the stage/group placement strategy. The
-  randomizer passes to the strategy the items that must be placed, and the legal
-  locations where they can be placed. The placement strategy can be used to
-  apply further constraints or weights in selecting final item-location pairs.
-- Step 3 can fail if the number of items to be placed exceeds the number of
-  currently reachable locations. This is especially likely to occur when there
-  are some locations that require a large number of items to unlock, but no
-  locations that require an intermediate subset of these items.
-  - For example, suppose the item list includes 50 "coin" items, and the
-    location list includes a location that requires 25 "coins", but there is no
-    logic requiring a threshold below 25 "coins". Then the first step that
-    places "coins" will necessarily place 25, and will error if there are not 25
-    locations available at that time.
-- The error thrown when this step fails is
-  @RandomizerCore.Exceptions.OutOfLocationsException. The randomizer discards
-  the current attempt and starts a new attempt when this error is thrown.
-
-## The randomizer as a whole
-
-The randomizer is divided into stages, which are in turn divided into groups.
+Randomization is divided into stages, which are in turn divided into groups.
 
 - Stages control the sequencing of randomization. When a stage is randomized,
   the forward fill algorithm runs on the items of all of its groups. In
@@ -66,7 +20,7 @@ The randomizer is divided into stages, which are in turn divided into groups.
   stage has multiple groups, the items from one group will not be paired with
   the locations of another group.
 
-As an example, the Hollow Knight randomizer is divided as:
+As an example, a combined item-transition randomizer might be divided as:
 
 0. Main Item Stage [ Main Item Group ]
 
@@ -80,44 +34,39 @@ transitions of the opposite direction.
 
 Stages are randomized in two passes, which occur in ascending and descending
 order respectively. Each stage is randomized twice, except for the last stage
-which is only randomized once. Randomizing a stage consists of running the
-forward pass algorithm on its groups jointly until all of the locations of all
-of the groups are reachable.
-
-On the first pass, the items of stages not yet reached are considered accessible
-without requirements. This is achieved using
-@RandomizerCore.Randomization.IndeterminateLocation, which has special handling
-for transitions. On the second pass, each stage is rerandomized subject to the
-placements of the other stages.
-
-For the example above, this results in
+which is only randomized once. The randomization order for the above example is
 
 ```text
 Main Item Stage -> Main Transition Stage -> Main Item Stage
 ```
 
-To interpret this, consider that it is not possible to randomize transitions
-without some knowledge of where ordinary items are or could be, since those
-items might be needed to reach some transitions. Thus, prior to randomizing
-transitions, the randomizer create a temporary placement of items. Since there
-is no transition placement available at this time, it treats all transitions as
-reachable when generating the item placement (with special handling for state
-logic to share state between transitions).
+On the first pass, the items of stages not yet reached are considered accessible
+without requirements (with special handling when state logic is involved). The
+goal of the first pass, at a heuristic level, is to create "temporary" or "fake"
+placements which can all be obtained given the right placements of the
+subsequent stages. On the second pass, each stage is rerandomized subject to the
+placements of the other stages to produce a final result.
 
-This results in a placement of items which can all be collected assuming all
-transitions are reachable. Thus, transition randomization can access all items
-from the first stage, provided it has enough reachable transitions. The
-transition stage will create a placement of transitions which can all be reached
-for a certain placement of items. The second pass item stage then creates a new
-placement of items, using the result of the transition stage.
+The two-pass structure allows, in the running example, randomizing transitions
+subject to a random placement of ordinary items. Since the first stage only
+assumed that all transitions were reachable, it still used logic to place the
+items, and so no item was placed at a location locked by itself. Barring issues
+from running out of locations, this guarantees that the second stage can place
+transitions to access any necessary progression items, and that there exists a
+placement of items which works for the final stage (namely, the result of the
+first stage).
 
-Generally speaking, since the second pass item stage ensures all of its items
-are reachable, and the result of the transition stage was reachable with all
-items, the final result is a placement for all stages where all of their
-locations are reachable. However, with location-dependent effects (i.e. state
-logic), it is possible to create scenarios where rerandomizing one stage renders
-locations in another stage inaccessible. Thus, the final result must be
-validated.
+### Validation
+
+In the absence of state logic and location-dependent effects, the randomizer
+always produces a placement in which all locations of all stages are reachable.
+This is because each stage's rerandomization results in all of its items being
+accessible; if logic only depends on the items the player has, then this
+guarantee carries through to the end of randomization.
+
+On the other hand, with location-dependent effects, it is possible for moving an
+item to a new location to cause a location in another stage to become
+unreachable. Thus, the final result must be validated.
 
 By default, validation checks that all locations are reachable. The
 @RandomizerCore.Randomization.Validator is set at the group level, and callers
@@ -125,7 +74,7 @@ can choose to make validation more or less strict than default. Validation fails
 by sending @RandomizerCore.Exceptions.ValidationException. Currently this halts
 the randomizer without starting a new attempt.
 
-## Monitoring the randomizer
+## Monitoring the Randomizer
 
 The @RandomizerCore.RandoMonitor allows receiving events as the randomizer
 progresses. Most importantly, it broadcasts each attempt of the randomizer, each
@@ -145,11 +94,11 @@ randomizer to discard the current attempt and start a new attempt:
     were given. Often this represents a logic error, but it can occur
     legitimately in some situations involving state logic.
 
-Caught exceptions trigger error events for the @RandomizerCore.RandoMonitor.
-Large attempt counts can be indicative of errors or overly restrictive
-constraints on randomization.
+Caught exceptions trigger error events for the RandoMonitor. Large attempt
+counts can be indicative of errors or overly restrictive constraints on
+randomization.
 
-## Customizing the randomizer
+## Customizing the Randomizer
 
 As described in the previous section, callers are required to specify the basic
 stage-group structure of the randomizer. This section describes additional
@@ -171,10 +120,11 @@ sorted by priority after this event runs, so subscribers should not manually
 swap elements, just assign new priorities. The general rule is that lower
 priority items and locations are placed earlier.
 
-- This rule is enforced to some extent by the forward fill, which uses
-  lexicographic order on the item list to select progression items.
-- However, since the placement strategy allows the caller to customize how the
-  final placement is chosen, this rule is not rigidly enforced.
+> [!TIP] The randomizer's forward fill uses lexicographic order on the item list
+> to select progression items, so there is a direct correspondence between
+> priority and intended progression. However, since the placement strategy
+> allows the caller to customize how the final placement is chosen, the use of
+> location priority order is not rigidly enforced.
 
 Typical uses of OnPermute are to make a specific item much more likely to occur
 early or late in progression. For example, by setting priority `p` to
@@ -185,11 +135,14 @@ subscribers can set priorities to values outside `[0.0, 1.0)` if desired.
 ### Placement Strategy
 
 Each stage and group has a placement strategy to allow customization of how
-placements are made by callers. In general, it is recommended to use the
-@RandomizerCore.Randomization.StagePlacementStrategy on the stage, and to modify
-the @RandomizerCore.Randomization.GroupPlacementStrategy on the group as
-desired. The @RandomizerCore.Randomization.DefaultGroupPlacementStrategy comes
-with several customization options already, detailed below.
+placements are made by callers. In general, it is recommended to use the default
+@RandomizerCore.Randomization.StagePlacementStrategy on each stage and customize
+by modifying the @RandomizerCore.Randomization.GroupPlacementStrategy on each
+group as desired. To note, StatePlacementStrategy is non-abstract with a
+standard implementation, while GroupPlacementStrategy is abstract.
+@RandomizerCore.Randomization.DefaultGroupPlacementStrategy is an implementation
+of GroupPlacementStrategy which comes with several customization options,
+detailed in the next few subsections.
 
 #### Constraints
 
@@ -217,19 +170,82 @@ location by priority is selected for the placement (regardless of how many
 constraints the pair may or may not satisfy), and `Fail` is called sequentially
 on the constraints that the pair do not satisfy.
 
+> [!CAUTION] Since hard constraints restart the randomizer, they may
+> dramatically increase the number of randomization attempts if
+> constraint-satisfying pairs are unlikely to occur. Randomization groups are
+> strongly prefered over constraints when possible.
+
 #### Depth Priority Transform
 
 The depth priority transform provides a way to weight item placements toward
-locations unlocked later in randomization. This is done by transforming location
-priorities via a function which depends on the number of forward fill steps
-prior to the location becoming reachable, and possibly also on the current step
-of the item being placed.
+locations unlocked later in randomization.
+@RandomizerCore.Randomization.PriorityTransformUtil has many options for
+creating transforms. For example, `PriorityTransformUtil.CreateTransform(3.0f)`
+returns a transform with the effect:
 
-Many possible transforms can be generated with
-@RandomizerCore.Randomization.PriorityTransformUtil. "Good" parameters depend on
-many factors including personal preference, so it is recommended to experiment
-with different settings. Parameters which are too large may lead to the
-randomizer being very predictable, with the next item almost always being in the
-location unlocked by the previous one. On the other hand, parameters which are
-too small may lead to locations with restrictive logic rarely receiving
-progression items.
+```text
+for a location placed in the nth step of forward fill
+  reduce the priority of the location by (3.0/100) * n
+unless the item being placed "ought to be placed later than the location"
+  in which case increase the priority of the location by 1.0
+```
+
+After all transforms run, locations are sorted by priority and the first by
+priority satisfying all constraints is selected for placement. Recall from above
+that priorities by default are uniformly spaced in `[0.0, 1.0)`. Thus, the
+example above means that the transform advances locations by 3 percentiles in
+priority order, per step. This is initially a minor effect, but makes locations
+unlocked in step 20 or 40 much more likely to be selected.
+
+The implementation of "ought to be placed later than the location" is involved,
+and is explained in the next section. Roughly speaking, it says that items with
+large priority (late in priority order) should not receive a boost toward being
+placed at locations unlocked early in progression order.
+
+There are many settings for PriorityTransformUtil, so the task of choosing a
+transform may seem overwhelming. It is recommended to experiment with different
+settings, and choose according to personal preference.
+
+> [!TIP] Large coefficients, or transform type `Quadratic`, strongly encourage
+> placing items in newly unlocked locations, potentially at the cost of making
+> the randomizer more predictable. Smaller coefficients, or transform type
+> `SquareRoot`, may make the effect of the transform fairly weak. Try starting
+> with `Linear`, coefficient 3.0, and tweaking parameters from there!
+
+##### Implementation of the Depth Priority Transform
+
+A priority transform is a function which takes the following parameters:
+
+- `item` - The item being placed
+- `location` - The candidate location for placement
+- `itemDepth` - The index of the forward fill step in which the item is being
+  placed; i.e. the first set of progression is depth 0, the next 1, and so on.
+- `itemPriorityDepth` - For each previous forward fill step, compute the average
+  of the priorities of the items placed in the step. Then, count how many of
+  these numbers are less than the current item's priority. This can be seen as
+  an adjusted version of `itemDepth` which is much smaller for items with low
+  priority placed late in forward fill.
+- `locationDepth` - The index of the forward fill step in which the location
+  became reachable.
+- `locationPriority` - ref parameter initially set to the original priority of
+  the location. Can be set by the function to a new value.
+
+PriorityTransformUtil transforms are composed of:
+
+- An initial block depending on the
+  @RandomizerCore.Randomization.PriorityTransformUtil.ItemPriorityDepthEffect
+  setting. In general, this block only runs if
+  `itemPriorityDepth < locationDepth`, in which case it acts to reduce the
+  effect of the transform according to the setting.
+- A second block depending in the
+  @RandomizerCore.Randomization.PriorityTransformUtil.TransformType setting, and
+  the `coefficient` of the transform. This decrements the location priority by
+  some mathematical function of the `locationDepth`. The `locationDepth` passed
+  to the second block may be reduced if the first block runs.
+
+In general, the idea is that a larger location depth results in a larger
+adjustment to priority. Locations are ordered by priority after all transforms
+run, and the first location by priority is selected for placement. To balance
+somewhat with the original priorities, the ItemPriorityDepthEffect allows
+reducing or eliminating the adjustment when the location was unlocked in an
+earlier step than the item priority implies the item should be placed in.
