@@ -2,13 +2,16 @@
 uid: forward_fill
 ---
 
-# The forward fill algorithm
+# The Forward Fill Algorithm
+
+## Overview
 
 The @RandomizerCore.Randomization.Randomizer uses forward fill, an algorithm
 which starts with no items placed, and then iteratively identifies items to
 place to unlock new locations. The implementation of the forward fill can be
-found in @RandomizerCore.Randomization.SphereBuilder Each step of the forward
-fill proceeds by:
+found in @RandomizerCore.Randomization.SphereBuilder.
+
+Each step of the forward fill proceeds by:
 
 1. Add unplaced items cumulatively to progression until a new location is
    unlocked.
@@ -30,7 +33,7 @@ arbitrarily.
   indicates erroneous logic, but it can occur legitimately when randomizing
   items with location-dependent effects on state logic (such as transitions).
 
-#### Notes on Step 2
+### Notes on Step 2
 
 - Testing each item is done by reverting to the progression state at the start
   of the step, and then adding the current list of candidate items excluding the
@@ -39,7 +42,7 @@ arbitrarily.
   order_ on the list of unplaced items, among all sublists that unlock new
   locations.
 
-#### Notes on Step 3
+### Notes on Step 3
 
 - Item placement is handled by the stage/group placement strategy. The
   randomizer passes to the strategy the items that must be placed, and the legal

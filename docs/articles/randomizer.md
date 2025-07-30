@@ -120,11 +120,12 @@ sorted by priority after this event runs, so subscribers should not manually
 swap elements, just assign new priorities. The general rule is that lower
 priority items and locations are placed earlier.
 
-> [!TIP] The randomizer's forward fill uses lexicographic order on the item list
-> to select progression items, so there is a direct correspondence between
-> priority and intended progression. However, since the placement strategy
-> allows the caller to customize how the final placement is chosen, the use of
-> location priority order is not rigidly enforced.
+> [!TIP]  
+> The randomizer's forward fill uses lexicographic order on the item list to
+> select progression items, so there is a direct correspondence between priority
+> and intended progression. However, since the placement strategy allows the
+> caller to customize how the final placement is chosen, the use of location
+> priority order is not rigidly enforced.
 
 Typical uses of OnPermute are to make a specific item much more likely to occur
 early or late in progression. For example, by setting priority `p` to
@@ -170,10 +171,11 @@ location by priority is selected for the placement (regardless of how many
 constraints the pair may or may not satisfy), and `Fail` is called sequentially
 on the constraints that the pair do not satisfy.
 
-> [!CAUTION] Since hard constraints restart the randomizer, they may
-> dramatically increase the number of randomization attempts if
-> constraint-satisfying pairs are unlikely to occur. Randomization groups are
-> strongly prefered over constraints when possible.
+> [!CAUTION]  
+> Since hard constraints restart the randomizer, they may dramatically increase
+> the number of randomization attempts if constraint-satisfying pairs are
+> unlikely to occur. Randomization groups are strongly prefered over constraints
+> when possible.
 
 #### Depth Priority Transform
 
@@ -183,12 +185,10 @@ locations unlocked later in randomization.
 creating transforms. For example, `PriorityTransformUtil.CreateTransform(3.0f)`
 returns a transform with the effect:
 
-```text
-for a location placed in the nth step of forward fill
-  reduce the priority of the location by (3.0/100) * n
-unless the item being placed "ought to be placed later than the location"
-  in which case increase the priority of the location by 1.0
-```
+> For a location placed in the `n`th step of forward fill,  
+> reduce the priority of the location by `(3.0 / 100) * n`,  
+> unless the item being placed "ought to be placed earlier than the location",  
+> in which case increase the priority of the location by `1.0`.
 
 After all transforms run, locations are sorted by priority and the first by
 priority satisfying all constraints is selected for placement. Recall from above
@@ -197,18 +197,19 @@ example above means that the transform advances locations by 3 percentiles in
 priority order, per step. This is initially a minor effect, but makes locations
 unlocked in step 20 or 40 much more likely to be selected.
 
-The implementation of "ought to be placed later than the location" is involved,
+The implementation of "ought to be placed earlier than the location" is involved,
 and is explained in the next section. Roughly speaking, it says that items with
-large priority (late in priority order) should not receive a boost toward being
-placed at locations unlocked early in progression order.
+small priority (early in priority order) should not receive a boost toward being
+placed at locations unlocked late in progression order.
 
 There are many settings for PriorityTransformUtil, so the task of choosing a
 transform may seem overwhelming. It is recommended to experiment with different
 settings, and choose according to personal preference.
 
-> [!TIP] Large coefficients, or transform type `Quadratic`, strongly encourage
-> placing items in newly unlocked locations, potentially at the cost of making
-> the randomizer more predictable. Smaller coefficients, or transform type
+> [!TIP]  
+> Large coefficients, or transform type `Quadratic`, strongly encourage placing
+> items in newly unlocked locations, potentially at the cost of making the
+> randomizer more predictable. Smaller coefficients, or transform type
 > `SquareRoot`, may make the effect of the transform fairly weak. Try starting
 > with `Linear`, coefficient 3.0, and tweaking parameters from there!
 
@@ -247,5 +248,5 @@ In general, the idea is that a larger location depth results in a larger
 adjustment to priority. Locations are ordered by priority after all transforms
 run, and the first location by priority is selected for placement. To balance
 somewhat with the original priorities, the ItemPriorityDepthEffect allows
-reducing or eliminating the adjustment when the location was unlocked in an
-earlier step than the item priority implies the item should be placed in.
+reducing or eliminating the adjustment when the location was unlocked in a
+later step than the item priority implies the item should be placed in.
