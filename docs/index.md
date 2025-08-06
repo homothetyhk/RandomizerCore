@@ -3,7 +3,7 @@
 RandomizerCore is a .NET library for randomizer logic and algorithms, created for and released with
 Hollow Knight's Randomizer 4 mod. It is also available on [nuget.org](https://www.nuget.org/packages/RandomizerCore).
 Although it was created for use with Hollow Knight, it is designed to be game-agnostic and can be used in any
-.NET game supporting .NET Standard 2.0 or and later.
+.NET game supporting .NET Standard 2.0 or later.
 
 ## Features
 
