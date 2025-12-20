@@ -156,7 +156,8 @@ namespace RandomizerCore.StringLogic
             () => validator.ExpectAllSequential(
                 () => Right.Validate(validator, Offset + Left.TokenCount + 1),
                 () => validator.ExpectTypes(Right, Offset + Left.TokenCount + 1, TypeMap.Keys.Select(k => k.Item2).ToArray())
-            )
+            ),
+            () => validator.ExpectAnyType(this, Offset)
         );
     }
 
@@ -183,7 +184,8 @@ namespace RandomizerCore.StringLogic
             () => validator.ExpectAllSequential(
                 () => Right.Validate(validator, Offset + Left.TokenCount + 1),
                 () => validator.ExpectTypes(Right, Offset + Left.TokenCount + 1, TypeMap.Keys.Select(k => k.Item2).ToArray())
-            )
+            ),
+            () => validator.ExpectAnyType(this, Offset)
         );
     }
 
@@ -211,7 +213,8 @@ namespace RandomizerCore.StringLogic
             () => validator.ExpectAllSequential(
                 () => Right.Validate(validator, Offset + Left.TokenCount + 1),
                 () => validator.ExpectTypes(Right, Offset + Left.TokenCount + 1, TypeMap.Keys.Select(k => k.Item2).ToArray())
-            )
+            ),
+            () => validator.ExpectAnyType(this, Offset)
         );
     }
 

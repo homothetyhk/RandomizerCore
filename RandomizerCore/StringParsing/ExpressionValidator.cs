@@ -50,6 +50,24 @@
         }
 
         /// <summary>
+        /// Assert/validate that the expression has any speculated type.
+        /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
+        /// <returns></returns>
+        public bool ExpectAnyType(Expression<T> expression, int Offset)
+        {
+            IEnumerable<T> possibleTypes = expression.SpeculateType();
+            if (!possibleTypes.Any())
+            {
+                AddError(Offset, Offset + expression.TokenCount,
+                    "Expected speculated type list to be nonempty.");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Assert/validate that an expression evaluates to the expected type
         /// </summary>
         /// <param name="expression">The expression to check</param>
