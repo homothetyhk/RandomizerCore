@@ -79,6 +79,8 @@ namespace RandomizerCore.StringLogic
             Expr = builder.ApplyInfixOperator(Expr, builder.Op(LogicOperatorProvider.AND), expr);
         }
 
+        public void AndWith(string infix) => AndWith(LogicExpressionUtil.Parse(infix));
+
         [Obsolete]
         public void OrWith(IEnumerable<LogicToken> tokens) => OrWith(tokens.ToExpression());
 
@@ -98,6 +100,8 @@ namespace RandomizerCore.StringLogic
             LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
             Expr = builder.ApplyInfixOperator(Expr, builder.Op(LogicOperatorProvider.OR), expr);
         }
+
+        public void OrWith(string infix) => OrWith(LogicExpressionUtil.Parse(infix));
 
 
         [Obsolete]
@@ -120,6 +124,8 @@ namespace RandomizerCore.StringLogic
             Expr = builder.ApplyInfixOperator(expr, builder.Op(LogicOperatorProvider.AND), Expr);
         }
 
+        public void AndWithLeft(string infix) => AndWithLeft(LogicExpressionUtil.Parse(infix));
+
         [Obsolete]
         public void OrWithLeft(IEnumerable<LogicToken> tokens) => OrWith(tokens.ToExpression());
 
@@ -139,6 +145,8 @@ namespace RandomizerCore.StringLogic
             LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
             Expr = builder.ApplyInfixOperator(expr, builder.Op(LogicOperatorProvider.OR), Expr);
         }
+
+        public void OrWithLeft(string infix) => OrWithLeft(LogicExpressionUtil.Parse(infix));
 
         /// <inheritdoc cref="ExpressionExtensions.Contains{T}(Expression{T}, Expression{T})"/>
         public bool Contains(Expression<LogicExpressionType> subExpr) => Expr.Contains(subExpr);
@@ -163,6 +171,12 @@ namespace RandomizerCore.StringLogic
         {
             Expr = Expr.Subst(oldExpr, newExpr, LogicExpressionUtil.Builder);
         }
+
+        /// <inheritdoc cref="Subst(Expression{LogicExpressionType}, Expression{LogicExpressionType})"/>
+        public void Subst(LogicClause oldClause, LogicClause newClause) => Subst(oldClause.Expr, newClause.Expr);
+
+        /// <inheritdoc cref="Subst(Expression{LogicExpressionType}, Expression{LogicExpressionType})"/>
+        public void Subst(string oldInfix, string newInfix) => Subst(LogicExpressionUtil.Parse(oldInfix), LogicExpressionUtil.Parse(newInfix));
 
         /// <inheritdoc cref="Extensions.PartialCoalesce(Expression{LogicExpressionType}, Func{Expression{LogicExpressionType}, bool?})"/>
         public void PartialCoalesce(Func<Expression<LogicExpressionType>, bool?> validator)
