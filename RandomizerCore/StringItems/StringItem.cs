@@ -43,7 +43,7 @@ namespace RandomizerCore.StringItems
         /// <summary>
         /// Converts the effect to an expression tree, with standardized formatting. May differ from the expression implied by <see cref="StringItem.EffectString"/>.
         /// </summary>
-        public abstract IExpression<ItemExpressionType> ToExpression();
+        public abstract Expression<ItemExpressionType> ToExpression();
         /// <summary>
         /// Converts the effect to an effect string. By default, this prints the result of <see cref="ToExpression"/>, and may differ from <see cref="StringItem.EffectString"/>.
         /// </summary>
@@ -59,7 +59,7 @@ namespace RandomizerCore.StringItems
         public override bool AddTo(ProgressionManager pm) => false;
         public override bool CheckForEffect(ProgressionManager pm) => false;
         public override IEnumerable<Term> GetAffectedTerms() => Enumerable.Empty<Term>();
-        public override IExpression<ItemExpressionType> ToExpression() => ExpressionBuilder.NameAtom(ItemExpressionFactory.EmptyEffect);
+        public override Expression<ItemExpressionType> ToExpression() => ExpressionBuilder.NameAtom(ItemExpressionFactory.EmptyEffect);
     }
 
     public record AllOfEffect : StringItemEffect
@@ -88,7 +88,7 @@ namespace RandomizerCore.StringItems
             return Effects.SelectMany(e => e.GetAffectedTerms());
         }
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
             return ExpressionBuilder.ApplyInfixOperatorLeftAssoc(Effects.Select(e => e.ToExpression()), ExpressionBuilder.Op(ItemOperatorProvider.Chaining));
         }
@@ -130,7 +130,7 @@ namespace RandomizerCore.StringItems
         }
 
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
             return ExpressionBuilder.ApplyInfixOperatorLeftAssoc(Effects.Select(e => e.ToExpression()), ExpressionBuilder.Op(ItemOperatorProvider.ShortCircuitChaining));
         }
@@ -164,7 +164,7 @@ namespace RandomizerCore.StringItems
             yield return Term;
         }
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
             if (Value == 1)
             {
@@ -199,7 +199,7 @@ namespace RandomizerCore.StringItems
             yield return Term;
         }
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
             return ExpressionBuilder.ApplyInfixOperator(ExpressionBuilder.NameAtom(Term.Name), ExpressionBuilder.Op(ItemOperatorProvider.MaxAssignment), ExpressionBuilder.NumberAtom(Value));
         }
@@ -226,9 +226,9 @@ namespace RandomizerCore.StringItems
             return Effect.GetAffectedTerms();
         }
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
-            IExpression<ItemExpressionType> logicExpr = ExpressionBuilder.StringAtom(Logic.InfixSource);
+            Expression<ItemExpressionType> logicExpr = ExpressionBuilder.StringAtom(Logic.InfixSource);
             if (Negated) logicExpr = ExpressionBuilder.ApplyPrefixOperator(ExpressionBuilder.Op(ItemOperatorProvider.Negation), logicExpr);
             return ExpressionBuilder.ApplyInfixOperator(logicExpr, ExpressionBuilder.Op(ItemOperatorProvider.Conditional), Effect.ToExpression());
         }
@@ -270,7 +270,7 @@ namespace RandomizerCore.StringItems
             return Item.GetAffectedTerms();
         }
 
-        public override IExpression<ItemExpressionType> ToExpression()
+        public override Expression<ItemExpressionType> ToExpression()
         {
             return ExpressionBuilder.ApplyPrefixOperator(ExpressionBuilder.Op(ItemOperatorProvider.Reference), ExpressionBuilder.NameAtom(Item.Name));
         }

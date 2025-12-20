@@ -1,4 +1,6 @@
-﻿namespace RandomizerCore.Logic
+﻿using RandomizerCore.Logic.StateLogic;
+
+namespace RandomizerCore.Logic
 {
     /// <summary>
     /// A <see cref="LogicVariable"/> which produces an int value.
@@ -44,19 +46,30 @@
 
     internal sealed class ComparisonVariable : LogicInt
     {
-        private readonly ILogicInt Left;
-        private readonly ILogicInt Right;
-        private readonly int Op;
+        internal readonly ILogicInt Left;
+        internal readonly ILogicInt Right;
+        internal readonly int Op;
 
-        public ComparisonVariable(string name, ILogicInt left, ILogicInt right, int op)
+        public ComparisonVariable(ILogicInt left, ILogicInt right, int op)
         {
-            Name = name;
             Left = left;
             Right = right;
             Op = op;
         }
 
-        public override string Name { get; }
+        public override string Name
+        {
+            get
+            {
+                string op = Op switch
+                {
+                    > 0 => ">",
+                    < 0 => "<",
+                    0 => "="
+                };
+                return $"{Left.Name}{op}{Right.Name}";
+            }
+        }
         public override int GetValue(object? sender, ProgressionManager pm)
         {
             int l = Left.GetValue(sender, pm);
@@ -76,21 +89,108 @@
         }
     }
 
+    internal sealed class SAVComparisonVariable : StateAccessVariable
+    {
+        internal readonly StateAccessVariable Left;
+        internal readonly StateAccessVariable Right;
+        internal readonly int Op;
+
+        public SAVComparisonVariable(StateAccessVariable left, StateAccessVariable right, int op)
+        {
+            Left = left;
+            Right = right;
+            Op = op;
+        }
+
+        public override string Name
+        {
+            get
+            {
+                string op = Op switch
+                {
+                    > 0 => ">",
+                    < 0 => "<",
+                    0 => "="
+                };
+                return $"{Left.Name}{op}{Right.Name}";
+            }
+        }
+        public override int GetValue<T>(object? sender, ProgressionManager pm, T state)
+        {
+            int l = Left.GetValue(sender, pm, state);
+            int r = Right.GetValue(sender, pm, state);
+            int c = l.CompareTo(r);
+
+            return Op switch
+            {
+                > 0 => c > 0,
+                0 => c == 0,
+                < 0 => c < 0
+            } ? TRUE : FALSE;
+        }
+        public override IEnumerable<Term> GetTerms()
+        {
+            return Left.GetTerms().Concat(Right.GetTerms());
+        }
+
+        public override IEnumerable<StateField> GetStateFields()
+        {
+            return Left.GetStateFields().Concat(Right.GetStateFields());
+        }
+    }
+
+    internal sealed class ProjectedStateProvider : LogicInt
+    {
+        internal readonly IStateProvider stateProvider;
+
+        public ProjectedStateProvider(IStateProvider stateProvider)
+        {
+            this.stateProvider = stateProvider;
+        }
+
+        public override string Name => stateProvider.Name + '/';
+
+        public override IEnumerable<Term> GetTerms()
+        {
+            return stateProvider.GetTerms();
+        }
+
+        public override int GetValue(object? sender, ProgressionManager pm)
+        {
+            return stateProvider.GetInputState(this, pm) is StateUnion s ? TRUE : FALSE;
+        }
+    }
+
     internal sealed class LogicDefVariable : LogicInt
     {
-        private readonly LogicDef logic;
-        private readonly bool projected;
+        internal readonly LogicDef logic;
+        internal readonly bool projected;
+        internal readonly bool reference;
 
         /// <param name="logic"></param>
-        /// <param name="projected">Indicates whether the variable name should include a projection operator. No effect on behavior.</param>
-        public LogicDefVariable(LogicDef logic, bool projected = false)
+        /// <param name="projected">Controls how the variable name is printed. No effect on behavior.</param>
+        /// <param name="reference">Controls how the variable name is printed. No effect on behavior.</param>
+        public LogicDefVariable(LogicDef logic, bool projected = false, bool reference = false)
         {
             this.logic = logic;
             this.projected = projected;
-            this.Name = $"*{logic.Name}{(projected ? "/" : "")}";
+            this.reference = reference;
         }
 
-        public override string Name { get; }
+        public override string Name 
+        { 
+            get 
+            {
+                if (reference)
+                {
+                    return '*' + logic.Name + (projected ? "/" : "");
+                }
+                else
+                {
+                    return projected ? $"({logic.InfixSource})/" : logic.InfixSource;
+                }
+            }
+        }
         
         public override int GetValue(object? sender, ProgressionManager pm)
         {

@@ -28,6 +28,17 @@
             terms[name] = level + incr;
         }
 
+        public override bool IsDefined(string atom)
+        {
+            return terms.ContainsKey(atom);
+        }
+
+        public override int EvaluateToInt(string atom)
+        {
+            return terms.TryGetValue(atom, out int value) ? value : throw new KeyNotFoundException(atom);
+        }
+
+        [Obsolete]
         public override bool Evaluate(TermToken token)
         {
             if (token is ConstToken bt)
@@ -74,6 +85,7 @@
             throw new ArgumentException($"Unable to evaluate TermToken: {token}");
         }
 
+        [Obsolete]
         private bool IsValidToken(TermToken tt)
         {
             return tt switch

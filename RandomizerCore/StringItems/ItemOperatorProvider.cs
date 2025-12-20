@@ -35,7 +35,7 @@ namespace RandomizerCore.StringItems
         /// <summary>
         /// Bool -> Bool. Negates the bool
         /// </summary>
-        public const string Negation = "!"; // TODO
+        public const string Negation = "!";
 
         // postfix operators
         /// <summary>
@@ -47,20 +47,23 @@ namespace RandomizerCore.StringItems
         /// </summary>
         public const string Increment = "++";
 
-        private static readonly IReadOnlyCollection<string> allOperators = new HashSet<string>()
+        private static readonly Dictionary<string, OperatorDefinition> operatorDefinitions = new()
         {
-            AdditionAssignment,
-            MaxAssignment,
-            Conditional,
-            ShortCircuitChaining,
-            Chaining,
-            Reference,
-            Negation,
-            TermCoalescing,
-            Increment,
+            [AdditionAssignment] = new(AdditionAssignment, 8, 7),
+            [MaxAssignment] = new(MaxAssignment, 8, 7),
+            [Conditional] = new(Conditional, 5, 6),
+            [ShortCircuitChaining] = new(ShortCircuitChaining, 4, 3),
+            [Chaining] = new(Chaining, 2, 1),
+            [Reference] = new(Reference, 9, null),
+            [Negation] = new(Negation, 9, null),
+            [TermCoalescing] = new(TermCoalescing, null, 11),
+            [Increment] = new(Increment, null, 11),
         };
-        public IReadOnlyCollection<string> GetAllOperators() => allOperators;
 
+        public OperatorDefinition? GetDefinition(string op) => operatorDefinitions.TryGetValue(op, out OperatorDefinition def) ? def : null;
+
+        public IReadOnlyCollection<string> GetAllOperators() => operatorDefinitions.Keys;
+        /*
         public int? PrefixBindingPower(string op) => op switch
         {
             Reference or Negation => 9,
@@ -81,6 +84,7 @@ namespace RandomizerCore.StringItems
             MaxAssignment or AdditionAssignment => (7, 8),
             _ => null
         };
+        */
     }
 
 }

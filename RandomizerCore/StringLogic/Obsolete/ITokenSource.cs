@@ -1,5 +1,6 @@
 ﻿namespace RandomizerCore.StringLogic
 {
+    [Obsolete]
     public interface ITokenSource
     {
         TermToken GetTermToken(string name);

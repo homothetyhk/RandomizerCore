@@ -11,32 +11,32 @@ namespace RandomizerCore.LogicItems
 
         public static bool TryConvertToItemString(LogicItem item, out string itemString)
         {
-            bool result = TryConvertToItemExpression(item, out IExpression<ItemExpressionType> expr);
+            bool result = TryConvertToItemExpression(item, out Expression<ItemExpressionType> expr);
             itemString = result ? expr.Print() : null;
             return result;
         }
 
-        public static IExpression<ItemExpressionType> Convert(SingleItem item) => item.Effect.Value == 1
+        public static Expression<ItemExpressionType> Convert(SingleItem item) => item.Effect.Value == 1
                 ? eb.ApplyPostfixOperator(eb.NameAtom(item.Effect.Term.Name), eb.Op(ItemOperatorProvider.Increment))
                 : eb.ApplyInfixOperator(eb.NameAtom(item.Effect.Term.Name), eb.Op(ItemOperatorProvider.AdditionAssignment), eb.NumberAtom(item.Effect.Value));
 
-        public static IExpression<ItemExpressionType> Convert(MultiItem item) => item.Effects.Select(e => Convert(new SingleItem(item.Name, e)))
+        public static Expression<ItemExpressionType> Convert(MultiItem item) => item.Effects.Select(e => Convert(new SingleItem(item.Name, e)))
                 .Aggregate((iL, iR) => eb.ApplyInfixOperator(iL, eb.Op(ItemOperatorProvider.Chaining), iR));
 
-        public static IExpression<ItemExpressionType> Convert(EmptyItem item) => eb.NameAtom(ItemExpressionFactory.EmptyEffect);
+        public static Expression<ItemExpressionType> Convert(EmptyItem item) => eb.NameAtom(ItemExpressionFactory.EmptyEffect);
 
-        public static IExpression<ItemExpressionType> Convert(BoolItem item) => eb.ApplyInfixOperator(eb.NameAtom(item.Term.Name), eb.Op(ItemOperatorProvider.MaxAssignment), eb.NumberAtom(1));
+        public static Expression<ItemExpressionType> Convert(BoolItem item) => eb.ApplyInfixOperator(eb.NameAtom(item.Term.Name), eb.Op(ItemOperatorProvider.MaxAssignment), eb.NumberAtom(1));
 
-        public static IExpression<ItemExpressionType> Convert(CappedItem item) => eb.ApplyInfixOperator(
+        public static Expression<ItemExpressionType> Convert(CappedItem item) => eb.ApplyInfixOperator(
             eb.StringAtom($"{item.Cap.Term.Name}<{item.Cap.Value}"),
             eb.Op(ItemOperatorProvider.Conditional),
             Convert(new MultiItem(item.Name, item.Effects)));
 
-        public static IExpression<ItemExpressionType> Convert(BranchedItem item)
+        public static Expression<ItemExpressionType> Convert(BranchedItem item)
         {
-            bool t = TryConvertToItemExpression(item.TrueItem, out IExpression<ItemExpressionType> exprT);
-            bool f = TryConvertToItemExpression(item.FalseItem, out IExpression<ItemExpressionType> exprF);
-            IExpression<ItemExpressionType> logic = eb.StringAtom(item.Logic.InfixSource);
+            bool t = TryConvertToItemExpression(item.TrueItem, out Expression<ItemExpressionType> exprT);
+            bool f = TryConvertToItemExpression(item.FalseItem, out Expression<ItemExpressionType> exprF);
+            Expression<ItemExpressionType> logic = eb.StringAtom(item.Logic.InfixSource);
             OperatorToken op = eb.Op(ItemOperatorProvider.Conditional);
 
             if (t && !f)
@@ -61,7 +61,7 @@ namespace RandomizerCore.LogicItems
             }
         }
 
-        public static bool TryConvertToItemExpression(LogicItem item, out IExpression<ItemExpressionType> expr)
+        public static bool TryConvertToItemExpression(LogicItem item, out Expression<ItemExpressionType> expr)
         {
             switch (item)
             {

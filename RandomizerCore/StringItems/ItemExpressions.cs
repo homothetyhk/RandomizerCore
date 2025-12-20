@@ -10,196 +10,182 @@ namespace RandomizerCore.StringItems
         ItemEffect
     }
 
-    public record ItemAtomExpression(Token Token) : IExpression<ItemExpressionType>
+    public record ItemAtomExpression(Token Token) : AtomExpression<ItemExpressionType>(Token)
     {
-        public int StartChar => Token.StartCharacter;
-        public int EndChar => Token.EndCharacter;
-
-        public IEnumerable<ItemExpressionType> Evaluate() => Token switch
+        public override IEnumerable<ItemExpressionType> SpeculateType() => Token switch
         {
-            NameToken => new[] { ItemExpressionType.TermLike, ItemExpressionType.Bool },
-            NumberToken => new[] { ItemExpressionType.Int },
-            StringToken => new[] { ItemExpressionType.Bool },
+            NameToken => [ItemExpressionType.TermLike, ItemExpressionType.Bool],
+            NumberToken => [ItemExpressionType.Int],
+            StringToken => [ItemExpressionType.Bool],
             _ => throw new NotImplementedException()
         };
 
-        public bool Validate(ExpressionValidator<ItemExpressionType> validator) => 
-            validator.Expect(
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => 
+            validator.Expect(this, Offset,
                 () => Token is NameToken or NumberToken or StringToken, 
-                Token.StartCharacter, Token.EndCharacter,
                 "Expected a symbol name, number, or logic string literal."
             );
-
-        public string Print() => Token.Print();
-
-        public static bool IsAtomToken(Token token) => new ItemAtomExpression(token).Validate(new());
     }
 
-    public record EmptyEffectExpression(Token Token) : IExpression<ItemExpressionType>
+    public record EmptyEffectExpression(Token Token) : AtomExpression<ItemExpressionType>(Token)
     {
-        public int StartChar => Token.StartCharacter;
-        public int EndChar => Token.EndCharacter;
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
-
-        public bool Validate(ExpressionValidator<ItemExpressionType> validator) =>
-            validator.Expect(
-                () => Token is NameToken nt && nt.Value == "_",
-                Token.StartCharacter, Token.EndCharacter,
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) =>
+            validator.Expect(this, Offset,
+                () => Token is NameToken nt && nt.Content == "_",
                 "Expected exactly \"_\"."
             );
-
-        public string Print() => Token.Print();
     }
 
     // ----- prefix expressions ----- //
 
-    public record NegationExpression(OperatorToken Operator, IExpression<ItemExpressionType> Operand) 
+    public record NegationExpression(OperatorToken Operator, Expression<ItemExpressionType> Operand) 
         : PrefixExpression<ItemExpressionType>(Operator, Operand)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.Bool };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.Bool];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.Negation),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.Negation),
             () => validator.ExpectAllSequential(
-                () => Operand.Validate(validator),
-                () => validator.ExpectType(Operand, ItemExpressionType.Bool)
+                () => Operand.Validate(validator, 1 + Offset),
+                () => validator.ExpectType(Operand, 1 + Offset, ItemExpressionType.Bool)
             )
         );
     }
 
-    public record ReferenceExpression(OperatorToken Operator, IExpression<ItemExpressionType> Operand)
+    public record ReferenceExpression(OperatorToken Operator, Expression<ItemExpressionType> Operand)
         : PrefixExpression<ItemExpressionType>(Operator, Operand)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect, ItemExpressionType.Bool };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect, ItemExpressionType.Bool];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.Reference),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.Reference),
             () => validator.ExpectAllSequential(
-                () => Operand.Validate(validator),
-                () => validator.ExpectType(Operand, ItemExpressionType.TermLike)
+                () => Operand.Validate(validator, 1 + Offset),
+                () => validator.ExpectType(Operand, 1 + Offset, ItemExpressionType.TermLike)
             )
         );
     }
 
     // ----- postfix expressions ----- //
 
-    public record CoalescingExpression(IExpression<ItemExpressionType> Operand, OperatorToken Operator) 
+    public record CoalescingExpression(Expression<ItemExpressionType> Operand, OperatorToken Operator) 
         : PostfixExpression<ItemExpressionType>(Operand, Operator)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.TermLike };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.TermLike];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.TermCoalescing),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.TermCoalescing),
             () => validator.ExpectAllSequential(
-                () => Operand.Validate(validator),
-                () => validator.ExpectType(Operand, ItemExpressionType.TermLike)
+                () => Operand.Validate(validator, Offset),
+                () => validator.ExpectType(Operand, Offset, ItemExpressionType.TermLike)
             )
         );
     }
 
-    public record IncrementExpression(IExpression<ItemExpressionType> Operand, OperatorToken Operator)
+    public record IncrementExpression(Expression<ItemExpressionType> Operand, OperatorToken Operator)
         : PostfixExpression<ItemExpressionType>(Operand, Operator)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.Increment),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.Increment),
             () => validator.ExpectAllSequential(
-                () => Operand.Validate(validator),
-                () => validator.ExpectType(Operand, ItemExpressionType.TermLike)
+                () => Operand.Validate(validator, Offset),
+                () => validator.ExpectType(Operand, Offset, ItemExpressionType.TermLike)
             )
         );
     }
 
     // ----- infix expressions ----- //
 
-    public record AdditionAssignmentExpression(IExpression<ItemExpressionType> Left, OperatorToken Operator, IExpression<ItemExpressionType> Right) 
+    public record AdditionAssignmentExpression(Expression<ItemExpressionType> Left, OperatorToken Operator, Expression<ItemExpressionType> Right) 
         : InfixExpression<ItemExpressionType>(Left, Operator, Right)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.AdditionAssignment),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.AdditionAssignment),
             () => validator.ExpectAllSequential(
-                () => Left.Validate(validator),
-                () => validator.ExpectType(Left, ItemExpressionType.TermLike)
+                () => Left.Validate(validator, Offset),
+                () => validator.ExpectType(Left, Offset, ItemExpressionType.TermLike)
             ),
             () => validator.ExpectAllSequential(
-                () => Right.Validate(validator),
-                () => validator.ExpectType(Right, ItemExpressionType.Int)
+                () => Right.Validate(validator, Offset + Left.TokenCount + 1),
+                () => validator.ExpectType(Right, Offset + Left.TokenCount + 1, ItemExpressionType.Int)
             )
         );
     }
 
-    public record MaxAssignmentExpression(IExpression<ItemExpressionType> Left, OperatorToken Operator, IExpression<ItemExpressionType> Right) 
+    public record MaxAssignmentExpression(Expression<ItemExpressionType> Left, OperatorToken Operator, Expression<ItemExpressionType> Right) 
         : InfixExpression<ItemExpressionType>(Left, Operator, Right)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.MaxAssignment),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.MaxAssignment),
             () => validator.ExpectAllSequential(
-                () => Left.Validate(validator),
-                () => validator.ExpectType(Left, ItemExpressionType.TermLike)
+                () => Left.Validate(validator, Offset),
+                () => validator.ExpectType(Left, Offset, ItemExpressionType.TermLike)
             ),
             () => validator.ExpectAllSequential(
-                () => Right.Validate(validator),
-                () => validator.ExpectType(Right, ItemExpressionType.Int)
+                () => Right.Validate(validator, Offset + Left.TokenCount + 1),
+                () => validator.ExpectType(Right, Offset + Left.TokenCount + 1, ItemExpressionType.Int)
             )
         );
     }
 
-    public record ConditionalExpression(IExpression<ItemExpressionType> Left, OperatorToken Operator, IExpression<ItemExpressionType> Right) 
+    public record ConditionalExpression(Expression<ItemExpressionType> Left, OperatorToken Operator, Expression<ItemExpressionType> Right) 
         : InfixExpression<ItemExpressionType>(Left, Operator, Right)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.Conditional),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.Conditional),
             () => validator.ExpectAllSequential(
-                () => Left.Validate(validator),
-                () => validator.ExpectType(Left, ItemExpressionType.Bool)
+                () => Left.Validate(validator, Offset),
+                () => validator.ExpectType(Left, Offset, ItemExpressionType.Bool)
             ),
             () => validator.ExpectAllSequential(
-                () => Right.Validate(validator),
-                () => validator.ExpectType(Right, ItemExpressionType.ItemEffect)
+                () => Right.Validate(validator, Offset + Left.TokenCount + 1),
+                () => validator.ExpectType(Right, Offset + Left.TokenCount + 1, ItemExpressionType.ItemEffect)
             )
         );
     }
 
-    public record ShortCircuitChainingExpression(IExpression<ItemExpressionType> Left, OperatorToken Operator, IExpression<ItemExpressionType> Right) 
+    public record ShortCircuitChainingExpression(Expression<ItemExpressionType> Left, OperatorToken Operator, Expression<ItemExpressionType> Right) 
         : InfixExpression<ItemExpressionType>(Left, Operator, Right)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.ShortCircuitChaining),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.ShortCircuitChaining),
             () => validator.ExpectAllSequential(
-                () => Left.Validate(validator),
-                () => validator.ExpectType(Left, ItemExpressionType.ItemEffect)
+                () => Left.Validate(validator, Offset),
+                () => validator.ExpectType(Left, Offset, ItemExpressionType.ItemEffect)
             ),
             () => validator.ExpectAllSequential(
-                () => Right.Validate(validator),
-                () => validator.ExpectType(Right, ItemExpressionType.ItemEffect)
+                () => Right.Validate(validator, Offset + Left.TokenCount + 1),
+                () => validator.ExpectType(Right, Offset + Left.TokenCount + 1, ItemExpressionType.ItemEffect)
             )
         );
     }
 
-    public record ChainingExpression(IExpression<ItemExpressionType> Left, OperatorToken Operator, IExpression<ItemExpressionType> Right) 
+    public record ChainingExpression(Expression<ItemExpressionType> Left, OperatorToken Operator, Expression<ItemExpressionType> Right) 
         : InfixExpression<ItemExpressionType>(Left, Operator, Right)
     {
-        public override IEnumerable<ItemExpressionType> Evaluate() => new[] { ItemExpressionType.ItemEffect };
+        public override IEnumerable<ItemExpressionType> SpeculateType() => [ItemExpressionType.ItemEffect];
 
-        public override bool Validate(ExpressionValidator<ItemExpressionType> validator) => validator.ExpectAllParallel(
-            () => validator.ExpectOperator(Operator, ItemOperatorProvider.Chaining),
+        protected internal override bool Validate(ExpressionValidator<ItemExpressionType> validator, int Offset) => validator.ExpectAllParallel(
+            () => validator.ExpectOperator(this, Offset, Operator, ItemOperatorProvider.Chaining),
             () => validator.ExpectAllSequential(
-                () => Left.Validate(validator),
-                () => validator.ExpectType(Left, ItemExpressionType.ItemEffect)
+                () => Left.Validate(validator, Offset),
+                () => validator.ExpectType(Left, Offset, ItemExpressionType.ItemEffect)
             ),
             () => validator.ExpectAllSequential(
-                () => Right.Validate(validator),
-                () => validator.ExpectType(Right, ItemExpressionType.ItemEffect)
+                () => Right.Validate(validator, Offset + Left.TokenCount + 1),
+                () => validator.ExpectType(Right, Offset + Left.TokenCount + 1, ItemExpressionType.ItemEffect)
             )
         );
     }

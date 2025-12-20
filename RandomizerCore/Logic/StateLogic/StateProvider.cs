@@ -23,7 +23,7 @@
 
     internal class LogicStateProvider : StateProvider
     {
-        private readonly StateLogicDef logic;
+        internal readonly StateLogicDef logic;
 
         public override string Name { get; }
 

@@ -4,28 +4,34 @@ using RandomizerCore.Exceptions;
 using RandomizerCore.Logic;
 using RandomizerCore.StringItems;
 using RandomizerCore.StringParsing;
+using Xunit.Abstractions;
 
 namespace RandomizerCoreTests
 {
     public class StringItemEndToEndTests
     {
+        public ITestOutputHelper Output { get; }
+        public StringItemEndToEndTests(ITestOutputHelper Output)
+        {
+            this.Output = Output;
+        }
+
+
         [Theory]
-        [InlineData(new object[] { "10 += 10 >> 10", new[] {
+        [InlineData(["10 += 10 >> 10", new[] {
             "[0:1] Expected an expression of type TermLike but got one of type Int.",
-            "[12:13] Expected an expression of type ItemEffect but got one of type Int."
-        } })]
-        [InlineData(new object[] { "Grubsong += 1 += 2", new[] {
-            "[0:12] Expected an expression of type TermLike but got one of type ItemEffect."
-        } })]
+            "[4:5] Expected an expression of type ItemEffect but got one of type Int."
+        } ])]
+        [InlineData(["Grubsong += 1 += 2", new[] {
+            "[0:3] Expected an expression of type TermLike but got one of type ItemEffect."
+        } ])]
         public void TestParsableInvalidExpression(string input, string[] errors)
         {
             ItemOperatorProvider operatorProvider = new();
-            Tokenizer tokenizer = new(operatorProvider, input, '`');
-            IReadOnlyList<Token> tokens = tokenizer.Tokenize();
+            IReadOnlyList<Token> tokens = Tokenizer.Tokenize(input, operatorProvider, '`');
             ExpressionParser<ItemExpressionType> parser = new(operatorProvider, new ItemExpressionFactory(), tokens);
-            IExpression<ItemExpressionType> expr = parser.Parse();
-            ExpressionValidator<ItemExpressionType> validator = new();
-            expr.Validate(validator).Should().BeFalse();
+            Expression<ItemExpressionType> expr = parser.Parse();
+            expr.Validate(out ExpressionValidator<ItemExpressionType> validator).Should().BeFalse();
             validator.Errors.Should().HaveCount(errors.Length).And.Contain(errors);
         }
 
@@ -40,170 +46,59 @@ namespace RandomizerCoreTests
                             => LEFTDASH += 2
                             >|> LEFTDASH++)
                 """.Replace("\r", "");
-            IExpression<ItemExpressionType> expected = new ConditionalExpression(
-                    new ItemAtomExpression(new StringToken
-                    {
-                        StartCharacter = 1, EndCharacter = 51,
-                        LeadingTrivia = "`", TrailingTrivia = "`\n    ",
-                        Value = "LEFTDASH<1 | RIGHTDASH<1 | LEFTDASH<2 + RIGHTDASH<2"
-                    }),
-                    new OperatorToken
-                    {
-                        StartCharacter = 58, EndCharacter = 59,
-                        LeadingTrivia = "", TrailingTrivia = " ",
-                        Operator = "=>"
-                    },
+            ItemOperatorProvider operatorProvider = new();
+
+            Expression<ItemExpressionType> expected = new ConditionalExpression(
+                    new ItemAtomExpression(new StringToken('`', "LEFTDASH<1 | RIGHTDASH<1 | LEFTDASH<2 + RIGHTDASH<2")),
+                    new OperatorToken(operatorProvider.GetDefinition("=>")!),
                     new GroupingExpression<ItemExpressionType>(
-                        new StructuralToken
-                        {
-                            StartCharacter = 61, EndCharacter = 61,
-                            LeadingTrivia = "", TrailingTrivia = "",
-                            TokenType = StructuralToken.Type.OpenParenthesis
-                        },
+                        new StructuralToken(StructuralToken.Types.OpenParenthesis),
                         new ShortCircuitChainingExpression(
                             new ShortCircuitChainingExpression(
                                 new ConditionalExpression(
-                                    new ItemAtomExpression(new StringToken
-                                    {
-                                        StartCharacter = 63, EndCharacter = 82,
-                                        LeadingTrivia = "`", TrailingTrivia = "`\n        ",
-                                        Value = "LEFTDASH + RIGHTDASH"
-                                    }),
-                                    new OperatorToken
-                                    {
-                                        StartCharacter = 93, EndCharacter = 94,
-                                        LeadingTrivia = "", TrailingTrivia = " ",
-                                        Operator = "=>"
-                                    },
-                                    new GroupingExpression<ItemExpressionType>(
-                                        new StructuralToken
-                                        {
-                                            StartCharacter = 96, EndCharacter = 96,
-                                            LeadingTrivia = "", TrailingTrivia = "",
-                                            TokenType = StructuralToken.Type.OpenParenthesis
-                                        },
+                                    new ItemAtomExpression(new StringToken('`', "LEFTDASH + RIGHTDASH")),
+                                    new OperatorToken(operatorProvider.GetDefinition("=>")!),
+                                    new GroupingExpression<ItemExpressionType>(new StructuralToken(StructuralToken.Types.OpenParenthesis),
                                         new ChainingExpression(
                                             new IncrementExpression(
-                                                new ItemAtomExpression(new NameToken
-                                                {
-                                                    StartCharacter = 97, EndCharacter = 104,
-                                                    LeadingTrivia = "", TrailingTrivia = "",
-                                                    Value = "LEFTDASH"
-                                                }),
-                                                new OperatorToken
-                                                {
-                                                    StartCharacter = 105, EndCharacter = 106,
-                                                    LeadingTrivia = "", TrailingTrivia = " ",
-                                                    Operator = "++"
-                                                }
+                                                new ItemAtomExpression(new NameToken("LEFTDASH")),
+                                                new OperatorToken(operatorProvider.GetDefinition("++")!)
                                             ),
-                                            new OperatorToken
-                                            {
-                                                StartCharacter = 108, EndCharacter = 109,
-                                                LeadingTrivia = "", TrailingTrivia = " ",
-                                                Operator = ">>"
-                                            },
+                                            new OperatorToken(operatorProvider.GetDefinition(">>")!),
                                             new IncrementExpression(
-                                                new ItemAtomExpression(new NameToken
-                                                {
-                                                    StartCharacter = 111, EndCharacter = 119,
-                                                    LeadingTrivia = "", TrailingTrivia = "",
-                                                    Value = "RIGHTDASH"
-                                                }),
-                                                new OperatorToken
-                                                {
-                                                    StartCharacter = 120, EndCharacter = 121,
-                                                    LeadingTrivia = "", TrailingTrivia = "",
-                                                    Operator = "++"
-                                                }
+                                                new ItemAtomExpression(new NameToken("RIGHTDASH")),
+                                                new OperatorToken(operatorProvider.GetDefinition("++")!)
                                             )
                                         ),
-                                        new StructuralToken
-                                        {
-                                            StartCharacter = 122, EndCharacter = 122,
-                                            LeadingTrivia = "", TrailingTrivia = "\n        ",
-                                            TokenType = StructuralToken.Type.CloseParenthesis
-                                        }
+                                        new StructuralToken(StructuralToken.Types.CloseParenthesis)
                                     )
                                 ),
-                                new OperatorToken
-                                {
-                                    StartCharacter = 132, EndCharacter = 134,
-                                    LeadingTrivia = "", TrailingTrivia = " ",
-                                    Operator = ">|>"
-                                },
+                                new OperatorToken(operatorProvider.GetDefinition(">|>")!),
                                 new ConditionalExpression(
-                                    new ItemAtomExpression(new StringToken
-                                    {
-                                        StartCharacter = 137, EndCharacter = 160,
-                                        LeadingTrivia = "`", TrailingTrivia = "`\n            ",
-                                        Value = "LEFTDASH<1 + RIGHTDASH>1"
-                                    }),
-                                    new OperatorToken
-                                    {
-                                        StartCharacter = 175, EndCharacter = 176,
-                                        LeadingTrivia = "", TrailingTrivia = " ",
-                                        Operator = "=>"
-                                    },
+                                    new ItemAtomExpression(new StringToken('`', "LEFTDASH<1 + RIGHTDASH>1")),
+                                    new OperatorToken(operatorProvider.GetDefinition("=>")!),
                                     new AdditionAssignmentExpression(
-                                        new ItemAtomExpression(new NameToken
-                                        {
-                                            StartCharacter = 178, EndCharacter = 185,
-                                            LeadingTrivia = "", TrailingTrivia = " ",
-                                            Value = "LEFTDASH"
-                                        }),
-                                        new OperatorToken
-                                        {
-                                            StartCharacter = 187, EndCharacter = 188,
-                                            LeadingTrivia = "", TrailingTrivia = " ",
-                                            Operator = "+="
-                                        },
-                                        new ItemAtomExpression(new NumberToken
-                                        {
-                                            StartCharacter = 190, EndCharacter = 190,
-                                            LeadingTrivia = "", TrailingTrivia = "\n            ",
-                                            Value = 2
-                                        })
+                                        new ItemAtomExpression(new NameToken("LEFTDASH")),
+                                        new OperatorToken(operatorProvider.GetDefinition("+=")!),
+                                        new ItemAtomExpression(new NumberToken(2))
                                     )
                                 )
                             ),
-                            new OperatorToken
-                            {
-                                StartCharacter = 204, EndCharacter = 206,
-                                LeadingTrivia = "", TrailingTrivia = " ",
-                                Operator = ">|>"
-                            },
+                            new OperatorToken(operatorProvider.GetDefinition(">|>")!),
                             new IncrementExpression(
-                                new ItemAtomExpression(new NameToken
-                                {
-                                    StartCharacter = 208, EndCharacter = 215,
-                                    LeadingTrivia = "", TrailingTrivia = "",
-                                    Value = "LEFTDASH"
-                                }),
-                                new OperatorToken
-                                {
-                                    StartCharacter = 216, EndCharacter = 217,
-                                    LeadingTrivia = "", TrailingTrivia = "",
-                                    Operator = "++"
-                                }
+                                new ItemAtomExpression(new NameToken("LEFTDASH")),
+                                new OperatorToken(operatorProvider.GetDefinition("++")!)
                             )
                         ),
-                        new StructuralToken
-                        {
-                            StartCharacter = 218, EndCharacter = 218,
-                            LeadingTrivia = "", TrailingTrivia = "",
-                            TokenType = StructuralToken.Type.CloseParenthesis
-                        }
+                        new StructuralToken(StructuralToken.Types.CloseParenthesis)
                     )
                 );
 
-            ItemOperatorProvider operatorProvider = new();
-            Tokenizer tokenizer = new(operatorProvider, input, '`');
-            IReadOnlyList<Token> tokens = tokenizer.Tokenize();
+            
+            IReadOnlyList<Token> tokens = Tokenizer.Tokenize(input, operatorProvider, '`');
             ExpressionParser<ItemExpressionType> parser = new(operatorProvider, new ItemExpressionFactory(), tokens);
-            IExpression<ItemExpressionType> expr = parser.Parse();
-            ExpressionValidator<ItemExpressionType> validator = new();
-            expr.Validate(validator).Should().BeTrue();
+            Expression<ItemExpressionType> expr = parser.Parse();
+            expr.Validate(out ExpressionValidator<ItemExpressionType> validator).Should().BeTrue();
             validator.Errors.Should().BeEmpty();
 
             expr.Should().BeEquivalentTo(expected);
@@ -260,6 +155,12 @@ namespace RandomizerCoreTests
             LogicManager lm = new(lmb);
             ProgressionManager pm = new(lm, null);
             LogicItem item = lm.FromItemString("I", "`A>3` => `A<5` => (A++ >> A += 2 >> A += 3)");
+            ConditionalEffect e = ((StringItem)item).Effect.Should().BeOfType<ConditionalEffect>().Subject;
+            e.Logic.InfixSource.Should().Be("A>3");
+            e = e.Effect.Should().BeOfType<ConditionalEffect>().Subject;
+            e.Logic.InfixSource.Should().Be("A<5");
+            e.Effect.Should().Be(new AllOfEffect([new IncrementEffect(1, a), new IncrementEffect(2, a), new IncrementEffect(3, a)]));
+
             pm.Set(a, 3);
             pm.Add(item);
             pm.Get(a).Should().Be(3);

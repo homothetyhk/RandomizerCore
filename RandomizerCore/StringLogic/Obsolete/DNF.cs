@@ -5,6 +5,7 @@ namespace RandomizerCore.StringLogic
     /// <summary>
     /// Utility methods for dealing with logic in DNF form.
     /// </summary>
+    [Obsolete]
     public static class DNF
     {
         public static string ToInfix(List<TermToken> conjunction)

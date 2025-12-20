@@ -1,13 +1,31 @@
 ﻿namespace RandomizerCore.StringParsing
 {
     /// <summary>
-    /// Provides typing validation and error aggregation for <see cref="IExpression{T}"/>s
+    /// Provides typing validation and error aggregation for <see cref="Expression{T}"/>s
     /// </summary>
     public class ExpressionValidator<T>
     {
-        private List<string> errors = new();
+        private readonly List<string> errors = [];
         public IReadOnlyList<string> Errors => errors;
+        public bool ValidatedSuccessfully { get; }
 
+        /// <summary>
+        /// The root expression being validated.
+        /// </summary>
+        public Expression<T> Root { get; }
+
+        /// <summary>
+        /// Creates an object carrying the validation info for the expression. Check <see cref="Errors"/> for aggregated validation errors.
+        /// </summary>
+        public ExpressionValidator(Expression<T> expression)
+        {
+            Root = expression;
+            ValidatedSuccessfully = Root.Validate(this, 0);
+        }
+
+        /// <summary>
+        /// Adds an error message to be aggregated in <see cref="Errors"/>. Prepends with the token range of the expression in which the error was found.
+        /// </summary>
         private void AddError(int start, int end, string message)
         {
             errors.Add($"[{start}:{end}] {message}");
@@ -16,16 +34,16 @@
         /// <summary>
         /// Assert/validate a custom condition holds.
         /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
         /// <param name="predicate">The condition to evaluate</param>
-        /// <param name="startChar">The starting character index where the error is present</param>
-        /// <param name="endChar">The ending character index where the error is present</param>
         /// <param name="message">The error message</param>
         /// <returns>Whether the condition was met (i.e. the result of predicate)</returns>
-        public bool Expect(Func<bool> predicate, int startChar, int endChar, string message)
+        public bool Expect(Expression<T> expression, int Offset, Func<bool> predicate, string message)
         {
             if (!predicate())
             {
-                AddError(startChar, endChar, message);
+                AddError(Offset, Offset + expression.TokenCount, message);
                 return false;
             }
             return true;
@@ -35,10 +53,11 @@
         /// Assert/validate that an expression evaluates to the expected type
         /// </summary>
         /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
         /// <param name="expectedType">The expected type</param>
-        public bool ExpectType(IExpression<T> expression, T expectedType)
+        public bool ExpectType(Expression<T> expression, int Offset, T expectedType)
         {
-            IEnumerable<T> possibleTypes = expression.Evaluate();
+            IEnumerable<T> possibleTypes = expression.SpeculateType();
             if (!possibleTypes.Contains(expectedType))
             {
                 string actualType;
@@ -50,8 +69,36 @@
                 {
                     actualType = $"any of the following types: {string.Join(", ", possibleTypes)}";
                 }
-                AddError(expression.StartChar, expression.EndChar, 
+                AddError(Offset, Offset + expression.TokenCount, 
                     $"Expected an expression of type {expectedType} but got one of {actualType}.");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Assert/validate that an expression evaluates to one of the expected types.
+        /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
+        /// <param name="expectedTypes">The expected types</param>
+        public bool ExpectTypes(Expression<T> expression, int Offset, T[] expectedTypes)
+        {
+            T[] possibleTypes = expression.SpeculateType().ToArray();
+            if (!possibleTypes.Intersect(expectedTypes).Any())
+            {
+                string actualType;
+                
+                if (possibleTypes.Length == 1)
+                {
+                    actualType = $"type {possibleTypes[0]}";
+                }
+                else
+                {
+                    actualType = $"any of the following types: {string.Join(", ", possibleTypes)}";
+                }
+                AddError(Offset, Offset + expression.TokenCount,
+                    $"Expected an expression of any of the following types: {string.Join(", ", expectedTypes)}. Got one of {actualType}.");
                 return false;
             }
             return true;
@@ -60,13 +107,34 @@
         /// <summary>
         /// Assert/validate that the correct operator was used
         /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
         /// <param name="op">The operator to </param>
         /// <param name="expectedOp">The expected operator</param>
-        public bool ExpectOperator(OperatorToken op, string expectedOp)
+        public bool ExpectOperator(Expression<T> expression, int Offset, OperatorToken op, string expectedOp)
         {
-            if (op.Operator != expectedOp)
+            if (op.Definition.Operator != expectedOp)
             {
-                AddError(op.StartCharacter, op.EndCharacter, $"Expected the operator '{expectedOp}' but got '{op.Operator}'.");
+                AddError(Offset, Offset + expression.TokenCount, $"Expected the operator '{expectedOp}' but got '{op.Definition.Operator}'.");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Assert/validate that one of the correct operators was used
+        /// </summary>
+        /// <param name="expression">The expression to check</param>
+        /// <param name="Offset">The index of the expression relative to the root expression being validated.</param>
+        /// <param name="op">The operator to </param>
+        /// <param name="expectedOps">The expected operator</param>
+        public bool ExpectOperators(Expression<T> expression, int Offset, OperatorToken op, string[] expectedOps)
+        {
+            if (!expectedOps.Contains(op.Definition.Operator))
+            {
+                AddError(Offset, Offset + expression.TokenCount,
+                    $"Expected operator among {string.Join(", ", expectedOps.Select(op => $"'{op}'"))} " +
+                    $"but got '{op.Definition.Operator}'.");
                 return false;
             }
             return true;
@@ -78,7 +146,7 @@
         /// </summary>
         /// <param name="predicates">
         /// A group of expectations to evaluate. Technically this can be any producer but it's generally expected
-        /// for them to be wrappers for calls to Expect* or calls to <see cref="IExpression{T}.Validate"/>
+        /// for them to be wrappers for calls to Expect* or calls to <see cref="Expression{T}.Validate(ExpressionValidator{T}, int)"/>
         /// </param>
         public bool ExpectAllSequential(params Func<bool>[] predicates)
         {

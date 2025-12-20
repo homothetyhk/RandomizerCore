@@ -1,7 +1,7 @@
 ﻿namespace RandomizerCore.StringParsing
 {
     /// <summary>
-    /// Parses <see cref="IExpression{T}"/>s from a stream of <see cref="Token"/>s.
+    /// Parses <see cref="Expression{T}"/>s from a stream of <see cref="Token"/>s.
     /// </summary>
     public class ExpressionParser<T>
     {
@@ -28,55 +28,54 @@
         /// Parses an expression
         /// </summary>
         /// <exception cref="ParsingException">When an unrecoverable parsing error occurs</exception>
-        public IExpression<T> Parse()
+        public Expression<T> Parse()
         {
-            IExpression<T> expr = PrattParser(0);
+            Expression<T> expr = PrattParser(0);
             if (!IsEmpty())
             {
-                throw new ParsingException($"Unmatched closing parenthesis ')' at position {tokenStream[index - 1].StartCharacter}.");
+                throw new ParsingException($"Unmatched closing parenthesis ')' at position {index - 1}.");
             }
             return expr;
         }
 
-        private IExpression<T> PrattParser(int minBindingPower)
+        private Expression<T> PrattParser(int minBindingPower)
         {
             Token next = Next();
-            IExpression<T> lhs;
+            Expression<T> lhs;
             if (expressionFactory.IsAtom(next))
             {
                 lhs = expressionFactory.CreateAtomExpression(next);
             }
             else if (next is OperatorToken ot)
             {
-                int? prefixRbp = operatorProvider.PrefixBindingPower(ot.Operator);
-                if (prefixRbp != null)
+                if (ot.Definition.IsPrefix)
                 {
-                    IExpression<T> operand = PrattParser(prefixRbp.Value);
+                    Expression<T> operand = PrattParser(ot.Definition.PrefixBindingPower.Value);
                     lhs = expressionFactory.CreatePrefixExpression(ot, operand);
                 }
                 else
                 {
-                    throw new ParsingException($"Expected a prefix operator at position {ot.StartCharacter} " +
-                        $"but got a different operator '{ot.Operator}'.");
+                    throw new ParsingException($"Expected a prefix operator at position {index} " +
+                        $"but got a different operator '{ot.Definition.Operator}'.");
                 }
             }
-            else if (next is StructuralToken st && st.TokenType == StructuralToken.Type.OpenParenthesis)
+            else if (next is StructuralToken st && st.Type == StructuralToken.Types.OpenParenthesis)
             {
                 lhs = PrattParser(0);
                 Token closingParen = Next();
-                if (closingParen is not StructuralToken nst || nst.TokenType != StructuralToken.Type.CloseParenthesis)
+                if (closingParen is not StructuralToken nst || nst.Type != StructuralToken.Types.CloseParenthesis)
                 {
-                    throw new ParsingException($"Unmatched opening parenthesis '(' at position {st.StartCharacter}.");
+                    throw new ParsingException($"Unmatched opening parenthesis '(' at position {index}.");
                 }
                 lhs = new GroupingExpression<T>(st, lhs, nst);
             }
-            else if (next is StructuralToken st2 && st2.TokenType == StructuralToken.Type.CloseParenthesis)
+            else if (next is StructuralToken st2 && st2.Type == StructuralToken.Types.CloseParenthesis)
             {
-                throw new ParsingException($"Unmatched closing parenthesis ')' at position {st2.StartCharacter}.");
+                throw new ParsingException($"Unmatched closing parenthesis ')' at position {index}.");
             }
             else
             {
-                throw new ParsingException($"Unexpected token '{next.Print()}' at position {next.StartCharacter}.");
+                throw new ParsingException($"Unexpected token '{next.Print()}' at position {index}.");
             }
 
             while (true)
@@ -88,21 +87,21 @@
                 }
 
                 Token op = Peek();
-                if (op is StructuralToken st && st.TokenType == StructuralToken.Type.CloseParenthesis)
+                if (op is StructuralToken st && st.Type == StructuralToken.Types.CloseParenthesis)
                 {
                     break;
                 }
 
                 if (op is not OperatorToken ot)
                 {
-                    throw new ParsingException($"Expected an operator at position {op.StartCharacter}");
+                    throw new ParsingException($"Expected an operator at position {index}, token {op}");
                 }
 
                 // postfix handling is a special case; it should not fail out if the operator is not
                 // known because it might be infix.
-                if (operatorProvider.PostfixBindingPower(ot.Operator) is int postLbp)
+                if (ot.Definition.IsPostfix)
                 {
-                    if (postLbp < minBindingPower)
+                    if (ot.Definition.PostfixBindingPower.Value < minBindingPower)
                     {
                         // the incoming binding power is stronger than the binding power of the next operator, so we will steal
                         // the operand into our expression and call it a day (that operator will then later pull us into its expression)
@@ -113,10 +112,9 @@
                     continue;
                 }
 
-                (int, int)? ibp = operatorProvider.InfixBindingPower(ot.Operator);
-                if (ibp != null)
+                if (ot.Definition.IsInfix)
                 {
-                    (int lbp, int rbp) = ibp.Value;
+                    (int lbp, int rbp) = (ot.Definition.PostfixBindingPower.Value, ot.Definition.PrefixBindingPower.Value);
                     if (lbp < minBindingPower)
                     {
                         // the incoming binding power is stronger than the binding power of the next operator, so we will steal
@@ -124,14 +122,14 @@
                         break;
                     }
                     Next();
-                    IExpression<T> rhs = PrattParser(rbp);
+                    Expression<T> rhs = PrattParser(rbp);
 
                     lhs = expressionFactory.CreateInfixExpression(lhs, ot, rhs);
                 }
                 else
                 {
-                    throw new ParsingException($"Expected an infix operator at position {ot.StartCharacter} " +
-                        $"but got a different operator '{ot.Operator}'.");
+                    throw new ParsingException($"Expected an infix operator at position {index} " +
+                        $"but got a different operator '{ot.Definition.Operator}'.");
                 }
             }
             return lhs;

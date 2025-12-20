@@ -12,54 +12,71 @@
         public abstract IEnumerable<StateField> GetStateFields();
     }
 
-    internal class StateAccessorWrapper : StateModifier
+    internal class SAVFromLogicInt : StateAccessVariable
+    {
+        private readonly ILogicInt Inner;
+
+        public SAVFromLogicInt(ILogicInt inner)
+        {
+            Inner = inner;
+        }
+
+        public override string Name => Inner.Name;
+
+        public override IEnumerable<StateField> GetStateFields()
+        {
+            return [];
+        }
+
+        public override IEnumerable<Term> GetTerms()
+        {
+            return Inner.GetTerms();
+        }
+
+        public override int GetValue<T>(object? sender, ProgressionManager pm, T state)
+        {
+            return Inner.GetValue(sender, pm);
+        }
+    }
+
+    internal class StateModifierFromSAV : StateModifier
     {
         protected readonly StateAccessVariable Left;
-        protected readonly ILogicVariable? Right;
+        protected readonly StateAccessVariable Right;
         protected readonly int Op;
 
-        public StateAccessorWrapper(string name, StateAccessVariable left, ILogicVariable? right = null, int op = 1)
+        public StateModifierFromSAV(StateAccessVariable left, StateAccessVariable right, int op)
         {
-            Name = name;
             Left = left;
             Right = right;
             Op = op;
         }
 
-        public override string Name { get; }
+        public override string Name
+        {
+            get
+            {
+                string op = Op switch
+                {
+                    > 0 => ">",
+                    < 0 => "<",
+                    0 => "="
+                };
+                return $"{Left.Name}{op}{Right.Name}";
+            }
+        }
 
         public override IEnumerable<Term> GetTerms()
         {
             foreach (Term t in Left.GetTerms()) yield return t;
-            if (Right is not null) foreach (Term t in Right.GetTerms()) yield return t;
+            foreach (Term t in Right.GetTerms()) yield return t;
         }
 
         public override IEnumerable<LazyStateBuilder> ModifyState(object? sender, ProgressionManager pm, LazyStateBuilder state)
         {
             int l = Left.GetValue(sender, pm, state);
-            if (Right is null)
-            {
-                if (l > 0) yield return state;
-            }
-            else
-            {
-                int r = Right switch
-                {
-                    Term T => pm.Get(T),
-                    LogicInt li => li.GetValue(sender, pm),
-                    StateAccessVariable sav => sav.GetValue(sender, pm, state),
-                    _ => throw new NotImplementedException()
-                };
-                if (Op switch
-                {
-                    < 0 => l < r,
-                    > 0 => l > r,
-                    _ => l == r,
-                })
-                {
-                    yield return state;
-                }
-            }
+            int r = Right.GetValue(sender, pm, state);
+            return Math.Sign(l.CompareTo(r)) == Op ? [state] : [];
         }
     }
 

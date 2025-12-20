@@ -5,6 +5,7 @@ namespace RandomizerCore.StringLogic
     /// <summary>
     /// Utility methods for dealing with logic in RPN form.
     /// </summary>
+    [Obsolete]
     public static class RPN
     {
         public static IEnumerable<LogicToken> OperateOver(IEnumerable<TermToken> terms, OperatorToken op)

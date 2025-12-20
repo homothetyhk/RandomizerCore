@@ -1,26 +1,25 @@
 ﻿using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.Logic.StateLogic
 {
     internal class SingleStateRPNLogic : SingleStateLogic
     {
-        public SingleStateRPNLogic(string name, int[] logic, LogicManager lm, string infixSource) : base(name, infixSource)
+        public SingleStateRPNLogic(string name, LogicClause lc, LogicManager lm) : base(name, lc.ToInfix())
         {
-            if (logic == null || logic.Length == 0) throw new ArgumentException($"Invalid logic array passed to RPNLogicDef for {name}");
-
             this.lm = lm;
-            this.logic = logic;
+            RPNLogicDefBuilder builder = new(name, lc, lm, RPNLogicDefBuilder.RPNLogicType.SingleState);
+            logic = [.. builder.entries];
         }
 
-        private readonly int[] logic;
+        private readonly RPNLogicEntry[] logic;
         private readonly LogicManager lm;
 
         public override bool CanGet<T>(ProgressionManager pm, T state)
         {
             try
             {
-                int i = logic.Length - 1;
-                return Eval(pm, state, ref i);
+                return Eval(pm, state);
             }
             catch (Exception e)
             {
@@ -28,61 +27,49 @@ namespace RandomizerCore.Logic.StateLogic
             }
         }
 
-        private bool Eval<T>(ProgressionManager pm, T state, ref int i) where T : IState
+        private bool Has<T>(ILogicVariable variable, int incLB, ProgressionManager pm, T state) where T : IState => variable switch
         {
-            int id = logic[i--];
-            switch (id)
+            Term t => pm.Has(t, incLB),
+            LogicInt li => li.GetValue(this, pm) >= incLB,
+            StateAccessVariable sav => sav.GetValue(this, pm, state) >= incLB,
+            _ => throw new NotImplementedException(variable.GetType().Name),
+        };
+
+        private bool Eval<T>(ProgressionManager pm, T state) where T : IState
+        {
+            Stack<bool> stack = [];
+            foreach (RPNLogicEntry e in logic)
             {
-                case (int)LogicOperators.AND:
-                    return Eval(pm, state, ref i) & Eval(pm, state, ref i);
-                case (int)LogicOperators.OR:
-                    return Eval(pm, state, ref i) | Eval(pm, state, ref i);
-                case (int)LogicOperators.NONE:
-                    return false;
-                case (int)LogicOperators.ANY:
-                    return true;
-                case (int)LogicOperators.GT:
+                if (e.Variable is null)
+                {
+                    if (e.IsAnd)
                     {
-                        int right = ParseNextInt(pm, state, logic[i--]);
-                        int left = ParseNextInt(pm, state, logic[i--]);
-                        return left > right;
+                        bool argR = stack.Pop();
+                        bool argL = stack.Pop();
+                        return argL && argR;
                     }
-                case (int)LogicOperators.LT:
+                    else if (e.IsOr)
                     {
-                        int right = ParseNextInt(pm, state, logic[i--]);
-                        int left = ParseNextInt(pm, state, logic[i--]);
-                        return left < right;
+                        bool argR = stack.Pop();
+                        bool argL = stack.Pop();
+                        return argL || argR;
                     }
-                case (int)LogicOperators.EQ:
+                    else if (e.IsConstFalse)
                     {
-                        int right = ParseNextInt(pm, state, logic[i--]);
-                        int left = ParseNextInt(pm, state, logic[i--]);
-                        return left == right;
+                        stack.Push(false);
                     }
-                default:
-                    return ParseNextInt(pm, state, id) > 0;
+                    else if (e.IsConstTrue)
+                    {
+                        stack.Push(true);
+                    }
+                }
+                else
+                {
+                    stack.Push(Has(e.Variable, e.Value, pm, state));
+                }
             }
-        }
-
-        private int ParseNextInt<T>(ProgressionManager pm, T state, int id) where T : IState => id switch
-        {
-            < -99 => GetVariable(pm, state, id),
-            >= 0 => pm.Get(id),
-            _ => throw new NotImplementedException(),
-        };
-
-        private int GetVariable<T>(ProgressionManager pm, T state, int id) where T : IState => lm.GetVariable(id) switch
-        {
-            LogicInt li => li.GetValue(this, pm),
-            StateAccessVariable sav => sav.GetValue(this, pm, state),
-            _ => throw new NotImplementedException(),
-        };
-
-
-
-        private Exception ThrowHelper()
-        {
-            return new InvalidOperationException($"Error evaluating {GetType().Name} {Name} with source {InfixSource}");
+            if (stack.Count != 0) throw new InvalidOperationException("Found extra operands in the stack after evaluation.");
+            return stack.Pop();
         }
 
         private Exception ThrowHelper(Exception e)
@@ -90,37 +77,18 @@ namespace RandomizerCore.Logic.StateLogic
             return new InvalidOperationException($"Error evaluating {GetType().Name} {Name} with source {InfixSource}", e);
         }
 
-        /// <summary>
-        /// Enumerates the terms of the LogicDef, excluding operators and combinators. May contain duplicates.
-        /// </summary>
         public override IEnumerable<Term> GetTerms()
         {
             for (int i = logic.Length - 1; i >= 0; i--)
             {
-                switch (logic[i])
+                switch (logic[i].Variable)
                 {
-                    case (int)LogicOperators.AND:
-                    case (int)LogicOperators.OR:
-                    case (int)LogicOperators.NONE:
-                    case (int)LogicOperators.ANY:
-                        continue;
-                    case (int)LogicOperators.GT:
-                    case (int)LogicOperators.LT:
-                    case (int)LogicOperators.EQ:
-                        {
-                            int right = logic[--i];
-                            if (right >= 0) yield return lm.GetTerm(right);
-                            else foreach (Term t in lm.GetVariable(right).GetTerms()) yield return t;
-                            int left = logic[--i];
-                            if (left >= 0) yield return lm.GetTerm(left);
-                            else foreach (Term t in lm.GetVariable(left).GetTerms()) yield return t;
-                        }
+                    case null: continue;
+                    case Term t: 
+                        yield return t; 
                         break;
-                    default:
-                        {
-                            if (logic[i] >= 0) yield return lm.GetTerm(logic[i]);
-                            else foreach (Term t in lm.GetVariable(logic[i]).GetTerms()) yield return t;
-                        }
+                    case LogicVariable lv:
+                        foreach (Term t in lv.GetTerms()) { yield return t; }
                         break;
                 }
             }
@@ -130,96 +98,94 @@ namespace RandomizerCore.Logic.StateLogic
         {
             for (int i = logic.Length - 1; i >= 0; i--)
             {
-                switch (logic[i])
+                switch (logic[i].Variable)
                 {
-                    case (int)LogicOperators.AND:
-                    case (int)LogicOperators.OR:
-                    case (int)LogicOperators.NONE:
-                    case (int)LogicOperators.ANY:
-                        continue;
-                    case (int)LogicOperators.GT:
-                    case (int)LogicOperators.LT:
-                    case (int)LogicOperators.EQ:
-                        {
-                            int right = logic[--i];
-                            if (right < 0 && lm.GetVariable(right) is StateAccessVariable savR)
-                            {
-                                foreach (StateField sf in savR.GetStateFields()) yield return sf;
-                            }
-                            int left = logic[--i];
-                            if (left < 0 && lm.GetVariable(left) is StateAccessVariable savL)
-                            {
-                                foreach (StateField sf in savL.GetStateFields()) yield return sf;
-                            }
-                        }
-                        break;
-                    default:
-                        {
-                            if (logic[i] < 0 && lm.GetVariable(logic[i]) is StateAccessVariable sav)
-                            {
-                                foreach (StateField sf in sav.GetStateFields()) yield return sf;
-                            }
-                        }
+                    case StateAccessVariable sav:
+                        foreach (StateField sf in sav.GetStateFields()) { yield return sf; }
                         break;
                 }
             }
         }
 
-        public override IEnumerable<LogicToken> ToTokenSequence()
+        public override Expression<LogicExpressionType> ToExpression()
         {
-            for (int i = 0; i < logic.Length; i++)
+            try
             {
-                switch (logic[i])
-                {
-                    case (int)LogicOperators.NONE:
-                        yield return ConstToken.False;
-                        break;
-                    case (int)LogicOperators.ANY:
-                        yield return ConstToken.True;
-                        break;
-                    case (int)LogicOperators.OR:
-                        yield return OperatorToken.OR;
-                        break;
-                    case (int)LogicOperators.AND:
-                        yield return OperatorToken.AND;
-                        break;
-                    default:
-                        if (i + 2 < logic.Length)
-                        {
-                            switch (logic[i + 2])
-                            {
-                                case (int)LogicOperators.EQ:
-                                    {
-                                        GetComparisonStrings(ref i, out string left, out string right);
-                                        yield return lm.LP.GetComparisonToken(ComparisonType.EQ, left, right);
-                                    }
-                                    continue;
-                                case (int)LogicOperators.LT:
-                                    {
-                                        GetComparisonStrings(ref i, out string left, out string right);
-                                        yield return lm.LP.GetComparisonToken(ComparisonType.LT, left, right);
-                                    }
-                                    continue;
-                                case (int)LogicOperators.GT:
-                                    {
-                                        GetComparisonStrings(ref i, out string left, out string right);
-                                        yield return lm.LP.GetComparisonToken(ComparisonType.GT, left, right);
-                                    }
-                                    continue;
-                            }
-                        }
-                        yield return lm.LP.GetTermToken(logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name);
-                        break;
-                }
+                return EvalExpression();
+            }
+            catch (Exception e)
+            {
+                throw ThrowHelper(e);
             }
         }
 
-        private void GetComparisonStrings(ref int i, out string left, out string right)
+        private Expression<LogicExpressionType> EvalExpression()
         {
-            left = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
-            i++;
-            right = logic[i] >= 0 ? lm.GetTerm(logic[i]).Name : lm.GetVariable(logic[i]).Name;
-            i++;
+            Stack<Expression<LogicExpressionType>> stack = [];
+            LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+            foreach (RPNLogicEntry e in logic)
+            {
+                if (e.Variable is null)
+                {
+                    if (e.IsAnd)
+                    {
+                        Expression<LogicExpressionType> argR = stack.Pop();
+                        Expression<LogicExpressionType> argL = stack.Pop();
+                        stack.Push(builder.ApplyInfixOperator(argL, builder.Op(LogicOperatorProvider.AND), argR));
+                    }
+                    else if (e.IsOr)
+                    {
+                        Expression<LogicExpressionType> argR = stack.Pop();
+                        Expression<LogicExpressionType> argL = stack.Pop();
+                        stack.Push(builder.ApplyInfixOperator(argL, builder.Op(LogicOperatorProvider.OR), argR));
+                    }
+                    else if (e.IsConstTrue)
+                    {
+                        stack.Push(builder.NameAtom(true.ToString().ToUpper()));
+                    }
+                    else if (e.IsConstFalse)
+                    {
+                        stack.Push(builder.NameAtom(false.ToString().ToUpper()));
+                    }
+                    else throw new NotImplementedException();
+                }
+                else
+                {
+                    if (e.Variable is ComparisonVariable cv)
+                    {
+                        Expression<LogicExpressionType> left = builder.NameOrNumberAtom(cv.Left.Name);
+                        Expression<LogicExpressionType> right = builder.NameOrNumberAtom(cv.Right.Name);
+                        StringParsing.OperatorToken op = builder.Op(cv.Op switch
+                        {
+                            < 0 => "<", 
+                            0 => "=", 
+                            > 0 => ">"
+                        });
+                        stack.Push(builder.ApplyInfixOperator(left, op, right));
+                    }
+                    else if (e.Variable is SAVComparisonVariable savCV)
+                    {
+                        Expression<LogicExpressionType> left = builder.NameOrNumberAtom(savCV.Left.Name);
+                        Expression<LogicExpressionType> right = builder.NameOrNumberAtom(savCV.Right.Name);
+                        StringParsing.OperatorToken op = builder.Op(savCV.Op switch
+                        {
+                            < 0 => "<",
+                            0 => "=",
+                            > 0 => ">"
+                        });
+                        stack.Push(builder.ApplyInfixOperator(left, op, right));
+                    }
+                    else
+                    {
+                        Expression<LogicExpressionType> atom = builder.NameAtom(e.Variable.Name);
+                        stack.Push(e.Value == 1
+                                    ? atom
+                                    : builder.ApplyInfixOperator(atom, builder.Op(LogicOperatorProvider.GT), builder.NumberAtom(e.Value)));
+                    }
+                }
+            }
+            if (stack.Count != 0) throw new InvalidOperationException("Found extra operands in the stack after evaluation.");
+            return stack.Pop();
         }
     }
 }

@@ -2,20 +2,14 @@
 {
     file static class StringParsingExtensions
     {
-        internal static U WithEmptyTrivia<U>(this U u) where U : Token
-        {
-            u.LeadingTrivia = u.TrailingTrivia = string.Empty;
-            return u;
-        }
-
-        internal static GroupingExpression<T> Group<T>(this IExpression<T> expr) => new(
-            new StructuralToken { TokenType = StructuralToken.Type.OpenParenthesis }.WithEmptyTrivia(),
+        internal static GroupingExpression<T> Group<T>(this Expression<T> expr) => new(
+            new StructuralToken(StructuralToken.Types.OpenParenthesis),
             expr,
-            new StructuralToken { TokenType = StructuralToken.Type.CloseParenthesis }.WithEmptyTrivia()
+            new StructuralToken(StructuralToken.Types.CloseParenthesis)
             );
     }
 
-    internal class ExpressionBuilder<T>
+    public class ExpressionBuilder<T>
     {
         private readonly IOperatorProvider operatorProvider;
         private readonly IExpressionFactory<T> expressionFactory;
@@ -26,17 +20,17 @@
             this.expressionFactory = expressionFactory;
         }
 
-        public IExpression<T> ApplyInfixOperator(IExpression<T> argL, OperatorToken op, IExpression<T> argR)
+        public Expression<T> ApplyInfixOperator(Expression<T> argL, OperatorToken op, Expression<T> argR)
         {
             int? pArgLeft = GetBindingPower(argL, false);
             int? pArgRight = GetBindingPower(argR, true);
-            if (operatorProvider.InfixBindingPower(op.Operator) is not (int leftP, int rightP)) throw new ArgumentException($"Unrecognized infix operator {op.Operator}.", nameof(op));
+            if (!op.Definition.IsInfix) throw new ArgumentException($"Unrecognized infix operator {op.Definition.Operator}.", nameof(op));
 
-            if (pArgLeft.HasValue && pArgLeft.Value <= leftP)
+            if (pArgLeft.HasValue && pArgLeft.Value <= op.Definition.PostfixBindingPower.Value)
             {
                 argL = argL.Group();
             }
-            if (pArgRight.HasValue && pArgRight.Value <= rightP)
+            if (pArgRight.HasValue && pArgRight.Value <= op.Definition.PrefixBindingPower.Value)
             {
                 argR = argR.Group();
             }
@@ -44,67 +38,68 @@
             return expressionFactory.CreateInfixExpression(argL, op, argR);
         }
 
-        public IExpression<T> ApplyInfixOperatorLeftAssoc(IEnumerable<IExpression<T>> args, OperatorToken op)
+        public Expression<T> ApplyInfixOperatorLeftAssoc(IEnumerable<Expression<T>> args, OperatorToken op)
         {
             return args.Aggregate((expr, operand) => ApplyInfixOperator(expr, op, operand));
         }
 
-        public IExpression<T> ApplyPrefixOperator(OperatorToken op, IExpression<T> operand)
+        public Expression<T> ApplyPrefixOperator(OperatorToken op, Expression<T> operand)
         {
             int? pOperand = GetBindingPower(operand, true);
-            if (operatorProvider.PrefixBindingPower(op.Operator) is not int power) throw new ArgumentException($"Unrecognized prefix operator {op.Operator}.", nameof(op));
+            if (!op.Definition.IsPrefix) throw new ArgumentException($"Unrecognized prefix operator {op.Definition.Operator}.", nameof(op));
 
-            if (pOperand.HasValue && pOperand <= power) operand = operand.Group();
+            if (pOperand.HasValue && pOperand.Value <= op.Definition.PrefixBindingPower.Value) operand = operand.Group();
             return expressionFactory.CreatePrefixExpression(op, operand);
         }
 
-        public IExpression<T> ApplyPostfixOperator(IExpression<T> operand, OperatorToken op)
+        public Expression<T> ApplyPostfixOperator(Expression<T> operand, OperatorToken op)
         {
             int? pOperand = GetBindingPower(operand, false);
-            if (operatorProvider.PostfixBindingPower(op.Operator) is not int power) throw new ArgumentException($"Unrecognized postfix operator {op.Operator}.", nameof(op));
+            if (!op.Definition.IsPostfix) throw new ArgumentException($"Unrecognized postfix operator {op.Definition.Operator}.", nameof(op));
 
-            if (pOperand.HasValue && pOperand <= power) operand = operand.Group();
+            if (pOperand.HasValue && pOperand.Value <= op.Definition.PostfixBindingPower.Value) operand = operand.Group();
             return expressionFactory.CreatePostfixExpression(operand, op);
         }
 
-        private int? GetBindingPower(IExpression<T> expr, bool relativeToLeft)
+        private int? GetBindingPower(Expression<T> expr, bool relativeToLeft)
         {
-            return expr switch
+            if (relativeToLeft)
             {
-                InfixExpression<T> i => operatorProvider.InfixBindingPower(i.Operator.Operator) is (int, int) pair ? relativeToLeft ? pair.Item1 : pair.Item2 : null,
-                PostfixExpression<T> po => relativeToLeft ? operatorProvider.PostfixBindingPower(po.Operator.Operator) : null,
-                PrefixExpression<T> pr => !relativeToLeft ? operatorProvider.PrefixBindingPower(pr.Operator.Operator) : null,
-                _ => null
-            };
+                return expr switch
+                {
+                    InfixExpression<T> i => i.Operator.Definition.PostfixBindingPower,
+                    PostfixExpression<T> p => p.Operator.Definition.PostfixBindingPower,
+                    _ => null
+                };
+            }
+            else
+            {
+                return expr switch
+                {
+                    InfixExpression<T> i => i.Operator.Definition.PrefixBindingPower,
+                    PrefixExpression<T> p => p.Operator.Definition.PrefixBindingPower,
+                    _ => null
+                };
+            }
         }
 
-        public IExpression<T> NameAtom(string name) => expressionFactory.CreateAtomExpression(CreateTermToken(name));
+        public Expression<T> NameAtom(string name) => expressionFactory.CreateAtomExpression(CreateTermToken(name));
 
-        public IExpression<T> NumberAtom(int i) => expressionFactory.CreateAtomExpression(CreateNumberToken(i));
+        public Expression<T> NumberAtom(int i) => expressionFactory.CreateAtomExpression(CreateNumberToken(i));
 
-        public IExpression<T> StringAtom(string str) => expressionFactory.CreateAtomExpression(CreateStringToken(str));
+        public Expression<T> StringAtom(string str) => expressionFactory.CreateAtomExpression(CreateStringToken(str));
+
+        public Expression<T> NameOrNumberAtom(string name) => int.TryParse(name, out int i) ? NumberAtom(i) : NameAtom(name);
 
         public OperatorToken Op(string op)
         {
-            if (operatorProvider.InfixBindingPower(op) is not null) return new() { Operator = op, LeadingTrivia = " ", TrailingTrivia = " " };
-            else return new OperatorToken() { Operator = op }.WithEmptyTrivia();
+            return new(operatorProvider.GetDefinition(op) ?? throw new KeyNotFoundException($"Unrecognized operator {op}"));
         }
 
-        private static NameToken CreateTermToken(string name) => new NameToken()
-        {
-            Value = name,
-        }.WithEmptyTrivia();
+        private static NameToken CreateTermToken(string name) => new NameToken(name);
 
-        private static NumberToken CreateNumberToken(int i) => new NumberToken()
-        {
-            Value = i,
-        }.WithEmptyTrivia();
+        private static NumberToken CreateNumberToken(int i) => new NumberToken(i);
 
-        private static StringToken CreateStringToken(string str) => new()
-        {
-            Value = str,
-            LeadingTrivia = "`",
-            TrailingTrivia = "`",
-        };
+        private static StringToken CreateStringToken(string str) => new('`', str);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.Logic
 {
@@ -31,22 +32,30 @@ namespace RandomizerCore.Logic
         /// The sequence of terms on which the LogicDef depends. Terms not included in the sequence must not affect the value of CanGet.
         /// </summary>
         public abstract IEnumerable<Term> GetTerms();
+        
+        [Obsolete]
+        public virtual IEnumerable<LogicToken> ToTokenSequence() => ToExpression().ToTokenSequence();
+
         /// <summary>
-        /// Converts the LogicDef to its equivalent sequence of LogicTokens in RPN format.
+        /// Converts the LogicDef to an equivalent expression.
         /// </summary>
-        public abstract IEnumerable<LogicToken> ToTokenSequence();
+        public abstract Expression<LogicExpressionType> ToExpression();
+
         /// <summary>
-        /// Creates a LogicClauseBuilder equivalent to the LogicDef using <see cref="ToTokenSequence"/>.
+        /// Creates a LogicClauseBuilder equivalent to the result of <see cref="ToExpression"/>.
         /// </summary>
-        public LogicClauseBuilder ToLogicClauseBuilder() => new(ToTokenSequence());
+        public LogicClauseBuilder ToLogicClauseBuilder() => new(ToExpression());
+
         /// <summary>
-        /// Creates a LogicClause equivalent to the LogicDef using <see cref="ToTokenSequence"/>.
+        /// Creates a LogicClause equivalent to the result of <see cref="ToExpression"/>.
         /// </summary>
         public LogicClause ToLogicClause() => new(ToLogicClauseBuilder());
+
         /// <summary>
-        /// The string representation of the LogicDef. Must be logically equivalent to InfixSource, but generally does not contain macros and may be expanded or simplified in other ways.
+        /// A string representation of the LogicDef. Must be logically equivalent to InfixSource, but may be normalized or expanded or simplified in other ways.
         /// </summary>
         public virtual string ToInfix() => ToLogicClauseBuilder().ToInfix();
+
         public override string ToString() => $"{Name}: {InfixSource}";
     }
 }

@@ -1,73 +1,33 @@
 ﻿namespace RandomizerCore.StringParsing
 {
-    public abstract record Token
+    /// <summary>
+    /// Record carrying part of the raw data of an expression, organized into operators, groupings (parens), and data (names, numbers, raw text).
+    /// </summary>
+    /// <param name="Content">The string representation of the token's data. Use <see cref="Print"/> over <see cref="Content"/> when writing tokens within expressions.</param>
+    public abstract record Token(string Content)
     {
-        public int StartCharacter;
-        public int EndCharacter;
-        public string LeadingTrivia;
-        public string TrailingTrivia;
-
-        public string Print() => LeadingTrivia + PrintContent() + TrailingTrivia;
-        protected abstract string PrintContent();
+        /// <summary>
+        /// Prints the content of the token, along with any required delimiters.
+        /// </summary>
+        public virtual string Print() => Content;
     }
 
-    /// <summary>
-    /// Token representing a named symbol, e.g. a term, logic variable, item name, etc.
-    /// </summary>
-    public record NameToken : Token
+    public record NameToken(string Content) : Token(Content);
+    public record StringToken(char Delimiter, string Content) : Token(Content)
     {
-        public string Value;
-
-        protected override string PrintContent() => Value;
+        public override string Print()
+        {
+            return Delimiter + Content + Delimiter;
+        }
     }
-
-    /// <summary>
-    /// Token representing a number literal
-    /// </summary>
-    public record NumberToken : Token
+    public record NumberToken(int Value) : Token(Value.ToString());
+    public record OperatorToken(OperatorDefinition Definition) : Token(Definition.Operator);
+    public record StructuralToken(StructuralToken.Types Type) : Token(Type == Types.OpenParenthesis ? "(" : ")")
     {
-        public int Value;
-
-        protected override string PrintContent() => Value.ToString();
-    }
-
-    /// <summary>
-    /// Token representing a string literal
-    /// </summary>
-    public record StringToken : Token
-    {
-        public string Value;
-
-        protected override string PrintContent() => Value;
-    }
-
-    /// <summary>
-    /// Token representing a structural element, e.g. parentheses or braces
-    /// </summary>
-    public record StructuralToken : Token
-    {
-        public enum Type
+        public enum Types
         {
             OpenParenthesis,
             CloseParenthesis
         }
-        public Type TokenType;
-
-        protected override string PrintContent() => TokenType switch
-        {
-            Type.OpenParenthesis => "(",
-            Type.CloseParenthesis => ")",
-            _ => throw new NotImplementedException()
-        };
-    }
-
-    /// <summary>
-    /// Token representing a unary or binary operator
-    /// </summary>
-    public record OperatorToken : Token
-    {
-        public string Operator;
-
-        protected override string PrintContent() => Operator;
     }
 }

@@ -10,29 +10,32 @@ namespace RandomizerCoreTests
         public void TestTokenizeBasic()
         {
             string input = "  Grubsong+=1 >> `Grubsong = 1` => CHARMS += 1";
-            Tokenizer tokenizer = new(new ItemOperatorProvider(), input, '`');
-            List<Token> tokens = tokenizer.Tokenize();
+            ItemOperatorProvider operatorProvider = new();
+            List<Token> tokens = Tokenizer.Tokenize(input, operatorProvider, '`');
 
             tokens.Should().HaveCount(9).And.ContainInConsecutiveOrder(
-                new NameToken { Value = "Grubsong", LeadingTrivia = "  ", TrailingTrivia = "", StartCharacter = 2, EndCharacter = 9 },
-                new OperatorToken { Operator = "+=", LeadingTrivia = "", TrailingTrivia = "", StartCharacter = 10, EndCharacter = 11 },
-                new NumberToken { Value = 1, LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 12, EndCharacter = 12 },
-                new OperatorToken { Operator = ">>", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 14, EndCharacter = 15 },
-                new StringToken { Value = "Grubsong = 1", LeadingTrivia = "`", TrailingTrivia = "` ", StartCharacter = 18, EndCharacter = 29},
-                new OperatorToken { Operator = "=>", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 32, EndCharacter = 33 },
-                new NameToken { Value = "CHARMS", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 35, EndCharacter = 40 },
-                new OperatorToken { Operator = "+=", LeadingTrivia = "", TrailingTrivia = " ", StartCharacter = 42, EndCharacter = 43 },
-                new NumberToken { Value = 1, LeadingTrivia = "", TrailingTrivia = "", StartCharacter = 45, EndCharacter = 45 }
+                new NameToken("Grubsong"),
+                new OperatorToken(operatorProvider.GetDefinition("+=")!),
+                new NumberToken(1),
+                new OperatorToken(operatorProvider.GetDefinition(">>")!),
+                new StringToken('`', "Grubsong = 1"),
+                new OperatorToken(operatorProvider.GetDefinition("=>")!),
+                new NameToken("CHARMS"),
+                new OperatorToken(operatorProvider.GetDefinition("+=")!),
+                new NumberToken(1)
             );
-            string.Join("", tokens.Select(x => x.Print())).Should().Be(input);
+            string.Join("", tokens.Select(x => x.Print())).Should().Be("Grubsong+=1>>`Grubsong = 1`=>CHARMS+=1");
         }
 
         private class TestOperatorProvider : IOperatorProvider
         {
-            public IReadOnlyCollection<string> GetAllOperators() => new[] { ">|" };
-            public (int, int)? InfixBindingPower(string op) => throw new NotImplementedException();
-            public int? PostfixBindingPower(string op) => throw new NotImplementedException();
-            public int? PrefixBindingPower(string op) => throw new NotImplementedException();
+            private readonly Dictionary<string, OperatorDefinition> operatorDefinitions = new()
+            {
+                [">|"] = new(">|", null, null),
+            };
+
+            public OperatorDefinition? GetDefinition(string op) => operatorDefinitions.TryGetValue(op, out OperatorDefinition? def) ? def : null;
+            public IReadOnlyCollection<string> GetAllOperators() => operatorDefinitions.Keys;
         }
         /// <summary>
         /// Regression test for a bug where operator tokenization would appear to work correctly when the only characters
@@ -43,14 +46,9 @@ namespace RandomizerCoreTests
         public void TestOperatorTokenizationWithUniqueSecondCharacterAdvancesTraversal()
         {
             string input = ">|";
-            Tokenizer tokenizer = new(new TestOperatorProvider(), input, null);
-            List<Token> tokens = tokenizer.Tokenize();
-            tokens.Should().ContainSingle().Which.Should().Be(new OperatorToken
-            {
-                StartCharacter = 0, EndCharacter = 1,
-                LeadingTrivia = "", TrailingTrivia = "",
-                Operator = ">|"
-            });
+            TestOperatorProvider operatorProvider = new();
+            List<Token> tokens = Tokenizer.Tokenize(input, operatorProvider, '`');
+            tokens.Should().ContainSingle().Which.Should().Be(new OperatorToken(operatorProvider.GetDefinition(">|")!));
         }
     }
 }

@@ -2,6 +2,7 @@
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.Logic
 {
@@ -10,21 +11,21 @@ namespace RandomizerCore.Logic
         public LogicManagerBuilder()
         {
             Terms = new();
-            LP = new();
             VariableResolver = new();
-            ItemLookup = new();
-            LogicLookup = new();
-            Waypoints = new();
-            Transitions = new();
+            ItemLookup = [];
+            LogicLookup = [];
+            MacroLookup = [];
+            Waypoints = [];
+            Transitions = [];
         }
 
         public LogicManagerBuilder(LogicManagerBuilder source)
         {
             Terms = new(source.Terms);
-            LP = new(source.LP);
             VariableResolver = source.VariableResolver;
             ItemLookup = new(source.ItemLookup);
             LogicLookup = new(source.LogicLookup);
+            MacroLookup = new(source.MacroLookup);
             Waypoints = new(source.Waypoints);
             Transitions = new(source.Transitions);
         }
@@ -32,21 +33,22 @@ namespace RandomizerCore.Logic
         public LogicManagerBuilder(LogicManager source)
         {
             Terms = new(source.Terms);
-            LP = new(source.LP);
             VariableResolver = source.VariableResolver;
             ItemLookup = source.ItemLookup.ToDictionary(kvp => kvp.Key, kvp => (ILogicItemTemplate)kvp.Value);
-            LogicLookup = new();
-            foreach (KeyValuePair<string, LogicDef> kvp in source.LogicLookup) AddLogicDef(new(kvp.Key, kvp.Value.InfixSource));
-            Waypoints = new(source.Waypoints.Select(w => w.Name));
-            Transitions = new(source.TransitionLookup.Values.Select(lt => lt.Name));
+            LogicLookup = source.LogicLookup.ToDictionary(kvp => kvp.Key, kvp => new LogicClause(kvp.Value.InfixSource));
+            MacroLookup = source.MacroLookup.ToDictionary(kvp => kvp.Key, kvp => new LogicClause(kvp.Value.InfixSource));
+            Waypoints = [.. source.Waypoints.Select(w => w.Name)];
+            Transitions = [.. source.TransitionLookup.Values.Select(lt => lt.Name)];
         }
 
 
         public readonly TermCollectionBuilder Terms;
-        public LogicProcessor LP { get; set; }
+        [Obsolete]
+        public LogicProcessor LP { get => field ??= new(this); set; }
         public VariableResolver VariableResolver { get; set; }
         public readonly Dictionary<string, ILogicItemTemplate> ItemLookup;
         public readonly Dictionary<string, LogicClause> LogicLookup;
+        public readonly Dictionary<string, LogicClause> MacroLookup;
         public readonly HashSet<string> Waypoints;
         public readonly HashSet<string> Transitions;
 
@@ -100,7 +102,7 @@ namespace RandomizerCore.Logic
             }
             try
             {
-                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                LogicLookup[def.name] = new(def.logic);
             }
             catch (Exception e)
             {
@@ -120,7 +122,7 @@ namespace RandomizerCore.Logic
             }
             try
             {
-                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                LogicLookup[def.name] = new(def.logic);
             }
             catch (Exception e)
             {
@@ -136,7 +138,7 @@ namespace RandomizerCore.Logic
         {
             try
             {
-                LogicLookup[def.name] = LP.ParseInfixToClause(def.logic);
+                LogicLookup[def.name] = new(def.logic);
             }
             catch (Exception e)
             {
@@ -153,7 +155,7 @@ namespace RandomizerCore.Logic
             LogicClauseBuilder lcb;
             try
             {
-                lcb = LP.ParseInfixToBuilder(def.logic);
+                lcb = new(def.logic);
             }
             catch (Exception e)
             {
@@ -161,47 +163,65 @@ namespace RandomizerCore.Logic
             }
 
             bool exists = LogicLookup.TryGetValue(def.name, out LogicClause orig);
-            lcb.PartialCoalesce(tt => tt is SimpleToken { Name: "ORIG" } ? exists : null);
-            if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+            Expression<LogicExpressionType> origAtom = LogicExpressionUtil.Builder.NameAtom("ORIG");
+            lcb.PartialCoalesce(e => e.IsEquivalentTo(origAtom) ? exists : null);
+            if (lcb.Contains(origAtom))
             {
                 if (!exists)
                 {
                     throw new ArgumentException($"ORIG edit requested for nonexistent logic def {def.name}: {def.logic}");
                 }
-
-                lcb.Subst(LP.GetTermToken("ORIG"), orig);
+                
+                lcb.Subst(origAtom, orig.Expr);
             }
             LogicLookup[def.name] = new(lcb);
         }
 
         /// <summary>
+        /// Adds the macro, overwriting any existing macro with the same name.
+        /// Use instead of <see cref="DoMacroEdit(KeyValuePair{string, string})"/> if the ORIG token is not needed.
+        /// </summary>
+        public void AddMacro(KeyValuePair<string, string> kvp)
+        {
+            try
+            {
+                MacroLookup[kvp.Key] = new(kvp.Value);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Logic \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
+            }
+        }
+
+        /// <summary>
         /// If the input contains the ORIG token and the macro is already defined, substitutes the old value for ORIG in the input, and overwrites the old macro.
-        /// <br/>If the input does not contain the ORIG token, is equivalent to LP.SetMacro.
+        /// <br/>If the input does not contain the ORIG token, is equivalent to <see cref="AddMacro(KeyValuePair{string, string})"/>.
         /// </summary>
         public void DoMacroEdit(KeyValuePair<string, string> kvp)
         {
             LogicClauseBuilder lcb;
             try
             {
-                lcb = LP.ParseInfixToBuilder(kvp.Value);
+                lcb = new(kvp.Value);
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException($"Logic edit \"{kvp.Value}\" for macro {kvp.Key} is malformed.", e);
             }
 
-            bool exists = LP.IsMacro(kvp.Key);
-            lcb.PartialCoalesce(tt => tt is SimpleToken { Name: "ORIG" } ? exists : null);
-            if (lcb.Tokens.Any(lt => lt is SimpleToken st && st.Name == "ORIG"))
+            bool exists = MacroLookup.TryGetValue(kvp.Key, out LogicClause orig);
+            Expression<LogicExpressionType> origAtom = LogicExpressionUtil.Builder.NameAtom("ORIG");
+            lcb.PartialCoalesce(e => e.IsEquivalentTo(origAtom) ? exists : null);
+            if (lcb.Contains(origAtom))
             {
                 if (!exists)
                 {
                     throw new ArgumentException($"ORIG edit requested for nonexistent macro {kvp.Key}: {kvp.Value}");
                 }
 
-                lcb.Subst(LP.GetTermToken("ORIG"), LP.GetMacro(kvp.Key));
+                lcb.Subst(origAtom, orig.Expr);
             }
-            LP.SetMacro(kvp.Key, new LogicClause(lcb));
+            MacroLookup[kvp.Key] = new(lcb);
         }
 
         /// <summary>
@@ -209,32 +229,41 @@ namespace RandomizerCore.Logic
         /// </summary>
         public void DoSubst(RawSubstDef def)
         {
-            TermToken tt = LP.GetTermToken(def.old);
-            LogicClause lc;
+            Expression<LogicExpressionType> oldExpr;
+            Expression<LogicExpressionType> newExpr;
+
             try
             {
-                lc = LP.ParseInfixToClause(def.replacement);
+                oldExpr = LogicExpressionUtil.Parse(def.old);
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException($"Logic subst replacement \"{def.replacement}\" for {def.old} in {def.name} is malformed.", e);
+                throw new ArgumentException($"Logic subst target \"{def.old}\" in {def.name} is malformed.", e);
             }
-            bool isMacro = LP.IsMacro(def.name);
-            bool isLocation = LogicLookup.TryGetValue(def.name, out LogicClause orig);
+            try
+            {
+                newExpr = LogicExpressionUtil.Parse(def.replacement);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Logic subst replacement \"{def.replacement}\" for {def.old} in {def.name} is malformed.", e);
+            }
+            bool isMacro = MacroLookup.TryGetValue(def.name, out LogicClause origMacro);
+            bool isLocation = LogicLookup.TryGetValue(def.name, out LogicClause origLogic);
             if (isMacro && isLocation)
             {
                 throw new ArgumentException($"Ambiguous substituion request: \"{def.name}\" is used as a macro and as a logic def.");
             }
             else if (isMacro)
             {
-                LogicClauseBuilder lcb = new(LP.GetMacro(def.name));
-                lcb.Subst(tt, lc);
-                LP.SetMacro(def.name, new LogicClause(lcb));
+                LogicClauseBuilder lcb = new(origMacro);
+                lcb.Subst(oldExpr, newExpr);
+                MacroLookup[def.name] = new LogicClause(lcb);
             }
             else if (isLocation)
             {
-                LogicClauseBuilder lcb = new(orig);
-                lcb.Subst(tt, lc);
+                LogicClauseBuilder lcb = new(origLogic);
+                lcb.Subst(oldExpr, newExpr);
                 LogicLookup[def.name] = new(lcb);
             }
             else
@@ -269,7 +298,10 @@ namespace RandomizerCore.Logic
                     break;
 
                 case LogicFileType.Macros:
-                    LP.SetMacro(logicFormat.LoadMacros(s));
+                    foreach (KeyValuePair<string, string> kvp in logicFormat.LoadMacros(s))
+                    {
+                        AddMacro(kvp);
+                    }
                     break;
 
                 case LogicFileType.Locations:
@@ -352,7 +384,10 @@ namespace RandomizerCore.Logic
                     break;
 
                 case LogicFileType.Macros:
-                    LP.SetMacro((Dictionary<string, string>)data);
+                    foreach (KeyValuePair<string, string> kvp in (Dictionary<string, string>)data)
+                    {
+                        AddMacro(kvp);
+                    }
                     break;
 
                 case LogicFileType.Locations:

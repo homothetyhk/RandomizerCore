@@ -44,6 +44,10 @@ namespace RandomizerCore.Logic
             }
             switch (term)
             {
+                // in DNF logic, consts TRUE, ANY, FALSE, NONE are reduced out during the expansion.
+                // However, these cases can still be reached
+                //   in logic by using those terms inside comparisons (e.g. SETTING=FALSE)
+                //   in code by calling GetVariable
                 case "TRUE":
                 case "ANY":
                     variable = new ConstantBool(term, true);

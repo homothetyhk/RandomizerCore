@@ -3,6 +3,7 @@ using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.LogicItems;
 using RandomizerCore.StringItems;
 using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
 using System.Collections.ObjectModel;
 
 namespace RandomizerCore.Logic
@@ -15,22 +16,24 @@ namespace RandomizerCore.Logic
         public readonly ReadOnlyDictionary<string, LogicTransition> TransitionLookup;
         public readonly ReadOnlyCollection<LogicWaypoint> Waypoints;
         public readonly ReadOnlyCollection<LogicVariable> Variables;
+        public readonly ReadOnlyDictionary<string, MacroDef> MacroLookup;
         public readonly StateManager StateManager;
 
         // Data structures dynamically constructed to correspond to logic
         private readonly Dictionary<string, LogicDef> _logicDefs;
+        [Obsolete]
         public LogicProcessor LP { get; }
         private readonly List<LogicVariable> _variables;
         private readonly Dictionary<string, int> _variableIndices;
         private readonly Dictionary<string, LogicItem> _items;
         private readonly Dictionary<string, LogicTransition> _transitions;
+        private readonly Dictionary<string, MacroDef> _macros;
 
         private readonly LogicManagerBuilder? _source; // set to null on exiting constructor
 
-        internal readonly CycleDetector _cycleDetector;
+        internal readonly DNFConverter _dNFConverter;
+        private readonly CycleDetector _cycleDetector;
 
-        private readonly StringItemBuilder _stringItemBuilder;
-        private readonly DNFLogicDefBuilder _dnfLogicBuilder;
 
         public VariableResolver VariableResolver { get; }
 
@@ -39,12 +42,10 @@ namespace RandomizerCore.Logic
         public LogicManager(LogicManagerBuilder source)
         {
             _source = source;
-            LP = source.LP;
             VariableResolver = source.VariableResolver;
             StateManager = new(VariableResolver.GetStateModel());
             _cycleDetector = new();
-            _stringItemBuilder = new(this);
-            _dnfLogicBuilder = new(this);
+            _dNFConverter = new();
 
             List<Exception> errors = [];
 
@@ -57,27 +58,41 @@ namespace RandomizerCore.Logic
             _variableIndices = new();
             Variables = new(_variables);
 
+            // Macros
+#pragma warning disable CS0612 // Type or member is obsolete
+            LP = new(source.LP);
+#pragma warning restore CS0612 // Type or member is obsolete
+            _macros = [];
+            foreach (var kvp in source.MacroLookup)
+            {
+                try
+                {
+                    _ = GetMacroStrict(kvp.Key);
+                }
+                catch (Exception e)
+                {
+                    errors.Add(e);
+                    _cycleDetector.Clear();
+                }
+            }
+            MacroLookup = new(_macros);
+
             // Logic
             _logicDefs = new(source.LogicLookup.Count);
             foreach (KeyValuePair<string, LogicClause> kvp in source.LogicLookup)
             {
-                if (!_logicDefs.ContainsKey(kvp.Key)) // logic may be created out of sequence due to references
+                try
                 {
-                    try
-                    {
-                        _logicDefs.Add(kvp.Key, CreateDNFLogicDef(kvp.Key, kvp.Value));
-                    }
-                    catch (Exception e)
-                    {
-                        errors.Add(e);
-                        _cycleDetector.Reset();
-                        _dnfLogicBuilder.Reset();
-                    }
+                    _ = GetLogicDefStrict(kvp.Key);
+                }
+                catch (Exception e)
+                {
+                    errors.Add(e);
+                    _cycleDetector.Clear();
                 }
             }
             if (errors.Count > 0) throw errors.Count == 1 ? errors[0] : new AggregateException(errors);
             LogicLookup = new(_logicDefs);
-
 
             // Waypoints
             Waypoints = new(source.Waypoints.Select(name => new LogicWaypoint(Terms.GetTerm(name)!, _logicDefs[name] as StateLogicDef ?? CreateDNFLogicDef(new(name, _logicDefs[name].InfixSource)))).ToArray());
@@ -90,25 +105,21 @@ namespace RandomizerCore.Logic
             _items = new(source.ItemLookup.Count);
             foreach (var kvp in source.ItemLookup)
             {
-                if (!_items.ContainsKey(kvp.Key)) // items may be created out of sequence due to references
+                try
                 {
-                    try
-                    {
-                        _items.Add(kvp.Key, kvp.Value.Create(this));
-                    }
-                    catch (Exception e)
-                    {
-                        errors.Add(e);
-                        _cycleDetector.Reset();
-                        _dnfLogicBuilder.Reset();
-                    }
+                    _ = GetItemStrict(kvp.Key);
+                }
+                catch (Exception e)
+                {
+                    errors.Add(e);
+                    _cycleDetector.Clear();
                 }
             }
             if (errors.Count > 0) throw errors.Count == 1 ? errors[0] : new AggregateException(errors);
             ItemLookup = new(_items);
 
             _source = null;
-            _dnfLogicBuilder.Trim();
+            _dNFConverter.Trim();
         }
 
         /// <summary>
@@ -116,12 +127,17 @@ namespace RandomizerCore.Logic
         /// </summary>
         public LogicDef? GetLogicDef(string name)
         {
-            if (!_logicDefs.TryGetValue(name, out LogicDef def))
+            if (_logicDefs.TryGetValue(name, out LogicDef value))
             {
-                return null;
+                return value;
             }
 
-            return def;
+            if (_source is not null && _source.LogicLookup.TryGetValue(name, out LogicClause c))
+            {
+                return InitLogicDef(name, c);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -131,6 +147,21 @@ namespace RandomizerCore.Logic
         public LogicDef GetLogicDefStrict(string name)
         {
             return GetLogicDef(name) ?? throw new ArgumentException($"LogicDef {name} is not defined.");
+        }
+
+        internal bool IsLogicDef(string reference)
+        {
+            return _logicDefs.ContainsKey(reference)
+                || (_source is not null && _source.LogicLookup.ContainsKey(reference));
+        }
+
+        private DNFLogicDef InitLogicDef(string name, LogicClause lc)
+        {
+            _cycleDetector.PushReference(name);
+            DNFLogicDef result = CreateDNFLogicDef(name, lc);
+            _logicDefs.Add(name, result);
+            _cycleDetector.Pop();
+            return result;
         }
 
         /// <summary>
@@ -216,17 +247,25 @@ namespace RandomizerCore.Logic
             return name != null && (Terms.IsTerm(name) || _variableIndices.ContainsKey(name) || VariableResolver.CanMatch(this, name));
         }
 
+        internal ILogicVariable? GetTermOrVariable(string name) => (ILogicVariable)GetTerm(name) ?? GetVariable(name);
+        internal ILogicVariable GetTermOrVariableStrict(string name) => GetTermOrVariable(name) ?? throw new ArgumentException($"Unable to resolve {name} to Term or LogicVariable.");
+
         /// <summary>
         /// Fetches the logic item by name. Returns null if not defined.
         /// </summary>
         public LogicItem? GetItem(string name)
         {
-            if (!_items.TryGetValue(name, out LogicItem item))
+            if (_items.TryGetValue(name, out LogicItem item))
             {
-                return null;
+                return item;
             }
 
-            return item;
+            if (_source is not null && _source.ItemLookup.TryGetValue(name, out ILogicItemTemplate t))
+            {
+                return InitItem(name, t);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -236,6 +275,15 @@ namespace RandomizerCore.Logic
         public LogicItem GetItemStrict(string name)
         {
             return GetItem(name) ?? throw new ArgumentException($"LogicItem {name} is not defined.");
+        }
+
+        private LogicItem InitItem(string name, ILogicItemTemplate t)
+        {
+            _cycleDetector.PushItem(name);
+            LogicItem item = t.Create(this);
+            _items.Add(name, item);
+            _cycleDetector.Pop();
+            return item;
         }
 
         /// <summary>
@@ -277,10 +325,7 @@ namespace RandomizerCore.Logic
         {
             try
             {
-                RPNLogicDefBuilder rlb = new(this, name, RPNLogicDefBuilder.AllowedVariableTypes.LogicInt | RPNLogicDefBuilder.AllowedVariableTypes.StateAccessVariable);
-                rlb.Process(c);
-                rlb.MoveComparisonOperatorsAfterArgs(); // SSRPNL is read backwards, so comparison ops should be after their args
-                return new SingleStateRPNLogic(name, rlb.GetRawLogic(), this, c.ToInfix());
+                return new SingleStateRPNLogic(name, c, this);
             }
             catch (Exception e)
             {
@@ -288,45 +333,36 @@ namespace RandomizerCore.Logic
             }
         }
 
-        public RPNLogicDef CreateRPNLogicDef(RawLogicDef def)
+        public RPNLogicDef CreateRPNLogicDef(RawLogicDef def) => CreateRPNLogicDef(def.name, new(def.logic));
+
+        public RPNLogicDef CreateRPNLogicDef(string name, LogicClause c)
         {
             try
             {
-                return CreateRPNLogicDef(def.name, def.logic, LP.ParseInfixToList(def.logic));
+                return new RPNLogicDef(name, c, this);
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Error in processing logic for {def.name}.", e);
+                throw new ArgumentException($"Error in processing RPN logic for {name}.", e);
             }
         }
+
         [Obsolete]
-        public RPNLogicDef FromTokens(string name, LogicClause c) => CreateRPNLogicDef(name, c.ToInfix(), c);
-        private RPNLogicDef CreateRPNLogicDef(string name, string infix, IEnumerable<LogicToken> tokens)
-        {
-            try
-            {
-                RPNLogicDefBuilder rlb = new(this, name, RPNLogicDefBuilder.AllowedVariableTypes.LogicInt);
-                rlb.Process(tokens);
-                return new(name, rlb.GetRawLogic(), this, infix);
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException($"Error in processing logic for {name}.", e);
-            }
-        }
+        public RPNLogicDef FromTokens(string name, LogicClause c) => CreateRPNLogicDef(name, c);
 
         public DNFLogicDef CreateDNFLogicDef(RawLogicDef def)
         {
             try
             {
-                return _dnfLogicBuilder.CreateDNFLogicDef(def.name, def.logic, LP.ParseInfixToList(def.logic));
+                Expression<LogicExpressionType> expr = LogicExpressionUtil.Parse(def.logic);
+                return new(def.name, def.logic, expr, this);
             }
             catch (Exception e)
             {
                 throw new ArgumentException($"Error in processing logic for {def.name}.", e);
             }
         }
-        public DNFLogicDef CreateDNFLogicDef(string name, LogicClause tokens) => _dnfLogicBuilder.CreateDNFLogicDef(name, tokens.ToInfix(), tokens.Tokens.ToList());
+        public DNFLogicDef CreateDNFLogicDef(string name, LogicClause tokens) => new(name, tokens.ToInfix(), tokens.Expr, this);
 
         public LogicItem FromItemString(string name, string itemDef)
         {
@@ -334,102 +370,47 @@ namespace RandomizerCore.Logic
             {
                 return new StringItem(name, itemDef, EmptyEffect.Instance);
             }
-
-            return new StringItem(name, itemDef, _stringItemBuilder.ParseStringToEffect(name, itemDef));
+            StringItemBuilder builder = new(name, this);
+            return new StringItem(name, itemDef, builder.ParseStringToEffect(itemDef));
         }
 
-        internal LogicDef ResolveLogicDefReference(string source, string reference)
+        public MacroDef? GetMacro(string name)
         {
-            if (_logicDefs.TryGetValue(reference, out LogicDef value))
+            if (_macros.TryGetValue(name, out MacroDef? result))
             {
-                return value;
+                return result;
             }
 
-            if (_source is null || !_source.LogicLookup.TryGetValue(reference, out LogicClause c))
+            if (_source is not null && _source.MacroLookup.TryGetValue(name, out LogicClause lc))
             {
-                throw MissingLogicReferenceError(source, reference);
+                return InitMacro(name, lc);
             }
 
-            _cycleDetector.PushLogic(reference);
-            value = CreateDNFLogicDef(reference, c);
-            _logicDefs.Add(reference, value);
-            _cycleDetector.PopLogic(reference);
-
-            return value;
+            return null;
         }
 
-        internal LogicItem ResolveItemReference(string source, string reference)
+        public MacroDef GetMacroStrict(string name) => GetMacro(name) ?? throw new ArgumentException($"Macro {name} is not defined.");
+
+        private MacroDef InitMacro(string name, LogicClause lc)
         {
-            if (_items.TryGetValue(reference, out LogicItem item))
+            _cycleDetector.PushMacro(name);
+            string infix = lc.ToInfix();
+            var newExpr = lc.Expr.TransformRecursive((expr, eb) =>
             {
-                return item;
-            }
-
-            if (_source is null || !_source.ItemLookup.TryGetValue(reference, out ILogicItemTemplate t))
-            {
-                throw MissingItemReferenceError(source, reference);
-            }
-
-            _cycleDetector.PushItem(reference);
-            item = t.Create(this);
-            _items.Add(reference, item);
-            _cycleDetector.PopItem(reference);
-
-            return item;
-        }
-
-        private Exception MissingLogicReferenceError(string name, string reference)
-        {
-            return new ArgumentException($"Failed to parse LogicDef {name}: unknown reference to LogicDef {reference}.");
-        }
-
-        private Exception MissingItemReferenceError(string name, string reference)
-        {
-            return new ArgumentException($"Failed to parse item {name}: unknown reference to item {reference}.");
-        }
-
-        internal class CycleDetector
-        {
-            private readonly HashSet<string> itemCycleDetector = [];
-            private readonly HashSet<string> logicCycleDetector = [];
-
-            public void PushItem(string itemName)
-            {
-                if (!itemCycleDetector.Add(itemName)) throw CircularItemReferenceError(itemName);
-            }
-
-            public void PopItem(string itemName)
-            {
-                itemCycleDetector.Remove(itemName);
-            }
-
-            public void PushLogic(string logicName)
-            {
-                if (!logicCycleDetector.Add(logicName)) throw CircularLogicReferenceError(logicName);
-            }
-
-            public void PopLogic(string logicName)
-            {
-                logicCycleDetector.Remove(logicName);
-            }
-
-            public void Reset()
-            {
-                itemCycleDetector.Clear();
-                logicCycleDetector.Clear();
-            }
-
-            private Exception CircularItemReferenceError(string reference)
-            {
-                string msg = $"Circular item reference detected:\n{string.Join(" -> ", itemCycleDetector.Append(reference))}";
-                return new ReferenceCycleException(msg);
-            }
-
-            private Exception CircularLogicReferenceError(string reference)
-            {
-                string msg = $"Circular logic reference detected:\n{string.Join(" -> ", logicCycleDetector.Append(reference))}";
-                return new ReferenceCycleException(msg);
-            }
+                switch (expr)
+                {
+                    case CoalesceExpression q:
+                        return q.Left.IsDefined(this) ? q.Left : q.Right;
+                    case LogicAtomExpression { Token.Content: string name }:
+                        if (GetMacro(name) is MacroDef macro) return macro.Logic.Expr;
+                        break;
+                }
+                return null;
+            }, LogicExpressionUtil.Builder);
+            _cycleDetector.Pop();
+            MacroDef def = new(name, infix, new(newExpr));
+            _macros.Add(name, def);
+            return def;
         }
     }
 }

@@ -5,7 +5,8 @@ namespace RandomizerCore.StringLogic
     /// <summary>
     /// Class for converting RPN logic to DNF logic, which uses pooled lists to reduce memory usage.
     /// </summary>
-    public class DNFConverter
+    [Obsolete]
+    internal class DNFConverter
     {
         private readonly Stack<List<TermToken>> listPool = new();
         private readonly Stack<List<List<TermToken>>> outerListPool = new();

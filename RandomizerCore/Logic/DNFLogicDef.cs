@@ -1,7 +1,10 @@
 ﻿using RandomizerCore.Logic.StateLogic;
 using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using OT = RandomizerCore.StringLogic.OperatorToken;
 
 namespace RandomizerCore.Logic
 {
@@ -15,12 +18,12 @@ namespace RandomizerCore.Logic
         private readonly LogicManager lm;
         private Dictionary<int, List<StatePath>>? termPathLookup;
 
-        internal DNFLogicDef(Func<DNFLogicDef, StatePath[]> pathGenerator, LogicManager lm, string name, string infixSource)
-            : base(name, infixSource)
+        internal DNFLogicDef(string name, string infix, Expression<LogicExpressionType> expr, LogicManager lm) : base(name, infix)
         {
             this.lm = lm;
-            this.paths = pathGenerator(this);
+            paths = lm._dNFConverter.CreateLogicData(name, expr, lm, this);
             Profiling.EmitMetric("DNFLogicDef.PathCount", paths.Length);
+            Profiling.EmitMetric("DNFLogicDef.ResultingTermCount", GetTerms().Count());
         }
 
         protected DNFLogicDef(DNFLogicDef other) : base(other.Name, other.InfixSource)
@@ -159,29 +162,33 @@ namespace RandomizerCore.Logic
             }
         }
 
-        public IEnumerable<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
+        public override Expression<LogicExpressionType> ToExpression()
+        {
+            LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+            return builder.ApplyInfixOperatorLeftAssoc(
+                paths.Select(sp => sp.ToExpression())
+                     .DefaultIfEmpty(builder.NameAtom("NONE")),
+                builder.Op(LogicOperatorProvider.OR));
+        }
+
+        public ReadOnlyConjunction? GetFirstSuccessfulConjunction(ProgressionManager pm)
         {
             for (int j = 0; j < paths.Length; j++)
             {
-                if (paths[j].GetFirstSuccessfulConjunction(pm) is IEnumerable<TermToken> c) return c;
+                if (paths[j].GetFirstSuccessfulConjunction(pm) is ReadOnlyConjunction c) return c;
             }
             return null;
         }
 
-        public IEnumerable<IEnumerable<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
+        public IEnumerable<ReadOnlyConjunction> GetAllSuccessfulConjunctions(ProgressionManager pm)
         {
             for (int j = 0; j < paths.Length; j++)
             {
-                foreach (IEnumerable<TermToken> c in paths[j].GetAllSuccessfulConjunctions(pm)) yield return c;
+                foreach (ReadOnlyConjunction c in paths[j].GetAllSuccessfulConjunctions(pm)) yield return c;
             }
         }
 
-        public override IEnumerable<LogicToken> ToTokenSequence()
-        {
-            if (paths.Length == 0) return [ConstToken.False];
-            return RPN.OperateOver(Enumerable.Range(0, paths.Length).Select(j => paths[j].ToTokenSequence()), OperatorToken.OR);
-        }
-
+        [Obsolete]
         public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
         {
             if (paths.Length == 0) return [[ConstToken.False]];
@@ -217,7 +224,23 @@ namespace RandomizerCore.Logic
                 foreach (LogicInt li in varReqs) foreach (Term t in li.GetTerms()) yield return t;
             }
 
-            public IEnumerable<TermToken> ToTermTokenSequence(LogicManager lm)
+            public Expression<LogicExpressionType> ToExpression()
+            {
+                LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+                return builder.ApplyInfixOperatorLeftAssoc(
+                           termReqs.Select(tv => tv.Value == 1
+                                                ? builder.NameAtom(tv.Term.Name)
+                                                : builder.ApplyInfixOperator(
+                                                    builder.NameAtom(tv.Term.Name),
+                                                    builder.Op(LogicOperatorProvider.GT),
+                                                    builder.NumberAtom(tv.Value)))
+                           .Concat(varReqs.Select(li => li.ToExpression()))
+                           .DefaultIfEmpty(builder.NameAtom("ANY")),
+                           builder.Op(LogicOperatorProvider.AND));
+            }
+
+            [Obsolete]
+            internal IEnumerable<TermToken> ToTermTokenSequence(LogicManager lm)
             {
                 foreach (TermValue tv in termReqs)
                 {
@@ -225,6 +248,12 @@ namespace RandomizerCore.Logic
                     else yield return lm.LP.GetComparisonToken(ComparisonType.GT, tv.Term.Name, (tv.Value - 1).ToString());
                 }
                 foreach (LogicInt li in varReqs) yield return lm.LP.GetTermToken(li.Name);
+            }
+
+            internal void GetReadOnlyData(out ReadOnlyCollection<TermValue> termReqs, out ReadOnlyCollection<LogicInt> varReqs)
+            {
+                termReqs = new(this.termReqs);
+                varReqs = new(this.varReqs);
             }
         }
 
@@ -262,14 +291,14 @@ namespace RandomizerCore.Logic
                 if (!firstConjunctionOnly && EvaluateAllReqs(pm, out IEnumerable<Reqs> reqs)
                     && EvaluateStateModifiersChangeRec(pm, input, states))
                 {
-                    results.Add(new StatePathResult(states, reqs.Select(ClauseToTermTokenSequence)));
+                    results.Add(new StatePathResult(states, [..reqs.Select(r => new ReadOnlyConjunction(this, r))]));
                     return true;
                 }
 
                 if (firstConjunctionOnly && EvaluateAnyReqs(pm, out Reqs req)
                     && EvaluateStateModifiersChangeRec(pm, input, states))
                 {
-                    results.Add(new StatePathResult(states, [ClauseToTermTokenSequence(req)]));
+                    results.Add(new StatePathResult(states, [new(this, req)]));
                     return true;
                 }
 
@@ -303,7 +332,7 @@ namespace RandomizerCore.Logic
                 return result.Any();
             }
 
-            private bool EvaluateStateModifiersDiscardRec(ProgressionManager pm, StateUnion? input)
+            private bool EvaluateStateModifiersDiscardRec(ProgressionManager pm, StateUnion input)
             {
                 if (stateModifiers.Length == 0)
                 {
@@ -408,8 +437,22 @@ namespace RandomizerCore.Logic
                 foreach (StateModifier sm in stateModifiers) foreach (Term t in sm.GetTerms()) yield return t;
             }
 
-            private IEnumerable<TermToken> ClauseToTermTokenSequence(Reqs r) => ClauseToTermTokenSequence(r, stateModifiers.Select(s => parent.lm.LP.GetTermToken(s.Name)));
+            public Expression<LogicExpressionType> ToExpression()
+            {
+                LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+                return builder.ApplyInfixOperatorLeftAssoc(ToExprAtoms().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
+            }
 
+            private IEnumerable<Expression<LogicExpressionType>> ToExprAtoms()
+            {
+                if (stateProvider is not null) yield return stateProvider.ToExpression();
+                yield return LogicExpressionUtil.Builder.ApplyInfixOperatorLeftAssoc(
+                    reqs.Select(r => r.ToExpression()),
+                    LogicExpressionUtil.Builder.Op(LogicOperatorProvider.OR));
+                foreach (StateModifier sm in stateModifiers) yield return sm.ToExpression();
+            }
+
+            [Obsolete]
             private IEnumerable<TermToken> ClauseToTermTokenSequence(Reqs r, IEnumerable<TermToken> suffix)
             {
                 LogicManager lm = parent.lm;
@@ -418,6 +461,7 @@ namespace RandomizerCore.Logic
                 return tts.DefaultIfEmpty(ConstToken.True);
             }
 
+            [Obsolete]
             public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
             {
                 LogicManager lm = parent.lm;
@@ -425,40 +469,82 @@ namespace RandomizerCore.Logic
                 return reqs.Select(r => ClauseToTermTokenSequence(r, suffix));
             }
 
-            public IEnumerable<LogicToken> ToTokenSequence() => RPN.OperateOver(ToTermTokenSequences().Select(s => RPN.OperateOver(s, OperatorToken.AND)), OperatorToken.OR);
-
-            public IEnumerable<TermToken>? GetFirstSuccessfulConjunction(ProgressionManager pm)
+            public ReadOnlyConjunction? GetFirstSuccessfulConjunction(ProgressionManager pm)
             {
                 if (stateProvider?.GetInputState(parent, pm) is StateUnion input
                     && EvaluateAnyReqs(pm, out Reqs result)
                     && EvaluateStateModifiersDiscardRec(pm, input))
                 {
-                    return ClauseToTermTokenSequence(result);
+                    return new(this, result);
                 }
                 return null;
             }
 
-            public IEnumerable<IEnumerable<TermToken>> GetAllSuccessfulConjunctions(ProgressionManager pm)
+            public IEnumerable<ReadOnlyConjunction> GetAllSuccessfulConjunctions(ProgressionManager pm)
             {
                 if (stateProvider?.GetInputState(parent, pm) is StateUnion input
                     && EvaluateAllReqs(pm, out IEnumerable<Reqs> result)
                     && EvaluateStateModifiersDiscardRec(pm, input))
                 {
-                    return result.Select(ClauseToTermTokenSequence);
+                    return result.Select(r => new ReadOnlyConjunction(this, r));
                 }
-                return Enumerable.Empty<IEnumerable<TermToken>>();
+                return [];
             }
         }
 
         public readonly struct StatePathResult
         {
             public readonly List<State> states;
-            public readonly IEnumerable<IEnumerable<TermToken>> conjunctions;
+            public readonly List<ReadOnlyConjunction> conjunctions;
 
-            internal StatePathResult(List<State> states, IEnumerable<IEnumerable<TermToken>> conjunctions)
+            internal StatePathResult(List<State> states, List<ReadOnlyConjunction> conjunctions)
             {
                 this.states = states;
                 this.conjunctions = conjunctions;
+            }
+        }
+
+        /// <summary>
+        /// A struct carrying the data of a single branch of the DNF.
+        /// </summary>
+        public readonly struct ReadOnlyConjunction
+        {
+            public readonly IStateProvider? StateProvider;
+            public readonly ReadOnlyCollection<TermValue> TermReqs;
+            public readonly ReadOnlyCollection<LogicInt> VarReqs;
+            public readonly ReadOnlyCollection<StateModifier> StateModifiers;
+
+            public ReadOnlyConjunction(
+                IStateProvider? stateProvider,
+                ReadOnlyCollection<TermValue> termReqs,
+                ReadOnlyCollection<LogicInt> varReqs,
+                ReadOnlyCollection<StateModifier> stateModifiers)
+            {
+                StateProvider = stateProvider;
+                TermReqs = termReqs;
+                VarReqs = varReqs;
+                StateModifiers = stateModifiers;
+            }
+
+            internal ReadOnlyConjunction(StatePath p, Reqs r)
+            {
+                StateProvider = p.stateProvider;
+                StateModifiers = new(p.stateModifiers);
+                r.GetReadOnlyData(out TermReqs, out VarReqs);
+            }
+
+            public Expression<LogicExpressionType> ToExpression()
+            {
+                LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+                return builder.ApplyInfixOperatorLeftAssoc(ToExprAtoms().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
+            }
+
+            private IEnumerable<Expression<LogicExpressionType>> ToExprAtoms()
+            {
+                if (StateProvider is not null) yield return StateProvider.ToExpression();
+                foreach (TermValue tv in TermReqs) yield return tv.ToExpression();
+                foreach (LogicInt li in VarReqs) yield return li.ToExpression();
+                foreach (StateModifier sm in StateModifiers) yield return sm.ToExpression();
             }
         }
     }

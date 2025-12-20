@@ -2,6 +2,7 @@
 
 namespace RandomizerCore.StringLogic
 {
+    [Obsolete]
     public static class Infix
     {
         private static readonly LogicProcessor _sharedTokenSource = new();

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using RandomizerCore.StringParsing;
+using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace RandomizerCore.StringLogic
@@ -31,122 +32,135 @@ namespace RandomizerCore.StringLogic
     }
 
     /// <summary>
-    /// An immutable representation of a boolean circuit, consisting of tokens in RPN order.
+    /// A wrapper for an <see cref="Expression{T}"/> of <see cref="LogicExpressionType"/>, used to store source information.
     /// </summary>
-    public class LogicClause : IReadOnlyList<LogicToken>
+    public class LogicClause
+#pragma warning disable CS0612 // Type or member is obsolete
+        : IReadOnlyList<LogicToken>
+#pragma warning restore CS0612 // Type or member is obsolete
     {
+        public Expression<LogicExpressionType> Expr { get; }
+
+        private string? _infix = null;
+
+        public LogicClause(Expression<LogicExpressionType> expr)
+        {
+            Expr = expr;
+#pragma warning disable CS0612 // Type or member is obsolete
+            Tokens = new(new LazyTokenList(expr));
+#pragma warning restore CS0612 // Type or member is obsolete
+        }
+
+        public LogicClause(string infix) : this(LogicExpressionUtil.Parse(infix))
+        {
+            _infix = infix;
+        }
+
+        public LogicClause(LogicClauseBuilder lcb) : this(lcb.Expr)
+        {
+            _infix = lcb.GetCachedInfix();
+        }
+
+        [Obsolete]
+        public LogicClause(string infix, ITokenSource tokenSource) : this(infix) { }
+
+        [Obsolete]
+        public LogicClause(TermToken t) : this(t.ToExpression()) { }
+
+        [Obsolete]
+        public LogicClause(TermToken left, TermToken right, OperatorToken op) : this($"{left.Write()} {op.Symbol} {right.Write()}") { }
+
+        [Obsolete]
         public readonly ReadOnlyCollection<LogicToken> Tokens;
 
-        public static readonly LogicClause EmptyDisjunction = new(ConstToken.False);
-        public static readonly LogicClause EmptyConjunction = new(ConstToken.True);
+        public string ToInfix() => _infix ??= Expr.Print();
 
-        public LogicClause(string infix)
+        internal string? GetCachedInfix() => _infix;
+
+        public static LogicClause operator|(LogicClause a, LogicClause b)
         {
-            Tokens = Infix.Tokenize(infix).AsReadOnly();
+            LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+            return new(builder.ApplyInfixOperator(a.Expr, builder.Op(LogicOperatorProvider.OR), b.Expr));
         }
 
-        public LogicClause(string infix, ITokenSource tokenSource)
+        public static LogicClause operator+(LogicClause a, LogicClause b)
         {
-            Tokens = Infix.Tokenize(infix, tokenSource).AsReadOnly();
+            LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
+            return new(builder.ApplyInfixOperator(a.Expr, builder.Op(LogicOperatorProvider.AND), b.Expr));
         }
 
-        public LogicClause(TermToken left, TermToken right, OperatorToken op)
+        [Obsolete] public int Count => Tokens.Count;
+
+        [Obsolete] public LogicToken this[int index] => Tokens[index];
+        [Obsolete] public IEnumerator<LogicToken> GetEnumerator() => Tokens.GetEnumerator();
+        [Obsolete] IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Tokens).GetEnumerator();
+
+        [Obsolete]
+        internal class LazyTokenList(Expression<LogicExpressionType> Expr) : IList<LogicToken>
         {
-            Tokens = new(new LogicToken[] { left, right, op });
-        }
+            private IList<LogicToken> List { get => field ??= [.. Expr.ToTokenSequence()]; set; }
 
-        public LogicClause(TermToken t)
-        {
-            Tokens = new(new LogicToken[] { t });
-        }
+            public void SetExpr(Expression<LogicExpressionType> expr)
+            {
+                Expr = expr;
+                List = null!;
+            }
 
-        public LogicClause(LogicClauseBuilder lcb)
-        {
-            if (!lcb.Complete) throw new InvalidOperationException("Cannot construct LogicClause from malformatted LogicClauseBuilder.");
-            Tokens = new(lcb.Tokens.ToArray());
-        }
+            public LogicToken this[int index] { get => List[index]; set => List[index] = value; }
 
-        private LogicClause(LogicToken[] tokens)
-        {
-            Tokens = new(tokens);
-        }
+            public int Count => List.Count;
 
-        public static LogicClause operator |(LogicClause c, LogicClause d)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + d.Tokens.Count + 1];
-            c.Tokens.CopyTo(tokens, 0);
-            d.Tokens.CopyTo(tokens, c.Tokens.Count);
-            tokens[^1] = OperatorToken.OR;
-            return new(tokens);
-        }
+            public bool IsReadOnly => List.IsReadOnly;
 
-        public static LogicClause operator |(LogicClause c, TermToken t)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + 2];
-            c.Tokens.CopyTo(tokens, 0);
-            tokens[^2] = t;
-            tokens[^1] = OperatorToken.OR;
-            return new(tokens);
-        }
+            public void Add(LogicToken item)
+            {
+                List.Add(item);
+            }
 
-        public static LogicClause operator |(TermToken t, LogicClause c)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + 2];
-            c.Tokens.CopyTo(tokens, 0);
-            tokens[^2] = t;
-            tokens[^1] = OperatorToken.OR;
-            return new(tokens);
-        }
+            public void Clear()
+            {
+                List.Clear();
+            }
 
-        public static LogicClause operator +(LogicClause c, LogicClause d)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + d.Tokens.Count + 1];
-            c.Tokens.CopyTo(tokens, 0);
-            d.Tokens.CopyTo(tokens, c.Tokens.Count);
-            tokens[^1] = OperatorToken.AND;
-            return new(tokens);
-        }
+            public bool Contains(LogicToken item)
+            {
+                return List.Contains(item);
+            }
 
-        public static LogicClause operator +(LogicClause c, TermToken t)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + 2];
-            c.Tokens.CopyTo(tokens, 0);
-            tokens[^2] = t;
-            tokens[^1] = OperatorToken.AND;
-            return new(tokens);
-        }
+            public void CopyTo(LogicToken[] array, int arrayIndex)
+            {
+                List.CopyTo(array, arrayIndex);
+            }
 
-        public static LogicClause operator +(TermToken t, LogicClause c)
-        {
-            LogicToken[] tokens = new LogicToken[c.Tokens.Count + 2];
-            c.Tokens.CopyTo(tokens, 0);
-            tokens[^2] = t;
-            tokens[^1] = OperatorToken.AND;
-            return new(tokens);
-        }
+            public IEnumerator<LogicToken> GetEnumerator()
+            {
+                return List.GetEnumerator();
+            }
 
-        public string ToInfix()
-        {
-            return Infix.ToInfix(Tokens);
-        }
+            public int IndexOf(LogicToken item)
+            {
+                return List.IndexOf(item);
+            }
 
-        public override string ToString()
-        {
-            return $"{nameof(LogicClause)} {{ {ToInfix()} }}";
-        }
+            public void Insert(int index, LogicToken item)
+            {
+                List.Insert(index, item);
+            }
 
-        public int Count => Tokens.Count;
+            public bool Remove(LogicToken item)
+            {
+                return List.Remove(item);
+            }
 
-        public LogicToken this[int index] => Tokens[index];
+            public void RemoveAt(int index)
+            {
+                List.RemoveAt(index);
+            }
 
-        public IEnumerator<LogicToken> GetEnumerator()
-        {
-            return ((IEnumerable<LogicToken>)Tokens).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable)List).GetEnumerator();
+            }
         }
     }
 }

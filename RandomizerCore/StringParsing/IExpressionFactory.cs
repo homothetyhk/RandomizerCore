@@ -13,18 +13,18 @@
         /// <summary>
         /// Creates an atom expression from a token
         /// </summary>
-        IExpression<T> CreateAtomExpression(Token token);
+        Expression<T> CreateAtomExpression(Token token);
         /// <summary>
         /// Creates the appropriate prefix expression for the provided operator
         /// </summary>
-        IExpression<T> CreatePrefixExpression(OperatorToken op, IExpression<T> operand);
+        Expression<T> CreatePrefixExpression(OperatorToken op, Expression<T> operand);
         /// <summary>
         /// Creates the appropriate postfix expression for the provided operator
         /// </summary>
-        IExpression<T> CreatePostfixExpression(IExpression<T> operand, OperatorToken op);
+        Expression<T> CreatePostfixExpression(Expression<T> operand, OperatorToken op);
         /// <summary>
         /// Creates the appropriate infix expression for the provided operator
         /// </summary>
-        IExpression<T> CreateInfixExpression(IExpression<T> left, OperatorToken op, IExpression<T> right);
+        Expression<T> CreateInfixExpression(Expression<T> left, OperatorToken op, Expression<T> right);
     }
 }

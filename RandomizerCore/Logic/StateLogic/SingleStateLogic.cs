@@ -1,4 +1,5 @@
 ﻿using RandomizerCore.StringLogic;
+using RandomizerCore.StringParsing;
 
 namespace RandomizerCore.Logic.StateLogic
 {
@@ -27,11 +28,17 @@ namespace RandomizerCore.Logic.StateLogic
         /// <summary>
         /// Converts the LogicDef to its equivalent sequence of LogicTokens in RPN format.
         /// </summary>
-        public abstract IEnumerable<LogicToken> ToTokenSequence();
+        [Obsolete]
+        public virtual IEnumerable<LogicToken> ToTokenSequence() => ToExpression().ToTokenSequence();
         /// <summary>
-        /// Creates a LogicClauseBuilder equivalent to the LogicDef using <see cref="ToTokenSequence"/>.
+        /// Converts the LogicDef to an equivalent expression, not necessarily identical to that of InfixSource.
         /// </summary>
-        public LogicClauseBuilder ToLogicClauseBuilder() => new(ToTokenSequence());
+        /// <returns></returns>
+        public abstract Expression<LogicExpressionType> ToExpression();
+        /// <summary>
+        /// Creates a LogicClauseBuilder equivalent to the LogicDef using <see cref="ToExpression"/>.
+        /// </summary>
+        public LogicClauseBuilder ToLogicClauseBuilder() => new(ToExpression());
         /// <summary>
         /// Creates a LogicClause equivalent to the LogicDef using <see cref="ToTokenSequence"/>.
         /// </summary>
