@@ -310,16 +310,11 @@ namespace RandomizerCore.StringLogic
             return stack.Pop();
         }
 
+        /// <summary>
+        /// Attempts to convert the expression to a <see cref="TermToken"/>, throwing an error if the conversion fails.
+        /// </summary>
         [Obsolete]
-        public static LogicToken ToLogicToken(this Expression<LogicExpressionType> expr) => expr switch
-        {
-            AndExpression a => OT.AND,
-            OrExpression o => OT.OR,
-            _ => expr.AsTermToken(),
-        };
-
-        [Obsolete]
-        private static TermToken AsTermToken(this Expression<LogicExpressionType> expr)
+        public static TermToken ToTermToken(this Expression<LogicExpressionType> expr)
         {
             switch (expr)
             {
@@ -346,9 +341,9 @@ namespace RandomizerCore.StringLogic
                 case ReferenceExpression r:
                     return new ReferenceToken(((LogicAtomExpression)r.Operand).Token.Content);
                 case ProjectionExpression p:
-                    return new ProjectedToken(p.Operand.AsTermToken());
+                    return new ProjectedToken(p.Operand.ToTermToken());
                 case CoalesceExpression q:
-                    return new CoalescingToken(q.Left.AsTermToken(), q.Right.AsTermToken());
+                    return new CoalescingToken(q.Left.ToTermToken(), q.Right.ToTermToken());
                 // formerly illegal token expressions
                 /*
                 case AndExpression:
@@ -366,10 +361,10 @@ namespace RandomizerCore.StringLogic
             switch (expr)
             {
                 case GroupingExpression<LogicExpressionType> g: return g.Nested.ToTokenSequence();
-                case AtomExpression<LogicExpressionType> atom: return [atom.AsTermToken()];
-                case PrefixExpression<LogicExpressionType> pre: return [pre.AsTermToken()];
-                case PostfixExpression<LogicExpressionType> post: return [post.AsTermToken()];
-                case ComparisonExpression c: return [c.AsTermToken()];
+                case AtomExpression<LogicExpressionType> atom: return [atom.ToTermToken()];
+                case PrefixExpression<LogicExpressionType> pre: return [pre.ToTermToken()];
+                case PostfixExpression<LogicExpressionType> post: return [post.ToTermToken()];
+                case ComparisonExpression c: return [c.ToTermToken()];
                 case AndExpression a: return [.. a.Left.ToTokenSequence(), .. a.Right.ToTokenSequence(), OperatorToken.AND];
                 case OrExpression o: return [.. o.Left.ToTokenSequence(), .. o.Right.ToTokenSequence(), OperatorToken.OR];
                 default: throw new NotImplementedException();

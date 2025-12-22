@@ -249,9 +249,9 @@ namespace RandomizerCore.Logic
             {
                 foreach (TermValue tv in termReqs)
                 {
-                    yield return (TermToken)tv.ToExpression().ToLogicToken();
+                    yield return tv.ToExpression().ToTermToken();
                 }
-                foreach (LogicInt li in varReqs) yield return (TermToken)li.ToExpression().ToLogicToken();
+                foreach (LogicInt li in varReqs) yield return li.ToExpression().ToTermToken();
             }
 
             internal void GetReadOnlyData(out ReadOnlyCollection<TermValue> termReqs, out ReadOnlyCollection<LogicInt> varReqs)
@@ -462,11 +462,11 @@ namespace RandomizerCore.Logic
             public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
             {
                 LogicManager lm = parent.lm;
-                List<TermToken> suffix = [.. stateModifiers.Select(sm => (TermToken)sm.ToExpression().ToLogicToken())];
+                List<TermToken> suffix = [.. stateModifiers.Select(sm => sm.ToExpression().ToTermToken())];
                 return reqs.Select(r =>
                 {
                     IEnumerable<TermToken> result = r.ToTermTokenSequence(lm).Concat(suffix);
-                    if (stateProvider is not null) result = result.Prepend((TermToken)stateProvider.ToExpression().ToLogicToken());
+                    if (stateProvider is not null) result = result.Prepend(stateProvider.ToExpression().ToTermToken());
                     return result.DefaultIfEmpty(ConstToken.True);
                 });
             }
