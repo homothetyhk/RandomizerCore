@@ -49,7 +49,7 @@ namespace RandomizerCore.StringLogic
                                         builder.Op(LogicOperatorProvider.PROJECT)),
                     (false, false) => ld.ToExpression(),
                 },
-                ProjectedStateProvider { stateProvider: IStateProvider sp } => builder.NameOrNumberAtom(sp.Name),
+                ProjectedStateProvider { stateProvider: IStateProvider sp } => builder.ApplyPostfixOperator(builder.NameOrNumberAtom(sp.Name), builder.Op(LogicOperatorProvider.PROJECT)),
                 LogicStateProvider { logic: StateLogicDef sld } => builder.ApplyPrefixOperator(
                     builder.Op(LogicOperatorProvider.REF), builder.NameOrNumberAtom(sld.Name)),
 

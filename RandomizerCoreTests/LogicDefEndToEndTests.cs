@@ -165,5 +165,37 @@ namespace RandomizerCoreTests
             }
         }
 
+        [Obsolete]
+        [Fact]
+        public void ToTermTokenSequencesTest()
+        {
+            string[] tests = ["A=0", "A>0", "A<0", "A", "A>1", "T/", "*L", "*L/", "TRUE", "FALSE"];
+            TermToken[] expected = [
+                new ComparisonToken(ComparisonType.EQ, "A", "0"),
+                new SimpleToken("A"),
+                new ComparisonToken(ComparisonType.LT, "A", "0"),
+                new SimpleToken("A"),
+                new ComparisonToken(ComparisonType.GT, "A", "1"),
+                new ProjectedToken(new SimpleToken("T")),
+                new ReferenceToken("L"),
+                new ProjectedToken(new ReferenceToken("L")),
+                new ConstToken(true),
+                new ConstToken(false),
+                ];
+
+            LogicManagerBuilder lmb = new();
+            lmb.GetOrAddTerm("A");
+            lmb.AddTransition(new RawLogicDef("T", "T"));
+            lmb.AddLogicDef(new RawLogicDef("L", "T"));
+
+            LogicManager lm = new(lmb);
+            for (int i = 0; i < tests.Length; i++)
+            {
+                DNFLogicDef ld = lm.CreateDNFLogicDef(new("L" + i, tests[i]));
+                ld.ToTermTokenSequences().Should().ContainSingle().Which
+                    .Should().ContainSingle().Which
+                    .Should().Be(expected[i], $"{tests[i]} is or simplifies to {expected[i].Write()}");
+            }
+        }
     }
 }

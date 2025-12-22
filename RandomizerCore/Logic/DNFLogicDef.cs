@@ -188,6 +188,11 @@ namespace RandomizerCore.Logic
             }
         }
 
+        public IEnumerable<ReadOnlyConjunction> GetAllConjunctions()
+        {
+            return paths.SelectMany(p => p.GetAllConjunctions());
+        }
+
         [Obsolete]
         public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
         {
@@ -244,10 +249,9 @@ namespace RandomizerCore.Logic
             {
                 foreach (TermValue tv in termReqs)
                 {
-                    if (tv.Value == 1) yield return lm.LP.GetTermToken(tv.Term.Name);
-                    else yield return lm.LP.GetComparisonToken(ComparisonType.GT, tv.Term.Name, (tv.Value - 1).ToString());
+                    yield return (TermToken)tv.ToExpression().ToLogicToken();
                 }
-                foreach (LogicInt li in varReqs) yield return lm.LP.GetTermToken(li.Name);
+                foreach (LogicInt li in varReqs) yield return (TermToken)li.ToExpression().ToLogicToken();
             }
 
             internal void GetReadOnlyData(out ReadOnlyCollection<TermValue> termReqs, out ReadOnlyCollection<LogicInt> varReqs)
@@ -440,10 +444,12 @@ namespace RandomizerCore.Logic
             public Expression<LogicExpressionType> ToExpression()
             {
                 LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
-                return builder.ApplyInfixOperatorLeftAssoc(ToExprAtoms().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
+                return builder.ApplyInfixOperatorLeftAssoc(ToConjunctionArgs().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
             }
 
-            private IEnumerable<Expression<LogicExpressionType>> ToExprAtoms()
+            // enumerates the state provider, the nonstate requirements as a single expression, and the state modifiers (as individual expressions)
+            // intended so that distributing AND over the resulting sequence gives an expression for the path.
+            private IEnumerable<Expression<LogicExpressionType>> ToConjunctionArgs()
             {
                 if (stateProvider is not null) yield return stateProvider.ToExpression();
                 yield return LogicExpressionUtil.Builder.ApplyInfixOperatorLeftAssoc(
@@ -453,20 +459,16 @@ namespace RandomizerCore.Logic
             }
 
             [Obsolete]
-            private IEnumerable<TermToken> ClauseToTermTokenSequence(Reqs r, IEnumerable<TermToken> suffix)
-            {
-                LogicManager lm = parent.lm;
-                IEnumerable<TermToken> tts = r.ToTermTokenSequence(lm).Concat(suffix);
-                if (stateProvider is not null) tts = tts.Prepend(lm.LP.GetTermToken(stateProvider.Name));
-                return tts.DefaultIfEmpty(ConstToken.True);
-            }
-
-            [Obsolete]
             public IEnumerable<IEnumerable<TermToken>> ToTermTokenSequences()
             {
                 LogicManager lm = parent.lm;
-                List<TermToken> suffix = stateModifiers.Select(sm => lm.LP.GetTermToken(sm.Name)).ToList();
-                return reqs.Select(r => ClauseToTermTokenSequence(r, suffix));
+                List<TermToken> suffix = [.. stateModifiers.Select(sm => (TermToken)sm.ToExpression().ToLogicToken())];
+                return reqs.Select(r =>
+                {
+                    IEnumerable<TermToken> result = r.ToTermTokenSequence(lm).Concat(suffix);
+                    if (stateProvider is not null) result = result.Prepend((TermToken)stateProvider.ToExpression().ToLogicToken());
+                    return result.DefaultIfEmpty(ConstToken.True);
+                });
             }
 
             public ReadOnlyConjunction? GetFirstSuccessfulConjunction(ProgressionManager pm)
@@ -490,6 +492,8 @@ namespace RandomizerCore.Logic
                 }
                 return [];
             }
+
+            public IEnumerable<ReadOnlyConjunction> GetAllConjunctions() => reqs.Select(r => new ReadOnlyConjunction(this, r));
         }
 
         public readonly struct StatePathResult
@@ -533,13 +537,20 @@ namespace RandomizerCore.Logic
                 r.GetReadOnlyData(out TermReqs, out VarReqs);
             }
 
+            /// <summary>
+            /// Produces an expression logically equivalent to the <see cref="ReadOnlyConjunction"/>.
+            /// </summary>
             public Expression<LogicExpressionType> ToExpression()
             {
                 LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
-                return builder.ApplyInfixOperatorLeftAssoc(ToExprAtoms().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
+                return builder.ApplyInfixOperatorLeftAssoc(ToConjunctionArgs().DefaultIfEmpty(builder.NameAtom("NONE")), builder.Op(LogicOperatorProvider.AND));
             }
 
-            private IEnumerable<Expression<LogicExpressionType>> ToExprAtoms()
+            /// <summary>
+            /// Enumerates expressions which, ANDed together, give an expression logically equivalent to the <see cref="ReadOnlyConjunction"/>.
+            /// <br/>Output does not contain AndExpressions or OrExpressions.
+            /// </summary>
+            public IEnumerable<Expression<LogicExpressionType>> ToConjunctionArgs()
             {
                 if (StateProvider is not null) yield return StateProvider.ToExpression();
                 foreach (TermValue tv in TermReqs) yield return tv.ToExpression();

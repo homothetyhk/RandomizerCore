@@ -143,7 +143,7 @@ namespace RandomizerCore.Logic
                         }
                         else
                         {
-                            return Atom(new LogicDefVariable(ConvertSubexpressionToLogic(name, pOperand, lm)));
+                            return Atom(new LogicDefVariable(ConvertSubexpressionToLogic(name, pOperand, lm), projected: true));
                         }
                     }
                 default:
