@@ -197,5 +197,29 @@ namespace RandomizerCoreTests
                     .Should().Be(expected[i], $"{tests[i]} is or simplifies to {expected[i].Write()}");
             }
         }
+
+        [Obsolete]
+        [Fact]
+        public void SAVToTermTokenTest()
+        {
+            string input = "T + SB1=0";
+            List<List<TermToken>> expected = [[new SimpleToken("T"), new ComparisonToken(ComparisonType.EQ, "SB1", "0")]];
+
+            LogicManagerBuilder lmb = new();
+            lmb.GetOrAddTerm("A");
+            lmb.AddTransition(new RawLogicDef("T", "T"));
+            lmb.AddLogicDef(new RawLogicDef("L", "T"));
+            lmb.VariableResolver = new Util.TestVariableResolver(new RandomizerCore.Logic.StateLogic.RawStateData
+            {
+                Fields = new()
+                {
+                    [RandomizerCore.Logic.StateLogic.StateFieldType.Bool.ToString()] = ["SB1"]
+                }
+            });
+
+            LogicManager lm = new(lmb);
+            DNFLogicDef ld = lm.CreateDNFLogicDef(new("L", input));
+            ld.ToTermTokenSequences().Should().BeEquivalentTo(expected);
+        }
     }
 }

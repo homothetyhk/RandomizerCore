@@ -34,6 +34,13 @@ namespace RandomizerCore.StringLogic
                         0 => LogicOperatorProvider.EQ,
                         < 0 => LogicOperatorProvider.LT,
                     }), r.ToExpression()),
+                SAVComparisonVariable { Left: var l, Right: var r, Op: var op } =>
+                    builder.ApplyInfixOperator(l.ToExpression(), builder.Op(op switch
+                    {
+                        > 0 => LogicOperatorProvider.GT,
+                        0 => LogicOperatorProvider.EQ,
+                        < 0 => LogicOperatorProvider.LT,
+                    }), r.ToExpression()),
                 LogicDefVariable { logic: LogicDef ld, projected: bool pb, reference: bool rb } => (pb, rb) switch
                 {
                     (true, true) => builder.ApplyPostfixOperator(
