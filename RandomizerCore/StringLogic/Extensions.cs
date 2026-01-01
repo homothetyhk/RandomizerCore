@@ -27,14 +27,7 @@ namespace RandomizerCore.StringLogic
             LogicExpressionBuilder builder = LogicExpressionUtil.Builder;
             return lv switch
             {
-                ComparisonVariable { Left: var l, Right: var r, Op: var op } => 
-                    builder.ApplyInfixOperator(l.ToExpression(), builder.Op(op switch 
-                    {
-                        > 0 => LogicOperatorProvider.GT,
-                        0 => LogicOperatorProvider.EQ,
-                        < 0 => LogicOperatorProvider.LT,
-                    }), r.ToExpression()),
-                SAVComparisonVariable { Left: var l, Right: var r, Op: var op } =>
+                IComparisonVariable { Left: ILogicVariable l, Right: ILogicVariable r, Op: int op } =>
                     builder.ApplyInfixOperator(l.ToExpression(), builder.Op(op switch
                     {
                         > 0 => LogicOperatorProvider.GT,

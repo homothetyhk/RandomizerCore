@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using RandomizerCore;
 using RandomizerCore.Exceptions;
 using RandomizerCore.Logic;
 using RandomizerCore.StringLogic;
@@ -219,7 +218,7 @@ namespace RandomizerCoreTests
 
             LogicManager lm = new(lmb);
             DNFLogicDef ld = lm.CreateDNFLogicDef(new("L", input));
-            ld.ToTermTokenSequences().Should().BeEquivalentTo(expected);
+            ld.ToTermTokenSequences().Should().ContainSingle().Which.Should().Equal(expected[0]);
         }
     }
 }

@@ -44,18 +44,13 @@ namespace RandomizerCore.Logic
         public override IEnumerable<Term> GetTerms() => Enumerable.Empty<Term>();
     }
 
-    internal sealed class ComparisonVariable : LogicInt
+    internal sealed class ComparisonVariable(ILogicInt left, ILogicInt right, int op) : LogicInt, IComparisonVariable
     {
-        internal readonly ILogicInt Left;
-        internal readonly ILogicInt Right;
-        internal readonly int Op;
-
-        public ComparisonVariable(ILogicInt left, ILogicInt right, int op)
-        {
-            Left = left;
-            Right = right;
-            Op = op;
-        }
+        public ILogicInt Left { get; } = left;
+        public ILogicInt Right { get; } = right;
+        public int Op { get; } = op;
+        ILogicVariable IComparisonVariable.Left => Left;
+        ILogicVariable IComparisonVariable.Right => Right;
 
         public override string Name
         {
@@ -70,6 +65,7 @@ namespace RandomizerCore.Logic
                 return $"{Left.Name}{op}{Right.Name}";
             }
         }
+
         public override int GetValue(object? sender, ProgressionManager pm)
         {
             int l = Left.GetValue(sender, pm);
@@ -89,18 +85,13 @@ namespace RandomizerCore.Logic
         }
     }
 
-    internal sealed class SAVComparisonVariable : StateAccessVariable
+    internal sealed class SAVComparisonVariable(StateAccessVariable left, StateAccessVariable right, int op) : StateAccessVariable, IComparisonVariable
     {
-        internal readonly StateAccessVariable Left;
-        internal readonly StateAccessVariable Right;
-        internal readonly int Op;
-
-        public SAVComparisonVariable(StateAccessVariable left, StateAccessVariable right, int op)
-        {
-            Left = left;
-            Right = right;
-            Op = op;
-        }
+        public StateAccessVariable Left { get; } = left;
+        public StateAccessVariable Right { get; } = right;
+        public int Op { get; } = op;
+        ILogicVariable IComparisonVariable.Left => Left;
+        ILogicVariable IComparisonVariable.Right => Right;
 
         public override string Name
         {
@@ -115,6 +106,7 @@ namespace RandomizerCore.Logic
                 return $"{Left.Name}{op}{Right.Name}";
             }
         }
+
         public override int GetValue<T>(object? sender, ProgressionManager pm, T state)
         {
             int l = Left.GetValue(sender, pm, state);

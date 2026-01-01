@@ -34,4 +34,17 @@ namespace RandomizerCore.Logic
         public string Name { get; }
         public abstract IEnumerable<Term> GetTerms();
     }
+
+    /// <summary>
+    /// A logic variable which represents a domain-dependent comparison operation. Matched when converting logic back to syntax tree.
+    /// </summary>
+    internal interface IComparisonVariable : ILogicVariable
+    {
+        public ILogicVariable Left { get; }
+        public ILogicVariable Right { get; }
+        /// <summary>
+        /// Positive for GT, Zero for EQ, Negative for LT.
+        /// </summary>
+        public int Op { get; }
+    }
 }

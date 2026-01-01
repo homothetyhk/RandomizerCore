@@ -39,18 +39,13 @@
         }
     }
 
-    internal class StateModifierFromSAV : StateModifier
+    internal class StateModifierFromSAV(StateAccessVariable left, StateAccessVariable right, int op) : StateModifier, IComparisonVariable
     {
-        protected readonly StateAccessVariable Left;
-        protected readonly StateAccessVariable Right;
-        protected readonly int Op;
-
-        public StateModifierFromSAV(StateAccessVariable left, StateAccessVariable right, int op)
-        {
-            Left = left;
-            Right = right;
-            Op = op;
-        }
+        public StateAccessVariable Left { get; } = left;
+        public StateAccessVariable Right { get; } = right;
+        public int Op { get; } = op;
+        ILogicVariable IComparisonVariable.Left => Left;
+        ILogicVariable IComparisonVariable.Right => Right;
 
         public override string Name
         {
@@ -65,6 +60,7 @@
                 return $"{Left.Name}{op}{Right.Name}";
             }
         }
+
 
         public override IEnumerable<Term> GetTerms()
         {
