@@ -1,6 +1,5 @@
 ﻿using RandomizerCore.Logic;
 using RandomizerCore.Logic.StateLogic;
-using RandomizerCore.StringLogic;
 using RandomizerCore.StringParsing;
 using System.Diagnostics.CodeAnalysis;
 using OT = RandomizerCore.StringLogic.OperatorToken;
@@ -125,11 +124,15 @@ namespace RandomizerCore.StringLogic
                     return o.Left.IsDefined(lm) && o.Right.IsDefined(lm);
 
                 case ComparisonExpression c:
-                    c.Left.ToComparisonOperand(lm);
-
-                    string cleft = c.Left.ToIdentifier(lm);
-                    string cright = c.Right.ToIdentifier(lm);
-                    return lm.IsTermOrVariable(cleft) && lm.IsTermOrVariable(cright);
+                    var cleft = c.Left.ToComparisonOperand(lm);
+                    var cright = c.Right.ToComparisonOperand(lm);
+                    return (cleft, cright) switch
+                    {
+                        ((null, int), (null, int)) => true,
+                        ((string s1, _), (null, int)) => lm.IsTermOrVariable(s1),
+                        ((null, int), (string s2, _)) => lm.IsTermOrVariable(s2),
+                        ((string s1, _), (string s2, _)) => lm.IsTermOrVariable(s1) && lm.IsTermOrVariable(s2),
+                    };
 
                 case ProjectionExpression p:
                     return p.Operand.IsDefined(lm);

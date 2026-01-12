@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using RandomizerCore.Logic;
 using RandomizerCore.StringLogic;
 using RandomizerCore.StringParsing;
 using Xunit.Abstractions;
@@ -64,6 +65,20 @@ namespace RandomizerCoreTests.LogicExpressionTests
                 s => Array.IndexOf(locationNames, s) is int i && i >= 0 ? LogicExpressionUtil.Parse(locationValues[i]) : null
                 );
             result.Print().Should().Be(expected);
+        }
+
+        [Theory]
+        [InlineData("A > 1", true)]
+        [InlineData("B > 1", false)]
+        [InlineData("B > 1 ? TRUE", true)]
+        [InlineData("(B ? A) > 1", true)]
+        public void IsDefinedTests(string input, bool expected)
+        {
+            LogicManagerBuilder lmb = new();
+            lmb.GetOrAddTerm("A");
+            LogicManager lm = new(lmb);
+            Expression<LogicExpressionType> expr = LogicExpressionUtil.Parse(input);
+            expr.IsDefined(lm).Should().Be(expected);
         }
     }
 }
