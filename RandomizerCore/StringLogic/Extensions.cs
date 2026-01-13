@@ -321,6 +321,9 @@ namespace RandomizerCore.StringLogic
         {
             switch (expr)
             {
+                case GroupingExpression<LogicExpressionType> g:
+                    return g.Nested.ToTermToken();
+
                 case LogicAtomExpression a:
                     return new SimpleToken(a.Token.Content);
 
@@ -347,31 +350,29 @@ namespace RandomizerCore.StringLogic
                     return new ProjectedToken(p.Operand.ToTermToken());
                 case CoalesceExpression q:
                     return new CoalescingToken(q.Left.ToTermToken(), q.Right.ToTermToken());
-                // formerly illegal token expressions
-                /*
+
+                // some things (e.g. nesting an AND within a projection) were not legal prior to the parser update
                 case AndExpression:
                 case OrExpression:
-                    return new ClauseToken(new LogicClause(expr));
-                */
+                    Log($"Expression {expr.Print()} is not a legal TermToken. Wrapping as ClauseToken...");
+                    return new ClauseToken(new(expr));
 
                 default: throw new NotImplementedException(expr.GetType().Name);
             }
         }
 
         [Obsolete]
-        public static IEnumerable<LogicToken> ToTokenSequence(this Expression<LogicExpressionType> expr)
+        public static IEnumerable<LogicToken> ToTokenSequence(this Expression<LogicExpressionType> expr) => expr switch
         {
-            switch (expr)
-            {
-                case GroupingExpression<LogicExpressionType> g: return g.Nested.ToTokenSequence();
-                case AtomExpression<LogicExpressionType> atom: return [atom.ToTermToken()];
-                case PrefixExpression<LogicExpressionType> pre: return [pre.ToTermToken()];
-                case PostfixExpression<LogicExpressionType> post: return [post.ToTermToken()];
-                case ComparisonExpression c: return [c.ToTermToken()];
-                case AndExpression a: return [.. a.Left.ToTokenSequence(), .. a.Right.ToTokenSequence(), OperatorToken.AND];
-                case OrExpression o: return [.. o.Left.ToTokenSequence(), .. o.Right.ToTokenSequence(), OperatorToken.OR];
-                default: throw new NotImplementedException();
-            }
-        }
+            GroupingExpression<LogicExpressionType> g => g.Nested.ToTokenSequence(),
+            AtomExpression<LogicExpressionType> atom => [atom.ToTermToken()],
+            PrefixExpression<LogicExpressionType> pre => [pre.ToTermToken()],
+            PostfixExpression<LogicExpressionType> post => [post.ToTermToken()],
+            ComparisonExpression c => [c.ToTermToken()],
+            CoalesceExpression q => [q.ToTermToken()],
+            AndExpression a => [.. a.Left.ToTokenSequence(), .. a.Right.ToTokenSequence(), OperatorToken.AND],
+            OrExpression o => [.. o.Left.ToTokenSequence(), .. o.Right.ToTokenSequence(), OperatorToken.OR],
+            _ => throw new NotImplementedException(expr.GetType().Name),
+        };
     }
 }
