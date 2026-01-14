@@ -14,7 +14,7 @@ namespace RandomizerCore.Logic
             Source = null;
         }
 
-        public string? Source;
+        public string? Source { get; private set; }
         public IStateProvider? StateProvider;
         public readonly List<TermValue> TermReqs;
         public readonly List<LogicInt> VarReqs;
@@ -64,13 +64,13 @@ namespace RandomizerCore.Logic
                 IStateProvider sp = (IStateProvider)variable;
                 if (StateProvider is null)
                 {
-                    StateProvider = sp;
+                    StateProvider = sp; // state providers are NOT added separately as term/var reqs, except in the case of duplicates. Leftmost SP wins.
+                    return;
                 }
                 else
                 {
                     WarnDuplicateStateProvider(sp);
                 }
-                return; // state providers are NOT added separately as term/var reqs
             }
 
             switch (variable)
@@ -82,10 +82,6 @@ namespace RandomizerCore.Logic
                     VarReqs.Add(li);
                     break;
                 case StateModifier sm:
-                    if (StateProvider is null)
-                    {
-                        WarnMisplacedStateModifier(sm);
-                    }
                     StateModifiers.Add(sm);
                     break;
                 case StateAccessVariable sav:
@@ -97,16 +93,14 @@ namespace RandomizerCore.Logic
 
         public void AndWith(StatePathBuilder other)
         {
+            if (StateProvider is null && other.StateProvider is not null && StateModifiers.Count > 0)
+            {
+                WarnMisplacedStateModifier(other.StateProvider, StateModifiers);
+            }
+
             if (other.StateProvider is not null)
             {
-                if (StateProvider is not null)
-                {
-                    WarnDuplicateStateProvider(other.StateProvider);
-                }
-                else
-                {
-                    StateProvider = other.StateProvider;
-                }
+                Add(other.StateProvider); // issues warning in case of duplicate SP, in which case other's SP is added to termreqs or varreqs as appropriate
             }
 
             TermReqs.AddRange(other.TermReqs);
@@ -137,9 +131,9 @@ namespace RandomizerCore.Logic
             Log($"Warning - DNF for {Source} contains a clause with ambiguous state providers: {StateProvider.Name}, {sp.Name}");
         }
 
-        private void WarnMisplacedStateModifier(StateModifier sm)
+        private void WarnMisplacedStateModifier(IStateProvider sp, IEnumerable<StateModifier> sms)
         {
-            Log($"Warning - DNF for {Source} contains a clause with state modifier {sm.Name} occurring before state provider.");
+            Log($"Warning - DNF for {Source} contains a clause with state provider {sp.Name} occuring after state modifiers {string.Join(", ", sms.Select(sm => sm.Name))}.");
         }
 
         private Exception StateAccessModifierException(StateAccessVariable sav)

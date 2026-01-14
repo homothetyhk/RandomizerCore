@@ -51,15 +51,17 @@ namespace RandomizerCore.Logic
         }
 
         // cycle detection is handled in LM.InitMacro
-        private List<StatePathBuilder> ProcessMacro(string name, Expression<LogicExpressionType> expr, LogicManager lm)
+        private List<StatePathBuilder> ProcessMacro(string callerName, MacroDef macro, LogicManager lm)
         {
             try
             {
-                return Process(name, expr, lm);
+                List<StatePathBuilder> ll = Process(macro.Name, macro.Logic.Expr, lm); // Process the macro, using its name in any logged warnings
+                foreach (StatePathBuilder l in ll) l.SetSource(callerName); // use the name of the caller in subsequent warnings
+                return ll;
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Error processing macro {name} to interpreted logic", e);
+                throw new ArgumentException($"Error processing macro {macro.Name} to interpreted logic", e);
             }
         }
 
@@ -83,16 +85,16 @@ namespace RandomizerCore.Logic
                 case LogicAtomExpression { Token.Content: string atomName }:
                     if (lm.GetMacro(atomName) is MacroDef macro)
                     {
-                        return ProcessMacro(atomName, macro.Logic.Expr, lm);
+                        return ProcessMacro(name, macro, lm);
                     }
                     else
                     {
-                        return Atom(lm.GetTermOrVariableStrict(atomName));
+                        return Atom(name, lm.GetTermOrVariableStrict(atomName));
                     }
                 case NumberLiteralExpression { ConstValue: int intAtom }:
-                    return Const(intAtom > 0);
+                    return Const(name, intAtom > 0);
                 case BoolLiteralExpression { ConstValue: bool boolAtom }:
-                    return Const(boolAtom);
+                    return Const(name, boolAtom);
                 case AndExpression a:
                     return And(name, a.Left, a.Right, lm); // Process called inside to allow short-circuiting.
                 case OrExpression o:
@@ -113,18 +115,18 @@ namespace RandomizerCore.Logic
                         
                         return (left, right) switch
                         {
-                            ((null, int i1), (null, int i2)) => Const(Math.Sign(i1.CompareTo(i2)) == op),
-                            ((string s1, _), (null, int i2)) when op == 1 && lm.GetTerm(s1) is Term t1 => Atom(t1, i2),
-                            ((string s1, _), (null, int i2)) => CompareVariables(lm.GetTermOrVariableStrict(s1), new ConstantInt(i2), op),
-                            ((null, int i1), (string s2, _)) => CompareVariables(new ConstantInt(i1), lm.GetTermOrVariableStrict(s2), op),
-                            ((string s1, _), (string s2, _)) => CompareVariables(lm.GetTermOrVariableStrict(s1), lm.GetTermOrVariableStrict(s2), op),
+                            ((null, int i1), (null, int i2)) => Const(name, Math.Sign(i1.CompareTo(i2)) == op),
+                            ((string s1, _), (null, int i2)) when op == 1 && lm.GetTerm(s1) is Term t1 => Atom(name, t1, i2),
+                            ((string s1, _), (null, int i2)) => CompareVariables(name, lm.GetTermOrVariableStrict(s1), new ConstantInt(i2), op),
+                            ((null, int i1), (string s2, _)) => CompareVariables(name, new ConstantInt(i1), lm.GetTermOrVariableStrict(s2), op),
+                            ((string s1, _), (string s2, _)) => CompareVariables(name, lm.GetTermOrVariableStrict(s1), lm.GetTermOrVariableStrict(s2), op),
                         };
                     }
                 case ReferenceExpression r:
                     {
                         string reference = r.Operand.ToIdentifier(lm);
                         LogicDef ld = lm.GetLogicDefStrict(reference);
-                        return Atom(ld is StateLogicDef sld ? new LogicStateProvider(sld) : new LogicDefVariable(ld, reference: true));
+                        return Atom(name, ld is StateLogicDef sld ? new LogicStateProvider(sld) : new LogicDefVariable(ld, reference: true));
                     }
                 case ProjectionExpression p:
                     {
@@ -134,16 +136,16 @@ namespace RandomizerCore.Logic
                         {
                             string reference = pr.Operand.ToIdentifier(lm);
                             LogicDef ld = lm.GetLogicDefStrict(reference);
-                            return Atom(new LogicDefVariable(ld, projected: true, reference: true));
+                            return Atom(name, new LogicDefVariable(ld, projected: true, reference: true));
                         }
                         else if (pOperand is LogicAtomExpression a)
                         {
                             string atomName = a.ToIdentifier(lm);
-                            return Atom(new ProjectedStateProvider((IStateProvider)lm.GetTermOrVariableStrict(atomName)));
+                            return Atom(name, new ProjectedStateProvider((IStateProvider)lm.GetTermOrVariableStrict(atomName)));
                         }
                         else
                         {
-                            return Atom(new LogicDefVariable(ConvertSubexpressionToLogic(name, pOperand, lm), projected: true));
+                            return Atom(name, new LogicDefVariable(ConvertSubexpressionToLogic(name, pOperand, lm), projected: true));
                         }
                     }
                 default:
@@ -174,46 +176,46 @@ namespace RandomizerCore.Logic
             return new(name, infix, expr, lm);
         }
 
-        private List<StatePathBuilder> Atom(ILogicVariable variable)
+        private List<StatePathBuilder> Atom(string name, ILogicVariable variable)
         {
             List<StatePathBuilder> ll = OuterListFromPool();
-            StatePathBuilder l = InnerListFromPool();
+            StatePathBuilder l = InnerListFromPool(name);
             l.Add(variable);
             ll.Add(l);
             return ll;
         }
 
-        private List<StatePathBuilder> Atom(Term t, int exLowerBound)
+        private List<StatePathBuilder> Atom(string name, Term t, int exLowerBound)
         {
             List<StatePathBuilder> ll = OuterListFromPool();
-            StatePathBuilder l = InnerListFromPool();
+            StatePathBuilder l = InnerListFromPool(name);
             l.Add(t, exLowerBound);
             ll.Add(l);
             return ll;
         }
 
-        private List<StatePathBuilder> CompareVariables(ILogicVariable left, ILogicVariable right, int op)
+        private List<StatePathBuilder> CompareVariables(string name, ILogicVariable left, ILogicVariable right, int op)
         {
             if (left is StateAccessVariable || right is StateAccessVariable)
             {
                 StateAccessVariable savL = left as StateAccessVariable ?? new SAVFromLogicInt((ILogicInt)left);
                 StateAccessVariable savR = right as StateAccessVariable ?? new SAVFromLogicInt((ILogicInt)right);
                 StateModifier sm = new StateModifierFromSAV(savL, savR, op);
-                return Atom(sm);
+                return Atom(name, sm);
             }
             else
             {
                 ComparisonVariable c = new((ILogicInt)left, (ILogicInt)right, op);
-                return Atom(c);
+                return Atom(name, c);
             }
         }
 
-        private List<StatePathBuilder> Const(bool value)
+        private List<StatePathBuilder> Const(string name, bool value)
         {
             if (value)
             {
                 List<StatePathBuilder> ll = OuterListFromPool();
-                StatePathBuilder l = InnerListFromPool();
+                StatePathBuilder l = InnerListFromPool(name);
                 ll.Add(l);
                 return ll;
             }
@@ -284,13 +286,19 @@ namespace RandomizerCore.Logic
             return left;
         }
 
-        private StatePathBuilder InnerListFromPool() => listPool.TryPop(out StatePathBuilder s) ? s : new();
+        private StatePathBuilder InnerListFromPool(string source)
+        {
+            StatePathBuilder l = listPool.TryPop(out StatePathBuilder s) ? s : new();
+            l.SetSource(source);
+            return l;
+        }
+
         private List<StatePathBuilder> OuterListFromPool() => outerListPool.TryPop(out List<StatePathBuilder> l) ? l : [];
 
         private StatePathBuilder CloneFromPoolOrSelf(StatePathBuilder orig, int index, int count)
         {
             if (count - index == 1) return orig;
-            StatePathBuilder l = InnerListFromPool();
+            StatePathBuilder l = InnerListFromPool(orig.Source);
             orig.CopyTo(l);
             return l;
         }
