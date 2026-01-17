@@ -26,18 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         
-      # setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
-        
-      # Install DocFX
-      - name: Setup DocFX
-        run: dotnet tool update -g docfx
-      
-      # Build and publish docs
+        with:
+          dotnet-version: 10.x
+
+      - name: Build
+        run: dotnet build -c Release
+
       - name: DocFX build
         working-directory: docs
-        run: docfx docfx.json
+        run: dnx docfx --yes
         continue-on-error: false
 
       - name: Upload assets

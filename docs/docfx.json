@@ -4,14 +4,17 @@
       "src": [
         {
           "files": [
-            "RandomizerCore/**.csproj"
+            "RandomizerCore/bin/Release/net10.0/RandomizerCore.dll"
           ],
           "src": ".."
         }
       ],
       "dest": "api",
       "disableGitFeatures": false,
-      "disableDefaultFilter": false
+      "disableDefaultFilter": false,
+      "properties": {
+        "TargetFramework": "net10.0"
+	  }
     }
   ],
   "build": {
